@@ -182,6 +182,15 @@ function merchant(){
  shell('<div class="eyebrow">SELL ON ROLLIN</div><h2>Post an item</h2><p class="muted">Any signed-in user can publish their own item. Buyers can discover it in Shop and purchase through secure checkout.</p><section class="section feature"><span class="tag">LISTING</span><div class="split"><div><input id="productName" class="search full" placeholder="Item name"><input id="productCategory" class="search full" placeholder="Category" value="Marketplace"><textarea id="productDescription" class="search full" placeholder="Describe the item"></textarea><input id="productImage" class="search full" type="url" placeholder="Product image URL (optional)"></div><div><input id="productPrice" class="search full" type="number" min="0" step="0.01" placeholder="Price (USD)"><input id="productInventory" class="search full" type="number" min="0" step="1" placeholder="Inventory (blank = unlimited)"><input id="productIcon" class="search full" placeholder="Icon" value="✦"><input id="productTag" class="search full" placeholder="Tag" value="USER LISTING"><label class="muted"><input id="productRepeat" type="checkbox"> Repeat purchase</label><br><label class="muted"><input id="productShippable" type="checkbox" checked> Physical item — collect shipping address</label></div></div><button class="primary full" onclick="createMerchantProduct()">Publish item</button></section><section class="section"><div class="section-head"><div><div class="eyebrow">MY LISTINGS</div><h2>Your posted items</h2></div><button class="secondary" onclick="loadMyListings()">Refresh</button></div><div id="myListings"><div class="empty">Loading…</div></div></section><section class="section"><div class="section-head"><div><div class="eyebrow">SELLER CENTER</div><h2>Your sales & fulfillment</h2></div><button class="secondary" onclick="loadSellerDashboard()">Refresh</button></div><div id="sellerStats" class="stats"><div class="stat">Revenue<strong>—</strong></div><div class="stat">Orders<strong>—</strong></div><div class="stat">Units<strong>—</strong></div><div class="stat">Lines<strong>—</strong></div></div><div id="sellerOrders"><div class="empty">Loading sales…</div></div></section>');
  loadMyListings();loadSellerDashboard();
 }
+async function updateSellerFulfillment(orderId,status){
+ if(!session)return;
+ const carrier=prompt("Carrier (optional)",""); if(carrier===null)return;
+ const tracking=prompt("Tracking number (optional)",""); if(tracking===null)return;
+ const trackingUrl=tracking?prompt("Tracking URL (optional)","")||"":""; 
+ const {data,error}=await supabase.functions.invoke("seller-fulfillment",{body:{order_id:orderId,shipping_status:status,carrier,tracking_number:tracking,tracking_url:trackingUrl}});
+ if(error||data?.error)return toast(error?.message||data?.error||"Fulfillment update failed");
+ toast("Fulfillment updated"); loadSellerDashboard();
+}
 async function loadSellerDashboard(){
  if(!session)return;
  const {data,error}=await supabase.functions.invoke("seller-dashboard");
@@ -311,7 +320,7 @@ window.addEventListener("hashchange",render);
 window.addEventListener("storage",()=>{state=loadState();applyTheme();render()});
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 
-window.closeModal=closeModal;window.addToCart=addToCart;window.submitReview=submitReview;window.loadSellerDashboard=loadSellerDashboard;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
+window.closeModal=closeModal;window.addToCart=addToCart;window.submitReview=submitReview;window.loadSellerDashboard=loadSellerDashboard;window.updateSellerFulfillment=updateSellerFulfillment;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
 window.startCheckout=startCheckout;window.signIn=signIn;window.signUp=signUp;window.signOut=signOut;window.subscribe=subscribe;
 window.merchantLead=merchantLead;window.loadMerchantDashboard=loadMerchantDashboard;window.updateFulfillment=updateFulfillment;window.createMerchantProduct=createMerchantProduct;window.loadMerchantCatalog=loadMerchantCatalog;window.editMerchantProduct=editMerchantProduct;window.toggleMerchantProduct=toggleMerchantProduct;window.copyReferral=copyReferral;window.copyText=copyText;window.money=money;window.render=render;
 
