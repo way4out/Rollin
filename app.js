@@ -100,8 +100,54 @@ function checkout(){
  if(!items.length){location.hash="cart";return}
  shell('<div class="eyebrow">CHECKOUT</div><h2>Secure Checkout</h2><div class="split section"><div class="feature"><h3>Order summary</h3>'+items.map(x=>'<p>'+esc(x.p.name)+' × '+x.qty+' <strong class="float">'+money(x.p.price*x.qty)+'</strong></p>').join("")+'<hr><h3>Total <span class="float">'+money(cartTotal())+'</span></h3></div><div class="feature"><h3>Payment</h3><div class="notice">Stripe-hosted checkout handles payment details. Rollin does not receive your card number.</div>'+(session?'<button class="primary full" onclick="startCheckout()">Pay securely →</button>':'<button class="primary full" onclick="location.hash=\'profile\'">Sign in to checkout →</button>')+'</div></div>',"Checkout");
 }
+async function loadMerchantCatalog(){
+  if(!session || !["merchant","admin"].includes(profileData?.role)) return;
+  const {data,error}=await supabase.from("products").select("id,name,category,description,price_cents,currency,icon,tag,repeat_purchase,active,inventory").eq("merchant_id",session.user.id).order("id",{ascending:false});
+  const box=$("#merchantCatalog"); if(!box)return;
+  if(error){box.innerHTML='<div class="notice">Unable to load your catalog: '+esc(error.message)+'</div>';return}
+  if(!data?.length){box.innerHTML='<div class="empty">No merchant products yet. Create your first listing above.</div>';return}
+  box.innerHTML='<div class="merchant-products">'+data.map(p=>'<div class="cart-row merchant-product '+(p.active?"":"inactive")+'"><div><span class="tag">'+esc(p.tag||"LIVE")+'</span><strong>'+esc(p.name)+'</strong><div class="muted">'+esc(p.category||"Featured")+' · '+money(p.price_cents)+' · '+(p.active?"Active":"Inactive")+(p.inventory==null?"":" · "+p.inventory+" in stock")+'</div></div><div class="card-actions"><button class="secondary" data-edit-product="'+p.id+'">Edit</button><button class="secondary" data-toggle-product="'+p.id+'" data-active="'+p.active+'">'+(p.active?"Deactivate":"Activate")+'</button></div></div>').join("")+'</div>';
+}
+async function createMerchantProduct(){
+  if(!session || !["merchant","admin"].includes(profileData?.role))return toast("Merchant access is not approved");
+  const name=$("#productName")?.value.trim(),category=$("#productCategory")?.value.trim()||"Featured",description=$("#productDescription")?.value.trim(),price=Number($("#productPrice")?.value),inventoryRaw=$("#productInventory")?.value.trim();
+  if(!name)return toast("Product name is required");
+  if(!Number.isFinite(price)||price<0)return toast("Enter a valid price");
+  const inventory=inventoryRaw===""?null:Math.max(0,Math.floor(Number(inventoryRaw)));
+  if(inventoryRaw!==""&&!Number.isFinite(inventory))return toast("Enter valid inventory");
+  const payload={merchant_id:session.user.id,name,category,description,price_cents:Math.round(price*100),currency:"usd",icon:$("#productIcon")?.value.trim()||"✦",tag:$("#productTag")?.value.trim()||"MERCHANT",repeat_purchase:!!$("#productRepeat")?.checked,active:true,inventory};
+  const {error}=await supabase.from("products").insert(payload);
+  if(error)return toast(error.message);
+  toast("Product published");["productName","productCategory","productDescription","productPrice","productInventory","productIcon","productTag"].forEach(id=>{const el=$("#"+id);if(el)el.value=""});$("#productRepeat").checked=false;
+  await loadProducts();await loadMerchantCatalog();render();
+}
+async function editMerchantProduct(id){
+  if(!session)return;
+  const {data:p,error}=await supabase.from("products").select("id,name,category,description,price_cents,icon,tag,repeat_purchase,inventory").eq("id",id).eq("merchant_id",session.user.id).maybeSingle();
+  if(error||!p)return toast("Product not found");
+  const name=prompt("Product name",p.name);if(name===null)return;
+  const price=prompt("Price in USD",String((p.price_cents/100).toFixed(2)));if(price===null)return;
+  const description=prompt("Description",p.description||"");if(description===null)return;
+  const category=prompt("Category",p.category||"Featured");if(category===null)return;
+  const inventory=prompt("Inventory (blank = unlimited)",p.inventory==null?"":String(p.inventory));if(inventory===null)return;
+  const n=Number(price),inv=inventory.trim()===""?null:Math.max(0,Math.floor(Number(inventory)));
+  if(!Number.isFinite(n)||n<0|| (inventory.trim()!==""&&!Number.isFinite(inv)))return toast("Invalid product values");
+  const {error:updateError}=await supabase.from("products").update({name:name.trim(),price_cents:Math.round(n*100),description,category,inventory}).eq("id",id).eq("merchant_id",session.user.id);
+  if(updateError)return toast(updateError.message);
+  toast("Product updated");await loadProducts();await loadMerchantCatalog();render();
+}
+async function toggleMerchantProduct(id,active){
+  if(!session)return;
+  const {error}=await supabase.from("products").update({active}).eq("id",id).eq("merchant_id",session.user.id);
+  if(error)return toast(error.message);
+  toast(active?"Product activated":"Product deactivated");await loadProducts();await loadMerchantCatalog();
+}
 function merchant(){
- shell('<div class="eyebrow">MERCHANTS</div><h2>Sell on Rollin</h2><p class="muted">Request merchant onboarding. Approved merchants can manage their own catalog.</p><section class="section split"><div class="feature"><span class="tag">ONBOARDING</span><h3>Tell us about your business</h3><input id="merchantEmail" class="search full" type="email" placeholder="Business email"><input id="merchantBusiness" class="search full" placeholder="Business name"><textarea id="merchantNote" class="search full" placeholder="What do you sell?"></textarea><button class="primary full" onclick="merchantLead()">Request access</button></div><div class="feature"><span class="tag">CATALOG</span><h3>Merchant-ready backend</h3><p class="muted">Product records, inventory, order records and merchant roles are protected by Supabase RLS.</p></div></section>');
+ if(!session){shell('<div class="eyebrow">MERCHANTS</div><h2>Sell on Rollin</h2><p class="muted">Sign in first, then request merchant onboarding.</p><section class="section feature"><button class="primary" onclick="location.hash=\'profile\'">Sign in / create account</button></section>');return}
+ if(!["merchant","admin"].includes(profileData?.role)){
+  shell('<div class="eyebrow">MERCHANTS</div><h2>Sell on Rollin</h2><p class="muted">Your account is currently <strong>'+esc(profileData?.role||"customer")+'</strong>. Request merchant onboarding below.</p><section class="section split"><div class="feature"><span class="tag">ONBOARDING</span><h3>Tell us about your business</h3><input id="merchantEmail" class="search full" type="email" value="'+esc(session.user.email||"")+'" placeholder="Business email"><input id="merchantBusiness" class="search full" placeholder="Business name"><textarea id="merchantNote" class="search full" placeholder="What do you sell?"></textarea><button class="primary full" onclick="merchantLead()">Request access</button></div><div class="feature"><span class="tag">HOW IT WORKS</span><h3>Protected catalog</h3><p class="muted">Once approved, your account can publish and manage only its own products.</p></div></section>');return}
+ shell('<div class="eyebrow">MERCHANT CONSOLE</div><h2>Your catalog</h2><p class="muted">Publish products, update inventory, and activate or deactivate listings. Database policies restrict management to your merchant account.</p><section class="section feature"><span class="tag">NEW PRODUCT</span><div class="split"><div><input id="productName" class="search full" placeholder="Product name"><input id="productCategory" class="search full" placeholder="Category" value="Featured"><textarea id="productDescription" class="search full" placeholder="Description"></textarea></div><div><input id="productPrice" class="search full" type="number" min="0" step="0.01" placeholder="Price (USD)"><input id="productInventory" class="search full" type="number" min="0" step="1" placeholder="Inventory (blank = unlimited)"><input id="productIcon" class="search full" placeholder="Icon" value="✦"><input id="productTag" class="search full" placeholder="Tag" value="MERCHANT"><label class="muted"><input id="productRepeat" type="checkbox"> Repeat purchase</label></div></div><button class="primary full" onclick="createMerchantProduct()">Publish product</button></section><section class="section"><div class="section-head"><h2>Managed products</h2><button class="secondary" onclick="loadMerchantCatalog()">Refresh</button></div><div id="merchantCatalog"><div class="empty">Loading catalog…</div></div></section>');
+ loadMerchantCatalog();
 }
 function gaia(){shell('<div class="eyebrow">GAIA</div><h2>Human-first commerce</h2><section class="section feature-grid"><div class="feature"><h3>Transparent</h3><p class="muted">No fabricated balances, scarcity or transactions.</p></div><div class="feature"><h3>Accessible</h3><p class="muted">Responsive layouts and large touch targets across devices.</p></div><div class="feature"><h3>Responsible</h3><p class="muted">Payments, identity and sensitive credentials stay with their proper providers.</p></div></section>')}
 function render(){
@@ -193,6 +239,8 @@ document.addEventListener("click",e=>{
  const qty=e.target.closest("[data-qty]");if(qty){changeQty(Number(qty.dataset.id),Number(qty.dataset.qty));return}
  const remove=e.target.closest("[data-remove]");if(remove){removeFromCart(Number(remove.dataset.remove));return}
  const product=e.target.closest("[data-product]");if(product){openProduct(Number(product.dataset.product));return}
+ const edit=e.target.closest("[data-edit-product]");if(edit){editMerchantProduct(Number(edit.dataset.editProduct));return}
+ const toggle=e.target.closest("[data-toggle-product]");if(toggle){toggleMerchantProduct(Number(toggle.dataset.toggleProduct),toggle.dataset.active!=="true");return}
 });
 $("#desktopNav").innerHTML=navHtml();$("#mobileNav").innerHTML=navHtml();
 $("#themeBtn").onclick=()=>{state.theme=state.theme==="dark"?"light":"dark";applyTheme();save()};
@@ -203,7 +251,7 @@ if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.ser
 
 window.closeModal=closeModal;window.addToCart=addToCart;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
 window.startCheckout=startCheckout;window.signIn=signIn;window.signUp=signUp;window.signOut=signOut;window.subscribe=subscribe;
-window.merchantLead=merchantLead;window.copyReferral=copyReferral;window.copyText=copyText;window.money=money;window.render=render;
+window.merchantLead=merchantLead;window.createMerchantProduct=createMerchantProduct;window.loadMerchantCatalog=loadMerchantCatalog;window.editMerchantProduct=editMerchantProduct;window.toggleMerchantProduct=toggleMerchantProduct;window.copyReferral=copyReferral;window.copyText=copyText;window.money=money;window.render=render;
 
 async function boot(){
  applyTheme();
