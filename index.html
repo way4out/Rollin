@@ -58,7 +58,7 @@
 </div>
 <script>
 (function(){
-  var nav=[['home','⌂','Home'],['shop','▦','Shop'],['drops','◈','Drops'],['rewards','★','Rewards'],['wallet','◉','Wallet'],['profile','●','Profile'],['gaia','♧','Gaia'],['merchant','◇','Sell']];
+  var nav=[['home','⌂','Home'],['shop','▦','Shop'],['drops','◈','Drops'],['rewards','★','Rewards'],['wallet','◉','Wallet'],['profile','●','Profile'],['crypto','₿','Crypto'],['gaia','♧','Gaia'],['merchant','◇','Sell']];
   function navHtml(){return nav.map(function(x){return '<button class="nav-link" data-nav="'+x[0]+'" onclick="location.hash=\''+x[0]+'\'"><span>'+x[1]+'</span><span>'+x[2]+'</span></button>'}).join('')}
   document.getElementById('desktopNav').innerHTML=navHtml();
   document.getElementById('mobileNav').innerHTML=navHtml();
@@ -67,6 +67,6 @@
   window.RollinAppReady=false;
 })();
 </script>
-<script type="module" src="./app.js?v=18"></script>
+<script type="module" src="./app.js?v=19"></script>
 </body>
 </html>
