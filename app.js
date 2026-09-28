@@ -194,12 +194,12 @@ async function startSellerOnboarding(){
  if(error||data?.error){if(box)box.innerHTML='<div class="notice">'+esc(error?.message||data?.error||"Could not create seller account")+'</div>';return}
  const sessionRes=await supabase.functions.invoke("seller-connect",{body:{action:"session"}});
  if(sessionRes.error||sessionRes.data?.error){if(box)box.innerHTML='<div class="notice">'+esc(sessionRes.error?.message||sessionRes.data?.error||"Could not open onboarding")+'</div>';return}
- const clientSecret=sessionRes.data?.client_secret;if(!clientSecret)return;
+ const clientSecret=sessionRes.data?.client_secret;const publishableKey=sessionRes.data?.publishable_key;if(!clientSecret||!publishableKey){if(box)box.innerHTML='<div class="notice">Stripe Connect needs the live publishable key configured on the backend.</div>';return;}
  try{
    const mod=await import("https://cdn.jsdelivr.net/npm/@stripe/connect-js@latest/+esm");
    const loadConnectAndInitialize=mod.loadConnectAndInitialize;
    if(!loadConnectAndInitialize)throw new Error("Stripe Connect JS could not initialize");
-   connectInstance=loadConnectAndInitialize({publishableKey:"pk_live_placeholder",fetchClientSecret:async()=>clientSecret});
+   connectInstance=loadConnectAndInitialize({publishableKey,fetchClientSecret:async()=>clientSecret});
    const host=document.createElement("div");host.className="section feature";
    const onboarding=connectInstance.create("account-onboarding");
    onboarding.setOnExit(()=>loadSellerConnectStatus());
