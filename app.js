@@ -299,7 +299,7 @@ async function startCheckout(){
  const button=document.querySelector("#view .primary");
  if(button){button.disabled=true;button.textContent="Opening secure checkout…"}
  const idempotencyKey=crypto.randomUUID();
- const {data,error}=await supabase.functions.invoke("create-checkout-session",{body:{items:items.map(x=>({product_id:x.p.id,quantity:x.qty})),origin:location.origin+location.pathname+"#profile?checkout=success",idempotency_key:idempotencyKey}});
+ const {data,error}=await supabase.functions.invoke("create-checkout-session",{body:{items:items.map(x=>({product_id:x.p.id,quantity:x.qty})),origin:location.origin+APP_BASE+"checkout/?checkout=success",idempotency_key:idempotencyKey}});
  if(error){toast(error.message||"Checkout unavailable");if(button){button.disabled=false;button.textContent="Pay securely →"}return}
  if(data?.url){location.href=data.url}else{toast(data?.error||"Checkout unavailable");if(button){button.disabled=false;button.textContent="Pay securely →"}}
 }
