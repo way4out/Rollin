@@ -6,7 +6,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
 });
 
-const PRODUCTS = [
+const FALLBACK_PRODUCTS = [
   {id:1,name:"Rollin Starter Bundle",cat:"Featured",price:12000,icon:"✦",desc:"Launch bundle with member perks.",tag:"FEATURED",repeat:true},
   {id:2,name:"Caffeine Daily Pack",cat:"Caffeine",price:7500,icon:"☕",desc:"Consumable bundle designed for repeat purchase.",tag:"REPEAT",repeat:true},
   {id:3,name:"Aeth Tech Pass",cat:"Digital",price:25000,icon:"◈",desc:"Digital access product.",tag:"DIGITAL"},
@@ -16,6 +16,16 @@ const PRODUCTS = [
   {id:7,name:"Telp Connect Pack",cat:"Telp",price:16000,icon:"⌁",desc:"Communications service product.",tag:"SERVICE"},
   {id:8,name:"Blzet Collectible",cat:"Collectibles",price:21000,icon:"✺",desc:"Collectible/access utility.",tag:"ACCESS"}
 ];
+
+let PRODUCTS = [...FALLBACK_PRODUCTS];
+
+async function loadProducts(){
+  const {data,error}=await supabase.from("products").select("id,name,category,description,price_cents,currency,icon,tag,repeat_purchase,active,inventory").eq("active",true).order("id",{ascending:true});
+  if(error){console.warn("Live product catalog unavailable; using fallback catalog.",error);return false}
+  const live=(data||[]).map(p=>({id:Number(p.id),name:p.name,cat:p.category||"Featured",price:Number(p.price_cents||0),currency:(p.currency||"usd").toLowerCase(),icon:p.icon||"✦",desc:p.description||"",tag:p.tag||"LIVE",repeat:!!p.repeat_purchase,inventory:p.inventory})).filter(p=>Number.isFinite(p.id)&&p.price>=0);
+  if(live.length){PRODUCTS=live;return true}
+  return false;
+}
 
 const NAV = [
   ["home","⌂","Home"],["shop","▦","Shop"],["drops","◈","Drops"],["rewards","★","Rewards"],
