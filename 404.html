@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080b10"><title>Rollin</title></head>
+<body>
+<script>
+(function(){
+  var base="/Rollin/";
+  var path=location.pathname;
+  if(path.indexOf(base)!==0){location.replace(base);return}
+  var rest=path.slice(base.length).replace(/^\/+|\/+$/g,"");
+  var first=rest.split("/")[0];
+  var allowed={shop:1,drops:1,rewards:1,wallet:1,profile:1,crypto:1,gaia:1,merchant:1,cart:1,checkout:1,seller:1};
+  var target=allowed[first]?base+first+"/":base;
+  location.replace(target+location.search);
+})();
+</script>
+<p>Returning to Rollin…</p>
+</body></html>
