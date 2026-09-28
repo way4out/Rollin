@@ -21,6 +21,23 @@ jobs:
         uses: actions/checkout@v6
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      - name: Validate production build
+        run: |
+          test -f index.html
+          test -f fsbo.js
+          test -f sw.js
+          test -f account/index.html
+          test -f sales/index.html
+          test -f purchases/index.html
+          test -f shop/index.html
+          test -f real-estate/index.html
+          test -f cars-trucks/index.html
+          test -f boats/index.html
+          test -f planes/index.html
+          grep -q "supabase" fsbo.js
+          grep -q "rollin-stripe-fsbo-checkout" fsbo.js
+          grep -q "rollin-verify-base-usdc" fsbo.js
+          echo "Rollin production build validation passed."
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
