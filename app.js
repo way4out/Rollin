@@ -90,7 +90,7 @@ function crypto(){shell('<div class="eyebrow">ROLLIN CRYPTO</div><h2>Crypto Cent
 function wallet(){shell('<div class="eyebrow">WALLET</div><h2>Wallet</h2><div class="notice section"><strong>Commerce wallet:</strong> Rollin keeps customer payment credentials out of the browser. Stripe Checkout handles payment authorization and settlement.</div><section class="section split"><div class="feature"><h3>Account</h3><p class="muted">'+(session?"Signed in as "+esc(session.user.email||"member"):"Guest checkout requires an account.")+'</p><button class="secondary" onclick="location.hash=\'profile\'">'+(session?"Open profile":"Sign in")+'</button></div><div class="feature"><h3>Orders</h3><p class="muted">Verified orders appear in your account after payment confirmation.</p><button class="secondary" onclick="location.hash=\'profile\'">View orders</button></div></section>')}
 async function profile(){
  if(!session){shell('<div class="eyebrow">ACCOUNT</div><h2>Join Rollin</h2><section class="section split"><div class="feature"><span class="tag">SIGN IN</span><h3>Welcome back</h3><input id="authEmail" class="search full" type="email" placeholder="Email"><input id="authPassword" class="search full" type="password" placeholder="Password"><button class="primary full" onclick="signIn()">Sign in</button></div><div class="feature"><span class="tag">NEW ACCOUNT</span><h3>Create account</h3><input id="newName" class="search full" placeholder="Display name"><input id="newEmail" class="search full" type="email" placeholder="Email"><input id="newPassword" class="search full" type="password" placeholder="Password (6+ characters)"><button class="secondary full" onclick="signUp()">Create account</button><p class="muted">Email confirmation may be required.</p></div></section>');return}
- const {data:orders,error}=await supabase.from("orders").select("id,total_cents,status,created_at").eq("user_id",session.user.id).order("created_at",{ascending:false});
+ const {data:orders,error}=await supabase.from("orders").select("id,total_cents,status,created_at,shipping_status,carrier,tracking_number,tracking_url").eq("user_id",session.user.id).order("created_at",{ascending:false});
  const rows=error?'<div class="empty">Unable to load orders.</div>':orders?.length?'<table class="table"><tr><th>Order</th><th>Total</th><th>Status</th></tr>'+orders.map(o=>'<tr><td>'+esc(o.id.slice(0,8))+'</td><td>'+money(o.total_cents)+'</td><td>'+esc(o.status)+'</td></tr>').join("")+'</table>':'<div class="empty">No orders yet.</div>';
  shell('<div class="eyebrow">PROFILE</div><h2>Your Rollin workspace</h2><div class="split section"><div class="feature"><h3>'+esc(profileData?.display_name||"Rollin member")+'</h3><p class="muted">'+esc(session.user.email||"")+'</p><p>Tier: <strong>'+esc(profileData?.tier||"Free")+'</strong></p><p>Rewards: <strong>'+((profileData?.rewards_balance)||0)+'</strong></p><p>Referral: <strong>'+esc(profileData?.referral_code||"")+'</strong></p><button class="secondary" onclick="copyReferral()">Copy referral</button></div><div class="feature"><h3>Account</h3><p class="muted">Your orders and verified rewards are stored server-side.</p><button class="secondary" onclick="signOut()">Sign out</button></div></div><section class="section"><h2>Orders</h2>'+rows+'</section>');
 }
@@ -146,19 +146,28 @@ async function toggleMerchantProduct(id,active){
   if(error)return toast(error.message);
   toast(active?"Product activated":"Product deactivated");await loadProducts();await loadMerchantCatalog();
 }
+async function updateFulfillment(orderId,status){
+ if(!session)return toast("Sign in required");
+ const carrier=prompt("Carrier (UPS, USPS, FedEx, DHL, etc.)","");if(carrier===null)return;
+ const tracking=status==="shipped"||status==="delivered"?prompt("Tracking number",""):null;if((status==="shipped"||status==="delivered")&&tracking===null)return;
+ const trackingUrl=(status==="shipped"||status==="delivered")?prompt("Tracking URL (optional)",""):null;
+ const {data,error}=await supabase.functions.invoke("update-fulfillment",{body:{order_id:orderId,shipping_status:status,carrier,tracking_number:tracking||"",tracking_url:trackingUrl||""}});
+ if(error||data?.error)return toast(error?.message||data?.error||"Fulfillment update failed");
+ toast("Fulfillment updated");loadMerchantDashboard();
+}
 async function loadMerchantDashboard(){
-  if(!session || !["merchant","admin"].includes(profileData?.role)) return;
-  const {data,error}=await supabase.rpc("merchant_dashboard");
-  const box=$("#merchantOrders"); if(!box)return;
-  if(error){box.innerHTML='<div class="notice">Unable to load sales: '+esc(error.message)+'</div>';return}
-  const rows=data||[];
-  const paid=rows.filter(r=>["paid","completed","succeeded"].includes(String(r.status||"").toLowerCase()));
-  const revenue=paid.reduce((n,r)=>n+Number(r.line_total_cents||0),0);
-  const units=paid.reduce((n,r)=>n+Number(r.quantity||0),0);
-  const uniqueOrders=new Set(paid.map(r=>r.order_id)).size;
-  $("#merchantStats").innerHTML='<div class="stat">Revenue<strong>'+money(revenue)+'</strong></div><div class="stat">Orders<strong>'+uniqueOrders+'</strong></div><div class="stat">Units<strong>'+units+'</strong></div><div class="stat">All lines<strong>'+rows.length+'</strong></div>';
-  if(!rows.length){box.innerHTML='<div class="empty">No orders for your products yet.</div>';return}
-  box.innerHTML='<div class="table-wrap"><table class="table"><tr><th>Order</th><th>Date</th><th>Customer</th><th>Product</th><th>Qty</th><th>Line total</th><th>Status</th></tr>'+rows.map(r=>'<tr><td>'+esc(String(r.order_id).slice(0,8))+'</td><td>'+esc(new Date(r.created_at).toLocaleDateString())+'</td><td>'+esc(r.customer_email||"—")+'</td><td>'+esc(r.product_name)+'</td><td>'+esc(r.quantity)+'</td><td>'+money(r.line_total_cents)+'</td><td>'+esc(r.status)+'</td></tr>').join("")+'</table></div>';
+ if(!session || !["merchant","admin"].includes(profileData?.role)) return;
+ const {data,error}=await supabase.functions.invoke("merchant-dashboard",{body:{}});
+ const box=$("#merchantOrders"); if(!box)return;
+ if(error){box.innerHTML='<div class="notice">Unable to load sales: '+esc(error.message)+'</div>';return}
+ const rows=data?.rows||[];
+ const paid=rows.filter(r=>["paid","completed","succeeded"].includes(String(r.status||"").toLowerCase()));
+ const revenue=paid.reduce((n,r)=>n+Number(r.line_total_cents||0),0);
+ const units=paid.reduce((n,r)=>n+Number(r.quantity||0),0);
+ const uniqueOrders=new Set(paid.map(r=>r.order_id)).size;
+ $("#merchantStats").innerHTML='<div class="stat">Revenue<strong>'+money(revenue)+'</strong></div><div class="stat">Orders<strong>'+uniqueOrders+'</strong></div><div class="stat">Units<strong>'+units+'</strong></div><div class="stat">All lines<strong>'+rows.length+'</strong></div>';
+ if(!rows.length){box.innerHTML='<div class="empty">No orders for your products yet.</div>';return}
+ box.innerHTML='<div class="table-wrap"><table class="table"><tr><th>Order</th><th>Date</th><th>Customer</th><th>Product</th><th>Qty</th><th>Line total</th><th>Status</th><th>Fulfillment</th></tr>'+rows.map(r=>'<tr><td>'+esc(String(r.order_id).slice(0,8))+'</td><td>'+esc(new Date(r.created_at).toLocaleDateString())+'</td><td>'+esc(r.customer_email||"—")+'</td><td>'+esc(r.product_name)+'</td><td>'+esc(r.quantity)+'</td><td>'+money(r.line_total_cents)+'</td><td>'+esc(r.status)+'</td><td><strong>'+esc(r.shipping_status||"unfulfilled")+'</strong>'+(r.tracking_number?'<br><a href="'+esc(r.tracking_url||"#")+'" target="_blank" rel="noopener">'+esc(r.carrier||"Tracking")+' '+esc(r.tracking_number)+'</a>':"")+'<br><button class="secondary" onclick="updateFulfillment('+JSON.stringify(r.order_id)+',\'processing\')">Process</button> <button class="secondary" onclick="updateFulfillment('+JSON.stringify(r.order_id)+',\'shipped\')">Ship</button> <button class="secondary" onclick="updateFulfillment('+JSON.stringify(r.order_id)+',\'delivered\')">Deliver</button></td></tr>').join("")+'</table></div>';
 }
 function merchant(){
  if(!session){shell('<div class="eyebrow">MERCHANTS</div><h2>Sell on Rollin</h2><p class="muted">Sign in first, then request merchant onboarding.</p><section class="section feature"><button class="primary" onclick="location.hash=\'profile\'">Sign in / create account</button></section>');return}
@@ -271,7 +280,7 @@ if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.ser
 
 window.closeModal=closeModal;window.addToCart=addToCart;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
 window.startCheckout=startCheckout;window.signIn=signIn;window.signUp=signUp;window.signOut=signOut;window.subscribe=subscribe;
-window.merchantLead=merchantLead;window.loadMerchantDashboard=loadMerchantDashboard;window.createMerchantProduct=createMerchantProduct;window.loadMerchantCatalog=loadMerchantCatalog;window.editMerchantProduct=editMerchantProduct;window.toggleMerchantProduct=toggleMerchantProduct;window.copyReferral=copyReferral;window.copyText=copyText;window.money=money;window.render=render;
+window.merchantLead=merchantLead;window.loadMerchantDashboard=loadMerchantDashboard;window.updateFulfillment=updateFulfillment;window.createMerchantProduct=createMerchantProduct;window.loadMerchantCatalog=loadMerchantCatalog;window.editMerchantProduct=editMerchantProduct;window.toggleMerchantProduct=toggleMerchantProduct;window.copyReferral=copyReferral;window.copyText=copyText;window.money=money;window.render=render;
 
 async function boot(){
  applyTheme();
