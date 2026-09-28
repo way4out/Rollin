@@ -120,10 +120,10 @@ async function createMerchantProduct(){
   if(!Number.isFinite(price)||price<0)return toast("Enter a valid price");
   const inventory=inventoryRaw===""?null:Math.max(0,Math.floor(Number(inventoryRaw)));
   if(inventoryRaw!==""&&!Number.isFinite(inventory))return toast("Enter valid inventory");
-  const payload={merchant_id:session.user.id,name,category,description,price_cents:Math.round(price*100),currency:"usd",icon:$("#productIcon")?.value.trim()||"✦",tag:$("#productTag")?.value.trim()||"MERCHANT",repeat_purchase:!!$("#productRepeat")?.checked,active:true,inventory,metadata:{shippable:!!$("#productShippable")?.checked}};
+  const payload={merchant_id:session.user.id,name,category,description,price_cents:Math.round(price*100),currency:"usd",icon:$("#productIcon")?.value.trim()||"✦",tag:$("#productTag")?.value.trim()||"MERCHANT",repeat_purchase:!!$("#productRepeat")?.checked,active:true,inventory,metadata:{shippable:!!$("#productShippable")?.checked,image_url:$("#productImage")?.value.trim()||""}};
   const {error}=await supabase.from("products").insert(payload);
   if(error)return toast(error.message);
-  toast("Product published");["productName","productCategory","productDescription","productPrice","productInventory","productIcon","productTag"].forEach(id=>{const el=$("#"+id);if(el)el.value=""});$("#productRepeat").checked=false;
+  toast("Product published");["productName","productCategory","productDescription","productImage","productPrice","productInventory","productIcon","productTag"].forEach(id=>{const el=$("#"+id);if(el)el.value=""});$("#productRepeat").checked=false;
   await loadProducts();await loadMerchantCatalog();render();
 }
 async function editMerchantProduct(id){
