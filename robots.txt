@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://rollin-commerce-hub.lovable.app/sitemap.xml
