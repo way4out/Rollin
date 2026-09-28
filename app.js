@@ -293,7 +293,7 @@ async function startCheckout(){
  const button=document.querySelector("#view .primary");
  if(button){button.disabled=true;button.textContent="Opening secure checkout…"}
  const idempotencyKey=crypto.randomUUID();
- const {data,error}=await supabase.functions.invoke("create-checkout-session",{body:{items:items.map(x=>({product_id:x.p.id,quantity:x.qty})),origin:location.origin+location.pathname,idempotency_key:idempotencyKey}});
+ const {data,error}=await supabase.functions.invoke("create-checkout-session",{body:{items:items.map(x=>({product_id:x.p.id,quantity:x.qty})),origin:location.origin+location.pathname+"#profile?checkout=success",idempotency_key:idempotencyKey}});
  if(error){toast(error.message||"Checkout unavailable");if(button){button.disabled=false;button.textContent="Pay securely →"}return}
  if(data?.url){location.href=data.url}else{toast(data?.error||"Checkout unavailable");if(button){button.disabled=false;button.textContent="Pay securely →"}}
 }
@@ -301,6 +301,13 @@ async function loadProfile(){
  if(!session){profileData=null;return}
  const {data,error}=await supabase.from("profiles").select("id,email,display_name,role,referral_code,rewards_balance,tier").eq("id",session.user.id).maybeSingle();
  if(!error)profileData=data;
+}
+async function settleCheckoutRewards(){
+ const q=new URLSearchParams(location.hash.split("?")[1]||"");
+ if(q.get("checkout")!=="success"||!session)return;
+ toast("Payment received — verifying your Rollin Rewards…");
+ for(let i=0;i<6;i++){await new Promise(r=>setTimeout(r,i?1500:500));await loadProfile();const {data}=await supabase.from("orders").select("id,status").eq("user_id",session.user.id).order("created_at",{ascending:false}).limit(1).maybeSingle();if(data?.status==="paid"||data?.status==="succeeded"||data?.status==="complete"){toast("🎁 Purchase verified — Rewards added automatically");render();return}}
+ toast("Payment received. Rewards will appear automatically once payment confirmation posts.");
 }
 async function loadFavorites(){
  if(!session)return;
@@ -366,7 +373,7 @@ window.startSellerOnboarding=startSellerOnboarding;window.loadSellerConnectStatu
 async function boot(){
  applyTheme();
  const s=await supabase.auth.getSession();session=s.data.session;
- await loadProfile();await loadFavorites();render();
+ await loadProfile();await loadFavorites();render();await settleCheckoutRewards();
  supabase.auth.onAuthStateChange(async(_event,s)=>{session=s;await loadProfile();if(s)await loadFavorites();render()});
 }
 boot().catch(e=>{console.error(e);toast("Rollin backend connection needs attention");render()});
