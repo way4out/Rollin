@@ -73,3 +73,5 @@
 @media(min-width:761px){.cart-launcher{bottom:24px}}
 
 .seller-hero{display:flex;align-items:center;gap:18px}.seller-avatar{width:64px;height:64px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#061016;font-size:1.7rem;font-weight:950}@media(max-width:760px){.seller-hero{display:grid;grid-template-columns:auto 1fr;gap:12px}.seller-hero h2,.seller-hero p{grid-column:2}.seller-avatar{grid-row:1 / span 2}}
+
+.welcome-banner{border:1px solid var(--line);background:linear-gradient(135deg,var(--panel2),var(--panel));position:relative;overflow:hidden}.welcome-banner:after{content:"🎁";position:absolute;right:5%;top:15%;font-size:5rem;opacity:.12}.welcome-banner h2{margin:.5rem 0}.welcome-banner .primary{margin-top:.6rem}
