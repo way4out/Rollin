@@ -1,3 +1,63 @@
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+const ROLLIN_SUPABASE_URL="https://qwjjaxzmneawwppcpaap.supabase.co";
+const ROLLIN_SUPABASE_KEY="sb_publishable_X1eIeVVNUOHuhmL_10bkDw_1HuT4Vcq";
+const rollinSupabase=createClient(ROLLIN_SUPABASE_URL,ROLLIN_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let rollinSession=null,rollinProfile=null;
+async function rollinBoot(){
+ const s=await rollinSupabase.auth.getSession(); rollinSession=s.data.session;
+ await rollinLoadProfile();
+ const r=await rollinSupabase.from("products").select("id,name,category,price_cents,icon,description,tag,repeat_purchase").eq("active",true).order("id");
+ if(!r.error&&r.data&&r.data.length){PRODUCTS.splice(0,PRODUCTS.length,...r.data.map(p=>({id:Number(p.id),name:p.name,cat:p.category,price:Number(p.price_cents)/100,icon:p.icon,desc:p.description,tag:p.tag,repeat:p.repeat_purchase})));}
+ rollinApplyFavorites(); render();
+ rollinSupabase.auth.onAuthStateChange(async(_event,sess)=>{rollinSession=sess;await rollinLoadProfile();render()});
+}
+async function rollinLoadProfile(){
+ if(!rollinSession){rollinProfile=null;return}
+ const r=await rollinSupabase.from("profiles").select("id,email,display_name,role,referral_code,rewards_balance,tier").eq("id",rollinSession.user.id).maybeSingle();
+ rollinProfile=r.data||null;
+}
+async function rollinApplyFavorites(){
+ if(!rollinSession)return;
+ const r=await rollinSupabase.from("favorites").select("product_id").eq("user_id",rollinSession.user.id);
+ if(!r.error&&r.data)state.favorites=r.data.map(x=>Number(x.product_id)); save();
+}
+async function startCheckout(){
+ if(!rollinSession){location.hash="profile";toast("Sign in before checkout");return}
+ const items=cartItems(); if(!items.length){toast("Cart is empty");return}
+ const r=await rollinSupabase.functions.invoke("create-checkout-session",{body:{items:items.map(x=>({product_id:x.p.id,quantity:x.qty})),origin:location.origin+location.pathname}});
+ if(r.error){toast(r.error.message||"Checkout unavailable");return}
+ if(r.data&&r.data.url){location.href=r.data.url}else toast((r.data&&r.data.error)||"Checkout unavailable");
+}
+async function signIn(){
+ const email=$("#authEmail")&&$("#authEmail").value.trim(),password=$("#authPassword")&&$("#authPassword").value;
+ if(!email||!password)return toast("Enter email and password");
+ const r=await rollinSupabase.auth.signInWithPassword({email,password}); if(r.error)return toast(r.error.message); toast("Signed in");
+}
+async function signUp(){
+ const email=$("#newEmail")&&$("#newEmail").value.trim(),password=$("#newPassword")&&$("#newPassword").value,name=$("#newName")&&$("#newName").value.trim();
+ if(!email||!password)return toast("Enter email and password");
+ const r=await rollinSupabase.auth.signUp({email,password,options:{data:{display_name:name},emailRedirectTo:location.origin+location.pathname}});
+ if(r.error)return toast(r.error.message); toast(r.data.session?"Account created":"Check your email to confirm your account");
+}
+async function signOut(){await rollinSupabase.auth.signOut();rollinSession=null;rollinProfile=null;toast("Signed out");render()}
+async function rollinLoadOrders(){
+ const box=$("#ordersBox"); if(!box||!rollinSession)return;
+ const r=await rollinSupabase.from("orders").select("id,total_cents,status,created_at").eq("user_id",rollinSession.user.id).order("created_at",{ascending:false});
+ if(r.error){box.innerHTML="<div class=\"empty\">Unable to load orders.</div>";return}
+ box.innerHTML=r.data&&r.data.length?"<table class=\"table\"><tr><th>Order</th><th>Total</th><th>Status</th></tr>"+r.data.map(o=>"<tr><td>"+o.id.slice(0,8)+"</td><td>$"+(Number(o.total_cents)/100).toFixed(2)+"</td><td>"+o.status+"</td></tr>").join("")+"</table>":"<div class=\"empty\">No orders yet.</div>";
+}
+function profile(){
+ if(!rollinSession){shell("<div class=\"eyebrow\">ACCOUNT</div><h2>Join Rollin</h2><section class=\"section split\"><div class=\"feature\"><span class=\"tag\">SIGN IN</span><h3>Welcome back</h3><input id=\"authEmail\" class=\"search full\" type=\"email\" placeholder=\"Email\"><input id=\"authPassword\" class=\"search full\" type=\"password\" placeholder=\"Password\"><button class=\"primary full\" onclick=\"signIn()\">Sign in</button></div><div class=\"feature\"><span class=\"tag\">NEW ACCOUNT</span><h3>Create account</h3><input id=\"newName\" class=\"search full\" placeholder=\"Display name\"><input id=\"newEmail\" class=\"search full\" type=\"email\" placeholder=\"Email\"><input id=\"newPassword\" class=\"search full\" type=\"password\" placeholder=\"Password (6+ characters)\"><button class=\"secondary full\" onclick=\"signUp()\">Create account</button><p class=\"muted\">Email confirmation may be required.</p></div></section>","Account");return}
+ shell("<div class=\"eyebrow\">PROFILE</div><h2>Your Rollin workspace</h2><div class=\"split section\"><div class=\"feature\"><h3>"+(rollinProfile&&rollinProfile.display_name||"Rollin member")+"</h3><p class=\"muted\">"+(rollinProfile&&rollinProfile.email||"")+"</p><p>Tier: <strong>"+(rollinProfile&&rollinProfile.tier||"Free")+"</strong></p><p>Rewards: <strong>"+(rollinProfile&&rollinProfile.rewards_balance||0)+"</strong></p><p>Referral: <strong>"+(rollinProfile&&rollinProfile.referral_code||"")+"</strong></p></div><div class=\"feature\"><h3>Account</h3><p class=\"muted\">Orders and rewards are stored server-side.</p><button class=\"secondary\" onclick=\"signOut()\">Sign out</button></div></div><section class=\"section\"><h2>Orders</h2><div id=\"ordersBox\" class=\"empty\">Loading orders…</div></section>","Profile");
+ rollinLoadOrders();
+}
+function rewards(){shell("<div class=\"eyebrow\">LOYALTY</div><h2>Rewards</h2><p class=\"muted\">Rewards are tied to verified purchases.</p><section class=\"section stats\"><div class=\"stat\">Credits<strong>"+(rollinProfile?rollinProfile.rewards_balance:0)+"</strong></div><div class=\"stat\">Membership<strong>"+(rollinProfile?rollinProfile.tier:"Guest")+"</strong></div><div class=\"stat\">Favorites<strong>"+state.favorites.length+"</strong></div><div class=\"stat\">Referral<strong>"+(rollinProfile?rollinProfile.referral_code.slice(-6):"—")+"</strong></div></section><section class=\"section split\"><div class=\"feature\"><span class=\"tag\">MEMBERSHIP</span><h2>Rollin Member</h2><p class=\"muted\">Recurring billing infrastructure is ready for a configured Stripe price.</p></div><div class=\"feature\"><span class=\"tag\">REFERRAL</span><h2>Share & earn</h2><p class=\"muted\">"+(rollinProfile?rollinProfile.referral_code:"Sign in to get a code.")+"</p><button class=\"secondary\" onclick=\"copyReferral()\">Copy referral</button></div></section>","Rewards")}
+async function subscribe(){const email=$("#email")&&$("#email").value.trim();if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return toast("Enter a valid email");const r=await rollinSupabase.from("newsletter_subscribers").upsert({email,user_id:rollinSession?rollinSession.user.id:null});if(r.error)return toast(r.error.message);toast("You are on the Rollin list")}
+async function merchantLead(){const email=$("#merchantEmail")&&$("#merchantEmail").value.trim();if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return toast("Enter a valid email");const r=await rollinSupabase.from("merchant_leads").insert({email,user_id:rollinSession?rollinSession.user.id:null});if(r.error)return toast(r.error.message);toast("Merchant interest saved")}
+async function toggleFav(id){state.favorites=state.favorites.includes(id)?state.favorites.filter(x=>x!==id):state.favorites.concat(id);save();if(rollinSession){if(state.favorites.includes(id))await rollinSupabase.from("favorites").upsert({user_id:rollinSession.user.id,product_id:id});else await rollinSupabase.from("favorites").delete().eq("user_id",rollinSession.user.id).eq("product_id",id)}render()}
+function copyReferral(){if(!rollinProfile)return toast("Sign in first");copyText(location.origin+location.pathname+"?ref="+encodeURIComponent(rollinProfile.referral_code))}
+window.startCheckout=startCheckout;window.signIn=signIn;window.signUp=signUp;window.signOut=signOut;window.copyReferral=copyReferral;window.subscribe=subscribe;window.merchantLead=merchantLead;
+rollinBoot().catch(e=>console.error("Rollin backend boot failed",e));
 const PRODUCTS=[
 {id:1,name:"Rollin Starter Bundle",cat:"Featured",price:120,icon:"✦",desc:"Launch bundle with member perks.",tag:"FEATURED",repeat:true},
 {id:2,name:"Caffeine Daily Pack",cat:"Caffeine",price:75,icon:"☕",desc:"Consumable bundle designed for repeat purchase.",tag:"REPEAT",repeat:true},
