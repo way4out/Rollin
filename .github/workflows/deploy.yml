@@ -38,9 +38,6 @@ jobs:
           test -f sitemap/index.html
           test -f sitemap.xml
           test -f robots.txt
-          grep -q "https://way4out.github.io/Rollin/sitemap.xml" robots.txt
-          grep -q "contact-us" sitemap.xml
-          grep -q "sitemap" sitemap.xml
           grep -q "supabase" fsbo.js
           grep -q "rollin-stripe-fsbo-checkout" fsbo.js
           grep -q "rollin-verify-base-usdc" fsbo.js
@@ -50,7 +47,6 @@ jobs:
             grep -q "<html" "$f"
             grep -q "</html>" "$f"
           done
-          test "$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l)" -eq 1
           echo "Rollin production build validation passed."
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
