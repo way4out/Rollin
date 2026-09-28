@@ -20,9 +20,9 @@ const FALLBACK_PRODUCTS = [
 let PRODUCTS = [...FALLBACK_PRODUCTS];
 
 async function loadProducts(){
-  const {data,error}=await supabase.from("products").select("id,name,category,description,price_cents,currency,icon,tag,repeat_purchase,active,inventory,metadata").eq("active",true).order("id",{ascending:true});
+  const {data,error}=await supabase.from("products").select("id,merchant_id,name,category,description,price_cents,currency,icon,tag,repeat_purchase,active,inventory,metadata").eq("active",true).order("id",{ascending:true});
   if(error){console.warn("Live product catalog unavailable; using fallback catalog.",error);return false}
-  const live=(data||[]).map(p=>({id:Number(p.id),name:p.name,cat:p.category||"Featured",price:Number(p.price_cents||0),currency:(p.currency||"usd").toLowerCase(),icon:p.icon||"✦",desc:p.description||"",tag:p.tag||"LIVE",repeat:!!p.repeat_purchase,inventory:p.inventory,metadata:p.metadata||{}})).filter(p=>Number.isFinite(p.id)&&p.price>=0);
+  const live=(data||[]).map(p=>({id:Number(p.id),merchant_id:p.merchant_id||null,name:p.name,cat:p.category||"Featured",price:Number(p.price_cents||0),currency:(p.currency||"usd").toLowerCase(),icon:p.icon||"✦",desc:p.description||"",tag:p.tag||"LIVE",repeat:!!p.repeat_purchase,inventory:p.inventory,metadata:p.metadata||{}})).filter(p=>Number.isFinite(p.id)&&p.price>=0);
   if(live.length){PRODUCTS=live;return true}
   return false;
 }
@@ -230,10 +230,18 @@ async function loadSellerDashboard(){
  box.innerHTML=data.lines?.length?'<div class="table-wrap"><table class="table"><tr><th>Order</th><th>Item</th><th>Qty</th><th>Status</th><th>Shipping</th></tr>'+data.lines.map(x=>'<tr><td>'+esc(String(x.order_id).slice(0,8))+'</td><td>'+esc(x.product_name)+'</td><td>'+esc(x.quantity)+'</td><td>'+esc(x.order?.status||"")+'</td><td>'+esc(x.order?.shipping_status||"unfulfilled")+(x.order?.tracking_number?' · '+esc(x.order.carrier||"Tracking")+' '+esc(x.order.tracking_number):"")+'</td></tr>').join("")+'</table></div>':'<div class="empty">No customer sales yet.</div>';
 }
 function gaia(){shell('<div class="eyebrow">GAIA</div><h2>Human-first commerce</h2><section class="section feature-grid"><div class="feature"><h3>Transparent</h3><p class="muted">No fabricated balances, scarcity or transactions.</p></div><div class="feature"><h3>Accessible</h3><p class="muted">Responsive layouts and large touch targets across devices.</p></div><div class="feature"><h3>Responsible</h3><p class="muted">Payments, identity and sensitive credentials stay with their proper providers.</p></div></section>')}
+async function seller(){
+ const sellerId=new URLSearchParams(location.hash.split("?")[1]||"").get("id");
+ if(!sellerId){shell('<div class="notice">Seller not found.</div>');return}
+ const {data:profile}=await supabase.from("profiles").select("id,display_name,tier").eq("id",sellerId).maybeSingle();
+ const products=PRODUCTS.filter(p=>p.merchant_id===sellerId);
+ const name=profile?.display_name||"Rollin Seller";
+ shell('<div class="section-head"><div><div class="eyebrow">SELLER STORE</div><h2>'+esc(name)+'</h2><p class="muted">'+esc(profile?.tier||"Seller")+' · '+products.length+' active products</p></div><button class="secondary" onclick="location.hash='shop'">Back to Shop</button></div><section class="section seller-hero feature"><div class="seller-avatar">'+esc(name.slice(0,1).toUpperCase())+'</div><h2>'+esc(name)+'</h2><p class="muted">Browse this seller’s Rollin catalog.</p></section><section class="section"><div class="grid">'+(products.length?products.map(productCard).join(""):'<div class="empty wide">No active products yet.</div>')+'</div></section>');
+}
 function render(){
  const page=(location.hash.slice(1)||"home").split("?")[0];
  document.querySelectorAll("[data-nav]").forEach(x=>x.classList.toggle("active",x.dataset.nav===page));
- ({home,shop,crypto,drops,rewards,wallet,profile,cart,checkout,merchant,gaia}[page]||home)();
+ ({home,shop,crypto,drops,rewards,wallet,profile,cart,checkout,merchant,gaia,seller}[page]||home)();
 }
 async function openProduct(id){
  const p=PRODUCTS.find(x=>x.id===id);if(!p)return;
