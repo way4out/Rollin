@@ -3,7 +3,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL="https://qwjjaxzmneawwppcpaap.supabase.co";
 const SUPABASE_KEY="sb_publishable_X1eIeVVNUOHuhmL_10bkDw_1HuT4Vcq";
 const S=createClient(SUPABASE_URL,SUPABASE_KEY);
-const B=new URL("./",import.meta.url).pathname;
+const B="/Rollin/";
 const USDC="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const C={real_estate:["Real Estate","⌂"],vehicle:["Cars + Trucks","▣"],boat:["Boats","◒"],aircraft:["Aircraft","✈"]};
 const CATEGORY_SCOPE={real_estate:"Houses, condos, multifamily, commercial property, acreage, lots, parcels and bare land.",vehicle:"Cars, trucks, motorcycles, scooters and other road vehicles with a VIN/title or capable of VIN/title registration.",boat:"Legal manned water-faring vessels, including boats and other registrable/recognized vessels subject to applicable law.",aircraft:"Operational internally powered aircraft capable of flight, subject to registration, airworthiness and ownership requirements."};
