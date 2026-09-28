@@ -81,7 +81,7 @@ function shop(){
 function drops(){shell('<div class="drop-banner"><div class="eyebrow">DROP CENTER</div><h2>Member Drop</h2><p class="muted">Catalog availability is shown from the live product database.</p><div class="count">LIVE</div></div><div class="grid section">'+PRODUCTS.filter(p=>p.tag==="DROP").map(productCard).join("")+'</div>')}
 function rewards(){
  if(!session){shell('<div class="eyebrow">LOYALTY</div><h2>Rewards</h2><div class="notice section">Sign in to access verified purchase rewards and your referral identity.<br><button class="primary" onclick="location.hash=\'profile\'">Sign in</button></div>');return}
- shell('<div class="eyebrow">LOYALTY</div><h2>Rewards</h2><p class="muted">Rewards are credited from verified successful payments.</p><section class="section stats"><div class="stat">Credits<strong>'+((profileData&&profileData.rewards_balance)||0)+'</strong></div><div class="stat">Membership<strong>'+esc(profileData?.tier||"Free")+'</strong></div><div class="stat">Favorites<strong>'+state.favorites.length+'</strong></div><div class="stat">Referral<strong>'+esc((profileData?.referral_code||"").slice(-6))+'</strong></div></section><section class="section split"><div class="feature"><span class="tag">MEMBERSHIP</span><h2>Rollin Member</h2><p class="muted">Membership billing can be connected to a live recurring Stripe Price when configured.</p></div><div class="feature"><span class="tag">REFERRAL</span><h2>Share & earn</h2><p class="muted">'+esc(profileData?.referral_code||"")+'</p><button class="secondary" onclick="copyReferral()">Copy referral link</button></div></section>');
+ shell('<div class="eyebrow">LOYALTY</div><h2>Rewards</h2><section class="section feature welcome-banner"><span class="tag">NEW MEMBER PERK</span><h2>🎁 Get 500 Rewards just for joining</h2><p class="muted">Share your referral link and your friend gets 500 too. You earn 250 when they join through your link.</p><button class="primary" onclick="copyReferral()">Invite a friend →</button></section><p class="muted">Rewards are credited from verified successful payments.</p><section class="section stats"><div class="stat">Credits<strong>'+((profileData&&profileData.rewards_balance)||0)+'</strong></div><div class="stat">Membership<strong>'+esc(profileData?.tier||"Free")+'</strong></div><div class="stat">Favorites<strong>'+state.favorites.length+'</strong></div><div class="stat">Referral<strong>'+esc((profileData?.referral_code||"").slice(-6))+'</strong></div></section><section class="section split"><div class="feature"><span class="tag">MEMBERSHIP</span><h2>Rollin Member</h2><p class="muted">Membership billing can be connected to a live recurring Stripe Price when configured.</p></div><div class="feature"><span class="tag">REFERRAL</span><h2>Share & earn</h2><p class="muted">'+esc(profileData?.referral_code||"")+'</p><button class="secondary" onclick="copyReferral()">Copy referral link</button></div></section>');
 }
 async function confirmCryptoPayment(){const pid=Number(document.querySelector("#cryptoPaymentId")?.value),tx=document.querySelector("#cryptoTxHash")?.value.trim();if(!pid||!tx)return toast("Enter the payment ID and Base transaction hash");const {data,error}=await supabase.functions.invoke("confirm-crypto-payment",{body:{payment_id:pid,tx_hash:tx}});if(error||data?.error)return toast(error?.message||data?.error||"Confirmation failed");toast("USDC payment confirmed");location.hash="profile"}
 const USDC_CONTRACT="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
@@ -312,13 +312,13 @@ async function signIn(){
  const {error}=await supabase.auth.signInWithPassword({email,password});
  if(error)return toast(error.message);toast("Signed in");
 }
-async function signUp(){
+async function claimWelcome(){ const ref=new URLSearchParams(location.search).get("ref")||""; const {data,error}=await supabase.rpc("claim_welcome_reward",{p_referral_code:ref}); if(error)return; if(data?.claimed){toast("🎁 Welcome! +500 Rollin Rewards"); await loadProfile(); render()} }\nasync function signUp(){
  const name=$("#newName")?.value.trim(),email=$("#newEmail")?.value.trim(),password=$("#newPassword")?.value;
  if(!email||!password)return toast("Enter email and password");
  if(password.length<6)return toast("Password must be at least 6 characters");
- const {data,error}=await supabase.auth.signUp({email,password,options:{data:{display_name:name},emailRedirectTo:location.origin+location.pathname}});
+ const {data,error}=await supabase.auth.signUp({email,password,options:{data:{display_name:name,referral_code:new URLSearchParams(location.search).get("ref")||null},emailRedirectTo:location.origin+location.pathname}});
  if(error)return toast(error.message);
- toast(data.session?"Account created":"Check your email to confirm your account");
+ toast(data.session?"Account created — 🎁 500 Rewards ready":"Check your email to confirm your account"); if(data.session)setTimeout(claimWelcome,250);
 }
 async function signOut(){await supabase.auth.signOut();session=null;profileData=null;toast("Signed out");render()}
 async function subscribe(){
@@ -354,7 +354,7 @@ document.addEventListener("click",e=>{
 $("#desktopNav").innerHTML=navHtml();$("#mobileNav").innerHTML=navHtml();
 $("#themeBtn").onclick=()=>{state.theme=state.theme==="dark"?"light":"dark";applyTheme();save()};
 $("#walletBtn").onclick=()=>location.hash="wallet";
-window.addEventListener("hashchange",render);
+window.addEventListener("hashchange",render);\nif(session) setTimeout(claimWelcome,350);
 window.addEventListener("storage",()=>{state=loadState();applyTheme();render()});
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 
