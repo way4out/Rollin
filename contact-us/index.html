@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b10"><meta name="description" content="Contact Rollin FSBO support, marketplace operations and listing assistance.">
+<link rel="stylesheet" href="../styles.css"><link rel="canonical" href="https://way4out.github.io/Rollin/contact-us/">
+<title>Contact Rollin — Support & Marketplace</title>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="../"><span class="logo">R</span><span>ROLLIN FSBO</span></a><nav><a class="nav-link" href="../shop/">All Listings</a><a class="nav-link" href="../real-estate/">Real Estate</a><a class="nav-link" href="../cars-trucks/">Cars + Trucks</a><a class="nav-link" href="../boats/">Boats</a><a class="nav-link" href="../planes/">Aircraft</a></nav><div class="top-actions"><a class="secondary" href="../account/">Account</a><a class="primary" href="../">Home</a></div></header>
+<main class="page">
+<section class="section"><div class="eyebrow">ROLLIN · CONTACT</div><h1>Contact Rollin.</h1><p class="muted">Get help with listings, buying, selling, payments, shipping, account access or marketplace issues.</p></section>
+<section class="split section">
+<article class="feature"><div class="feature-icon">💬</div><h2>Marketplace support</h2><p class="muted">Use the form to prepare a support request. It opens a pre-filled Rollin issue so the request can be submitted through the project's public support channel.</p><div class="notice">Do not include passwords, private keys, seed phrases, payment card numbers or other sensitive credentials.</div></article>
+<article class="feature"><div class="eyebrow">SEND A REQUEST</div>
+<label class="muted" for="name">Name</label><input id="name" class="search full" maxlength="120" placeholder="Your name">
+<label class="muted" for="email">Email</label><input id="email" class="search full" maxlength="160" type="email" placeholder="you@example.com">
+<label class="muted" for="topic">Topic</label><select id="topic" class="search full"><option>General support</option><option>Buying</option><option>Selling / listing</option><option>Payment</option><option>Shipping / delivery</option><option>Account</option><option>Report a site issue</option></select>
+<label class="muted" for="message">Message</label><textarea id="message" class="search full" maxlength="4000" rows="8" placeholder="Tell us what you need help with…"></textarea>
+<button id="send" class="primary full">Prepare Support Request →</button><div id="status" class="muted"></div>
+</article></section>
+<section class="section"><div class="feature-grid"><a class="feature" href="../account/"><div class="feature-icon">◉</div><h3>Account</h3><p class="muted">Sign in or manage your buyer/seller workspace.</p></a><a class="feature" href="../shop/"><div class="feature-icon">⌂</div><h3>Listings</h3><p class="muted">Browse the owner-direct marketplace.</p></a><a class="feature" href="../sitemap/"><div class="feature-icon">☷</div><h3>Site map</h3><p class="muted">See all primary Rollin destinations.</p></a></div></section>
+<footer class="footer">© Rollin FSBO · <a href="../sitemap/">Site Map</a> · <a href="./">Contact</a> · <a href="../">Home</a></footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+$("send").onclick=()=>{
+ const name=$("name").value.trim(),email=$("email").value.trim(),topic=$("topic").value,message=$("message").value.trim();
+ if(!name||!email||!message){$("status").textContent="Please add your name, email and message.";return}
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){$("status").textContent="Enter a valid email address.";return}
+ const title="[Rollin Support] "+topic;
+ const body=["Name: "+name,"Email: "+email,"Topic: "+topic,"","Message:",message].join("\n");
+ const url="https://github.com/way4out/Rollin/issues/new?title="+encodeURIComponent(title)+"&body="+encodeURIComponent(body);
+ $("status").textContent="Opening the Rollin support request form…";
+ window.open(url,"_blank","noopener,noreferrer");
+};
+</script>
+</body></html>
