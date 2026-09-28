@@ -27,6 +27,8 @@ async function loadProducts(){
   return false;
 }
 
+const APP_BASE="/Rollin/";
+function route(page,query=""){location.href=APP_BASE+page.replace(/^\/+|\/+$/g,"")+"/"+(query?("?"+query):"")}
 const NAV = [
   ["home","⌂","Home"],["shop","▦","Shop"],["drops","◈","Drops"],["rewards","★","Rewards"],
   ["wallet","◉","Wallet"],["profile","●","Profile"],["crypto","₿","Crypto"],["gaia","♧","Gaia"],["merchant","◇","Sell"]
@@ -48,7 +50,7 @@ function applyTheme(){document.documentElement.dataset.theme=state.theme||"dark"
 function cartItems(){return Object.entries(state.cart||{}).map(([id,qty])=>({p:PRODUCTS.find(p=>p.id===Number(id)),qty:Number(qty)})).filter(x=>x.p&&x.qty>0)}
 function cartCount(){return cartItems().reduce((n,x)=>n+x.qty,0)}
 function cartTotal(){return cartItems().reduce((n,x)=>n+x.p.price*x.qty,0)}
-function navHtml(){return NAV.map(([id,ic,label])=>'<button class="nav-link" data-nav="'+id+'" aria-label="'+label+'"><span>'+ic+'</span><span>'+label+'</span></button>').join("")}
+function navHtml(){return NAV.map(([id,ic,label])=>'<a class="nav-link" data-nav="'+id+'" href="'+APP_BASE+id+'/'" aria-label="'+label+'"><span>'+ic+'</span><span>'+label+'</span></a>').join("")}
 
 function shell(content,title=""){
   document.title = title ? title+" — Rollin" : "Rollin — Shop. Earn. Unlock. Repeat.";
@@ -78,7 +80,7 @@ function shop(){
  '<div class="toolbar"><input id="search" class="search" autocomplete="off" placeholder="Search products, categories…"><select id="filter" class="search"><option value="all">All categories</option>'+[...new Set(PRODUCTS.map(p=>p.cat))].map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join("")+'</select></div><div id="shopGrid" class="grid">'+PRODUCTS.map(productCard).join("")+'</div>');
  const filter=()=>{const q=$("#search").value.trim().toLowerCase(),c=$("#filter").value;const list=PRODUCTS.filter(p=>(c==="all"||p.cat===c)&&(p.name+" "+p.cat+" "+p.desc).toLowerCase().includes(q));$("#shopGrid").innerHTML=list.length?list.map(productCard).join(""):'<div class="empty wide">No matching products.</div>'};
  $("#search").oninput=filter;$("#filter").onchange=filter;
- const productId=new URLSearchParams(location.hash.split("?")[1]||"").get("product");
+ const productId=new URLSearchParams(location.search).get("product");
  if(productId) setTimeout(()=>openProduct(Number(productId)),0);
 }
 function drops(){shell('<div class="drop-banner"><div class="eyebrow">DROP CENTER</div><h2>Member Drop</h2><p class="muted">Catalog availability is shown from the live product database.</p><div class="count">LIVE</div></div><div class="grid section">'+PRODUCTS.filter(p=>p.tag==="DROP").map(productCard).join("")+'</div>')}
@@ -86,7 +88,7 @@ function rewards(){
  if(!session){shell('<div class="eyebrow">LOYALTY</div><h2>Rewards</h2><div class="notice section">Sign in to access verified purchase rewards and your referral identity.<br><button class="primary" onclick="location.hash=\'profile\'">Sign in</button></div>');return}
  shell('<div class="eyebrow">LOYALTY</div><h2>Rewards</h2><section class="section feature welcome-banner"><span class="tag">NEW MEMBER PERK</span><h2>🎁 Get 500 Rewards just for joining</h2><p class="muted">Share your referral link and your friend gets 500 too. You earn 250 when they join through your link.</p><button class="primary" onclick="copyReferral()">Invite a friend →</button></section><p class="muted">Rewards are credited from verified successful payments.</p><section class="section stats"><div class="stat">Credits<strong>'+((profileData&&profileData.rewards_balance)||0)+'</strong></div><div class="stat">Membership<strong>'+esc(profileData?.tier||"Free")+'</strong></div><div class="stat">Favorites<strong>'+state.favorites.length+'</strong></div><div class="stat">Referral<strong>'+esc((profileData?.referral_code||"").slice(-6))+'</strong></div></section><section class="section split"><div class="feature"><span class="tag">MEMBERSHIP</span><h2>Rollin Member</h2><p class="muted">Membership billing can be connected to a live recurring Stripe Price when configured.</p></div><div class="feature"><span class="tag">REFERRAL</span><h2>Share & earn</h2><p class="muted">'+esc(profileData?.referral_code||"")+'</p><button class="secondary" onclick="copyReferral()">Copy referral link</button></div></section>');
 }
-async function confirmCryptoPayment(){const pid=Number(document.querySelector("#cryptoPaymentId")?.value),tx=document.querySelector("#cryptoTxHash")?.value.trim();if(!pid||!tx)return toast("Enter the payment ID and Base transaction hash");const {data,error}=await supabase.functions.invoke("confirm-crypto-payment",{body:{payment_id:pid,tx_hash:tx}});if(error||data?.error)return toast(error?.message||data?.error||"Confirmation failed");toast("USDC payment confirmed");location.hash="profile"}
+async function confirmCryptoPayment(){const pid=Number(document.querySelector("#cryptoPaymentId")?.value),tx=document.querySelector("#cryptoTxHash")?.value.trim();if(!pid||!tx)return toast("Enter the payment ID and Base transaction hash");const {data,error}=await supabase.functions.invoke("confirm-crypto-payment",{body:{payment_id:pid,tx_hash:tx}});if(error||data?.error)return toast(error?.message||data?.error||"Confirmation failed");toast("USDC payment confirmed");route("profile")}
 const USDC_CONTRACT="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 async function createCryptoCheckout(){if(!session){location.hash="profile";return}const items=cartItems();if(!items.length)return toast("Cart is empty");const b=document.querySelector("#cryptoCheckoutBtn");if(b){b.disabled=true;b.textContent="Preparing USDC checkout…"}const {data,error}=await supabase.functions.invoke("create-crypto-checkout",{body:{items:items.map(x=>({product_id:x.p.id,quantity:x.qty}))}});if(error||data?.error){toast(error?.message||data?.error||"Crypto checkout unavailable");if(b){b.disabled=false;b.textContent="Create USDC payment →"}return}const box=document.querySelector("#cryptoPaymentResult");if(box)box.innerHTML='<div class="notice"><strong>Send '+esc(data.amount_usdc)+' USDC on Base</strong><p class="muted">Receiving address</p><code class="address">'+esc(data.receiving_address)+'</code><button class="secondary" onclick="copyText('+JSON.stringify(data.receiving_address)+')">Copy address</button><p class="muted">Payment ID: '+esc(String(data.payment_id))+' · expires '+esc(new Date(data.expires_at).toLocaleTimeString())+'</p><p class="muted">Only send USDC on Base to this address. The payment is not marked paid until on-chain confirmation.</p><input id="cryptoPaymentId" class="search full" value="'+esc(String(data.payment_id))+'" inputmode="numeric" placeholder="Payment ID"><input id="cryptoTxHash" class="search full" placeholder="Base transaction hash (0x…)"><button class="secondary full" onclick="confirmCryptoPayment()">Confirm payment →</button></div>';if(b){b.disabled=false;b.textContent="Create USDC payment →"}}
 function crypto(){shell('<div class="eyebrow">ROLLIN CRYPTO</div><h2>Crypto Center</h2><p class="muted">Base USDC checkout with a dedicated on-chain payment record.</p><section class="section grid"><div class="feature"><span class="tag">BASE</span><h3>Base / USDC</h3><p class="muted">Create a payment request for the current cart and send USDC on Base.</p><button id="cryptoCheckoutBtn" class="primary" onclick="createCryptoCheckout()">Create USDC payment →</button><div id="cryptoPaymentResult"></div></div><div class="feature"><span class="tag">COINBASE</span><h3>Coinbase Business</h3><p class="muted">Business payment, transfer and treasury rail.</p><a class="secondary" href="https://www.coinbase.com/business" target="_blank" rel="noopener">Open Coinbase Business</a></div><div class="feature"><span class="tag">WALLETS</span><h3>Wallets</h3><p class="muted">Trust Wallet, Coinbase Wallet and compatible EVM wallets can be used to send USDC on Base.</p></div><div class="feature"><span class="tag">EXCHANGES</span><h3>Exchange rails</h3><p class="muted">Robinhood, Kraken and Binance remain treasury/provider adapters; credentials must stay server-side.</p></div></section><section class="section notice"><strong>Security:</strong> private keys and exchange secrets never belong in the Rollin browser or GitHub repository.</section>');}
@@ -105,7 +107,7 @@ function cart(){
 }
 function checkout(){
  const items=cartItems();
- if(!items.length){location.hash="cart";return}
+ if(!items.length){route("cart");return}
  shell('<div class="eyebrow">CHECKOUT</div><h2>Secure Checkout</h2><div class="split section"><div class="feature"><h3>Order summary</h3>'+items.map(x=>'<p>'+esc(x.p.name)+' × '+x.qty+' <strong class="float">'+money(x.p.price*x.qty)+'</strong></p>').join("")+'<hr><h3>Total <span class="float">'+money(cartTotal())+'</span></h3></div><div class="feature"><h3>Payment</h3><div class="notice">Stripe-hosted checkout handles card payment details. Rollin does not receive your card number. <strong>Physical items:</strong> shipping address and shipping option are collected securely during checkout.</div><div class="crypto-pay section"><strong>Crypto</strong><p class="muted">Base / USDC and supported wallet rails are available through the Rollin Crypto Center.</p><button class="secondary" onclick="location.hash='crypto'">Open Crypto Center →</button></div>'+(session?'<button class="primary full" onclick="startCheckout()">Pay securely →</button>':'<button class="primary full" onclick="location.hash=\'profile\'">Sign in to checkout →</button>')+'</div></div>',"Checkout");
 }
 async function loadMerchantCatalog(){
@@ -234,7 +236,7 @@ async function loadSellerDashboard(){
 }
 function gaia(){shell('<div class="eyebrow">GAIA</div><h2>Human-first commerce</h2><section class="section feature-grid"><div class="feature"><h3>Transparent</h3><p class="muted">No fabricated balances, scarcity or transactions.</p></div><div class="feature"><h3>Accessible</h3><p class="muted">Responsive layouts and large touch targets across devices.</p></div><div class="feature"><h3>Responsible</h3><p class="muted">Payments, identity and sensitive credentials stay with their proper providers.</p></div></section>')}
 async function seller(){
- const sellerId=new URLSearchParams(location.hash.split("?")[1]||"").get("id");
+ const sellerId=new URLSearchParams(location.search).get("id");
  if(!sellerId){shell('<div class="notice">Seller not found.</div>');return}
  const {data:profile}=await supabase.from("profiles").select("id,display_name,tier").eq("id",sellerId).maybeSingle();
  const products=PRODUCTS.filter(p=>p.merchant_id===sellerId);
@@ -243,7 +245,8 @@ async function seller(){
 }
 function notFound(){shell('<section class="section feature"><div class="eyebrow">ROLLIN</div><h2>Page not found</h2><p class="muted">That destination is not available. Use the buttons below to continue.</p><div class="hero-actions"><button class="primary" onclick="location.hash=\'home\'">Home</button><button class="secondary" onclick="location.hash=\'shop\'">Shop</button><button class="secondary" onclick="location.hash=\'profile\'">Profile</button></div></section>', "Page not found")}
 function render(){
- const page=(location.hash.slice(1)||"home").split("?")[0];
+ const path=location.pathname.replace(/\\/+$/,"");
+ const page=(path.split("/").pop()||"home").toLowerCase()==="Rollin".toLowerCase()?"home":(path.split("/").pop()||"home").toLowerCase();
  document.querySelectorAll("[data-nav]").forEach(x=>x.classList.toggle("active",x.dataset.nav===page));
  ({home,shop,crypto,drops,rewards,wallet,profile,cart,checkout,merchant,gaia,seller}[page]||notFound)();
 }
@@ -268,7 +271,7 @@ async function toggleFav(id){
 }
 async function shareProduct(id){
  const p=PRODUCTS.find(x=>x.id===id);if(!p)return;
- const url=location.origin+location.pathname+"#shop?product="+id;
+ const url=location.origin+APP_BASE+"shop/?product="+encodeURIComponent(id);
  try{if(navigator.share)await navigator.share({title:p.name,text:"Check out "+p.name+" on Rollin",url});else await navigator.clipboard.writeText(url);toast("Share link ready")}catch{}
 }
 async function loadProductReviews(productId){
@@ -306,7 +309,7 @@ async function loadProfile(){
  if(!error)profileData=data;
 }
 async function settleCheckoutRewards(){
- const q=new URLSearchParams(location.hash.split("?")[1]||"");
+ const q=new URLSearchParams(location.search);
  if(q.get("checkout")!=="success"||!session)return;
  toast("Payment received — verifying your Rollin Rewards…");
  for(let i=0;i<6;i++){await new Promise(r=>setTimeout(r,i?1500:500));await loadProfile();const {data}=await supabase.from("orders").select("id,status").eq("user_id",session.user.id).order("created_at",{ascending:false}).limit(1).maybeSingle();if(data?.status==="paid"||data?.status==="succeeded"||data?.status==="complete"){toast("🎁 Purchase verified — Rewards added automatically");render();return}}
@@ -327,7 +330,7 @@ async function claimWelcome(){ const ref=new URLSearchParams(location.search).ge
  const name=$("#newName")?.value.trim(),email=$("#newEmail")?.value.trim(),password=$("#newPassword")?.value;
  if(!email||!password)return toast("Enter email and password");
  if(password.length<6)return toast("Password must be at least 6 characters");
- const {data,error}=await supabase.auth.signUp({email,password,options:{data:{display_name:name,referral_code:new URLSearchParams(location.search).get("ref")||null},emailRedirectTo:location.origin+location.pathname}});
+ const {data,error}=await supabase.auth.signUp({email,password,options:{data:{display_name:name,referral_code:new URLSearchParams(location.search).get("ref")||null},emailRedirectTo:location.origin+APP_BASE+"profile/"}});
  if(error)return toast(error.message);
  toast(data.session?"Account created — 🎁 500 Rewards ready":"Check your email to confirm your account"); if(data.session)setTimeout(claimWelcome,250);
 }
@@ -345,7 +348,7 @@ async function merchantLead(){
 }
 async function copyReferral(){
  if(!profileData?.referral_code)return toast("Sign in first");
- copyText(location.origin+location.pathname+"?ref="+encodeURIComponent(profileData.referral_code));
+ copyText(location.origin+APP_BASE+"profile/?ref="+encodeURIComponent(profileData.referral_code));
 }
 async function copyText(text){
  try{await navigator.clipboard.writeText(text);toast("Copied")}catch{const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();toast("Copied")}
@@ -364,12 +367,12 @@ document.addEventListener("click",e=>{
 });
 $("#desktopNav").innerHTML=navHtml();$("#mobileNav").innerHTML=navHtml();
 $("#themeBtn").onclick=()=>{state.theme=state.theme==="dark"?"light":"dark";applyTheme();save()};
-$("#walletBtn").onclick=()=>location.hash="wallet";
-window.addEventListener("hashchange",render);\nif(session) setTimeout(claimWelcome,350);
+$("#walletBtn").onclick=()=>route("wallet");
+window.addEventListener("popstate",render);\nif(session) setTimeout(claimWelcome,350);
 window.addEventListener("storage",()=>{state=loadState();applyTheme();render()});
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 
-window.closeModal=closeModal;window.addToCart=addToCart;window.submitReview=submitReview;window.loadSellerDashboard=loadSellerDashboard;window.updateSellerFulfillment=updateSellerFulfillment;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
+window.route=route;window.closeModal=closeModal;window.addToCart=addToCart;window.submitReview=submitReview;window.loadSellerDashboard=loadSellerDashboard;window.updateSellerFulfillment=updateSellerFulfillment;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
 window.startCheckout=startCheckout;window.signIn=signIn;window.signUp=signUp;window.signOut=signOut;window.subscribe=subscribe;
 window.startSellerOnboarding=startSellerOnboarding;window.loadSellerConnectStatus=loadSellerConnectStatus;window.merchantLead=merchantLead;window.loadMerchantDashboard=loadMerchantDashboard;window.updateFulfillment=updateFulfillment;window.createMerchantProduct=createMerchantProduct;window.loadMerchantCatalog=loadMerchantCatalog;window.editMerchantProduct=editMerchantProduct;window.toggleMerchantProduct=toggleMerchantProduct;window.copyReferral=copyReferral;window.copyText=copyText;window.money=money;window.render=render;
 
