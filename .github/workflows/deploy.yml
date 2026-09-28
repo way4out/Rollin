@@ -37,6 +37,13 @@ jobs:
           grep -q "supabase" fsbo.js
           grep -q "rollin-stripe-fsbo-checkout" fsbo.js
           grep -q "rollin-verify-base-usdc" fsbo.js
+          node --check fsbo.js
+          node --check app.js
+          for f in index.html account/index.html sales/index.html purchases/index.html shop/index.html real-estate/index.html cars-trucks/index.html boats/index.html planes/index.html; do
+            grep -q "<html" "$f"
+            grep -q "</html>" "$f"
+          done
+          test "$(find .github/workflows -maxdepth 1 -type f -name '*.yml' -o -name '*.yaml' | wc -l)" -eq 1
           echo "Rollin production build validation passed."
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
