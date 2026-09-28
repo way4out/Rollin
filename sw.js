@@ -1,4 +1,4 @@
-const CACHE="rollin-v28";
+const CACHE="rollin-v29";
 const ASSETS=["/Rollin/","/Rollin/index.html","/Rollin/styles.css","/Rollin/fsbo.js","/Rollin/app.js","/Rollin/manifest.webmanifest","/Rollin/shop/","/Rollin/real-estate/","/Rollin/cars-trucks/","/Rollin/boats/","/Rollin/planes/","/Rollin/drops/","/Rollin/rewards/","/Rollin/wallet/","/Rollin/profile/","/Rollin/crypto/","/Rollin/gaia/","/Rollin/merchant/","/Rollin/cart/","/Rollin/checkout/","/Rollin/seller/","/Rollin/sales/","/Rollin/purchases/"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
