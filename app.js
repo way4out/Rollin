@@ -20,9 +20,9 @@ const FALLBACK_PRODUCTS = [
 let PRODUCTS = [...FALLBACK_PRODUCTS];
 
 async function loadProducts(){
-  const {data,error}=await supabase.from("products").select("id,name,category,description,price_cents,currency,icon,tag,repeat_purchase,active,inventory").eq("active",true).order("id",{ascending:true});
+  const {data,error}=await supabase.from("products").select("id,name,category,description,price_cents,currency,icon,tag,repeat_purchase,active,inventory,metadata").eq("active",true).order("id",{ascending:true});
   if(error){console.warn("Live product catalog unavailable; using fallback catalog.",error);return false}
-  const live=(data||[]).map(p=>({id:Number(p.id),name:p.name,cat:p.category||"Featured",price:Number(p.price_cents||0),currency:(p.currency||"usd").toLowerCase(),icon:p.icon||"✦",desc:p.description||"",tag:p.tag||"LIVE",repeat:!!p.repeat_purchase,inventory:p.inventory})).filter(p=>Number.isFinite(p.id)&&p.price>=0);
+  const live=(data||[]).map(p=>({id:Number(p.id),name:p.name,cat:p.category||"Featured",price:Number(p.price_cents||0),currency:(p.currency||"usd").toLowerCase(),icon:p.icon||"✦",desc:p.description||"",tag:p.tag||"LIVE",repeat:!!p.repeat_purchase,inventory:p.inventory,metadata:p.metadata||{}})).filter(p=>Number.isFinite(p.id)&&p.price>=0);
   if(live.length){PRODUCTS=live;return true}
   return false;
 }
@@ -102,7 +102,7 @@ function cart(){
 function checkout(){
  const items=cartItems();
  if(!items.length){location.hash="cart";return}
- shell('<div class="eyebrow">CHECKOUT</div><h2>Secure Checkout</h2><div class="split section"><div class="feature"><h3>Order summary</h3>'+items.map(x=>'<p>'+esc(x.p.name)+' × '+x.qty+' <strong class="float">'+money(x.p.price*x.qty)+'</strong></p>').join("")+'<hr><h3>Total <span class="float">'+money(cartTotal())+'</span></h3></div><div class="feature"><h3>Payment</h3><div class="notice">Stripe-hosted checkout handles card payment details. Rollin does not receive your card number.</div><div class="crypto-pay section"><strong>Crypto</strong><p class="muted">Base / USDC and supported wallet rails are available through the Rollin Crypto Center.</p><button class="secondary" onclick="location.hash='crypto'">Open Crypto Center →</button></div>'+(session?'<button class="primary full" onclick="startCheckout()">Pay securely →</button>':'<button class="primary full" onclick="location.hash=\'profile\'">Sign in to checkout →</button>')+'</div></div>',"Checkout");
+ shell('<div class="eyebrow">CHECKOUT</div><h2>Secure Checkout</h2><div class="split section"><div class="feature"><h3>Order summary</h3>'+items.map(x=>'<p>'+esc(x.p.name)+' × '+x.qty+' <strong class="float">'+money(x.p.price*x.qty)+'</strong></p>').join("")+'<hr><h3>Total <span class="float">'+money(cartTotal())+'</span></h3></div><div class="feature"><h3>Payment</h3><div class="notice">Stripe-hosted checkout handles card payment details. Rollin does not receive your card number. <strong>Physical items:</strong> shipping address and shipping option are collected securely during checkout.</div><div class="crypto-pay section"><strong>Crypto</strong><p class="muted">Base / USDC and supported wallet rails are available through the Rollin Crypto Center.</p><button class="secondary" onclick="location.hash='crypto'">Open Crypto Center →</button></div>'+(session?'<button class="primary full" onclick="startCheckout()">Pay securely →</button>':'<button class="primary full" onclick="location.hash=\'profile\'">Sign in to checkout →</button>')+'</div></div>',"Checkout");
 }
 async function loadMerchantCatalog(){
   if(!session || !["merchant","admin"].includes(profileData?.role)) return;
@@ -196,6 +196,7 @@ async function shareProduct(id){
  const url=location.origin+location.pathname+"#shop?product="+id;
  try{if(navigator.share)await navigator.share({title:p.name,text:"Check out "+p.name+" on Rollin",url});else await navigator.clipboard.writeText(url);toast("Share link ready")}catch{}
 }
+function isShippable(p){if(!p)return false;const m=p.metadata||{};if(typeof m.shippable==="boolean")return m.shippable;return !["digital","service","auto"].includes(String(p.cat||"").toLowerCase())}
 async function startCheckout(){
  if(!session){location.hash="profile";return}
  const items=cartItems();if(!items.length){toast("Cart is empty");return}
