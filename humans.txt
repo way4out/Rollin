@@ -1,0 +1,4 @@
+/* Rollin */
+Design principle: people first, planet aware, transparent commerce.
+Technology: lightweight progressive web application.
+Security principle: never expose private keys; never fabricate blockchain state.
