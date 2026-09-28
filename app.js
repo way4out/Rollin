@@ -245,7 +245,7 @@ async function seller(){
 }
 function notFound(){shell('<section class="section feature"><div class="eyebrow">ROLLIN</div><h2>Page not found</h2><p class="muted">That destination is not available. Use the buttons below to continue.</p><div class="hero-actions"><button class="primary" onclick="location.hash=\'home\'">Home</button><button class="secondary" onclick="location.hash=\'shop\'">Shop</button><button class="secondary" onclick="location.hash=\'profile\'">Profile</button></div></section>', "Page not found")}
 function render(){
- const path=location.pathname.replace(/\\/+$/,"");
+ const path=location.pathname.replace(/\/+$/,"");
  const page=(path.split("/").pop()||"home").toLowerCase()==="Rollin".toLowerCase()?"home":(path.split("/").pop()||"home").toLowerCase();
  document.querySelectorAll("[data-nav]").forEach(x=>x.classList.toggle("active",x.dataset.nav===page));
  ({home,shop,crypto,drops,rewards,wallet,profile,cart,checkout,merchant,gaia,seller}[page]||notFound)();
