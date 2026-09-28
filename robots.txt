@@ -1,1 +1,3 @@
-User-agent: *\nAllow: /\nSitemap: https://way4out.github.io/Rollin/sitemap.xml\n
+User-agent: *
+Allow: /
+Sitemap: https://way4out.github.io/Rollin/sitemap.xml
