@@ -269,7 +269,7 @@ async function toggleFav(id){
  }
  render();
 }
-async async function shareProduct(id){
+async function shareProduct(id){
  const p=PRODUCTS.find(x=>x.id===id);if(!p)return;
  const url=location.origin+APP_BASE+"shop/?product="+encodeURIComponent(id);
  try{if(navigator.share)await navigator.share({title:p.name,text:"Check out "+p.name+" on Rollin",url});else await navigator.clipboard.writeText(url);toast("Share link ready")}catch{}
