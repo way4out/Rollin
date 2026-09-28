@@ -197,7 +197,8 @@ async function startCheckout(){
  const items=cartItems();if(!items.length){toast("Cart is empty");return}
  const button=document.querySelector("#view .primary");
  if(button){button.disabled=true;button.textContent="Opening secure checkout…"}
- const {data,error}=await supabase.functions.invoke("create-checkout-session",{body:{items:items.map(x=>({product_id:x.p.id,quantity:x.qty})),origin:location.origin+location.pathname}});
+ const idempotencyKey=crypto.randomUUID();
+ const {data,error}=await supabase.functions.invoke("create-checkout-session",{body:{items:items.map(x=>({product_id:x.p.id,quantity:x.qty})),origin:location.origin+location.pathname,idempotency_key:idempotencyKey}});
  if(error){toast(error.message||"Checkout unavailable");if(button){button.disabled=false;button.textContent="Pay securely →"}return}
  if(data?.url){location.href=data.url}else{toast(data?.error||"Checkout unavailable");if(button){button.disabled=false;button.textContent="Pay securely →"}}
 }
