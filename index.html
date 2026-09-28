@@ -59,12 +59,11 @@
 <script>
 (function(){
   var nav=[['home','⌂','Home'],['shop','▦','Shop'],['drops','◈','Drops'],['rewards','★','Rewards'],['wallet','◉','Wallet'],['profile','●','Profile'],['crypto','₿','Crypto'],['gaia','♧','Gaia'],['merchant','◇','Sell']];
-  function navHtml(){return nav.map(function(x){return '<button class="nav-link" data-nav="'+x[0]+'" onclick="location.hash=\''+x[0]+'\'"><span>'+x[1]+'</span><span>'+x[2]+'</span></button>'}).join('')}
+  function navHtml(){return nav.map(function(x){var href=x[0]==='home'?'/Rollin/':'/Rollin/'+x[0]+'/';return '<a class="nav-link" data-nav="'+x[0]+'" href="'+href+'"><span>'+x[1]+'</span><span>'+x[2]+'</span></a>'}).join('')}
   document.getElementById('desktopNav').innerHTML=navHtml();
   document.getElementById('mobileNav').innerHTML=navHtml();
-  document.getElementById('walletBtn').onclick=function(){location.hash='wallet'};
-  window.addEventListener('hashchange',function(){if(window.RollinAppReady)return;});
-  window.RollinAppReady=false;
+  document.getElementById('walletBtn').onclick=function(){location.href='/Rollin/wallet/'};
+    window.RollinAppReady=false;
 })();
 </script>
 <script type="module" src="./app.js?v=20"></script>
