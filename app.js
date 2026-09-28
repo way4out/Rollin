@@ -179,10 +179,16 @@ async function loadMyListings(){
 }
 function merchant(){
  if(!session){shell('<div class="eyebrow">SELL ON ROLLIN</div><h2>Post an item</h2><p class="muted">Create an account to list an item for other customers to discover and buy.</p><section class="section feature"><button class="primary" onclick="location.hash=\'profile\'">Sign in / create account</button></section>');return}
- const isMerchant=["merchant","admin"].includes(profileData?.role);
- shell('<div class="eyebrow">SELL ON ROLLIN</div><h2>Post an item</h2><p class="muted">Any signed-in user can publish their own item. Buyers can discover it in Shop and purchase through secure checkout.</p><section class="section feature"><span class="tag">LISTING</span><div class="split"><div><input id="productName" class="search full" placeholder="Item name"><input id="productCategory" class="search full" placeholder="Category" value="Marketplace"><textarea id="productDescription" class="search full" placeholder="Describe the item"></textarea></div><div><input id="productPrice" class="search full" type="number" min="0" step="0.01" placeholder="Price (USD)"><input id="productInventory" class="search full" type="number" min="0" step="1" placeholder="Inventory (blank = unlimited)"><input id="productIcon" class="search full" placeholder="Icon" value="✦"><input id="productTag" class="search full" placeholder="Tag" value="USER LISTING"><label class="muted"><input id="productRepeat" type="checkbox"> Repeat purchase</label><br><label class="muted"><input id="productShippable" type="checkbox" checked> Physical item — collect shipping address</label></div></div><button class="primary full" onclick="createMerchantProduct()">Publish item</button></section><section class="section"><div class="section-head"><div><div class="eyebrow">MY LISTINGS</div><h2>Your posted items</h2></div><button class="secondary" onclick="loadMyListings()">Refresh</button></div><div id="myListings"><div class="empty">Loading…</div></div></section>'+
- (isMerchant?'<section class="section"><div class="section-head"><div><div class="eyebrow">MERCHANT CONSOLE</div><h2>Sales & fulfillment</h2></div><button class="secondary" onclick="loadMerchantDashboard()">Refresh</button></div><div id="merchantStats" class="stats"><div class="stat">Revenue<strong>—</strong></div><div class="stat">Orders<strong>—</strong></div><div class="stat">Units<strong>—</strong></div><div class="stat">All lines<strong>—</strong></div></div><div id="merchantOrders"><div class="empty">Loading sales…</div></div></section>':'<section class="section notice"><strong>Buyer flow:</strong> Your item appears in the Shop after publication. Customers can add it to cart and pay by Stripe Checkout or the available Base USDC flow.</section>');
- loadMyListings();if(isMerchant)loadMerchantDashboard();
+ shell('<div class="eyebrow">SELL ON ROLLIN</div><h2>Post an item</h2><p class="muted">Any signed-in user can publish their own item. Buyers can discover it in Shop and purchase through secure checkout.</p><section class="section feature"><span class="tag">LISTING</span><div class="split"><div><input id="productName" class="search full" placeholder="Item name"><input id="productCategory" class="search full" placeholder="Category" value="Marketplace"><textarea id="productDescription" class="search full" placeholder="Describe the item"></textarea><input id="productImage" class="search full" type="url" placeholder="Product image URL (optional)"></div><div><input id="productPrice" class="search full" type="number" min="0" step="0.01" placeholder="Price (USD)"><input id="productInventory" class="search full" type="number" min="0" step="1" placeholder="Inventory (blank = unlimited)"><input id="productIcon" class="search full" placeholder="Icon" value="✦"><input id="productTag" class="search full" placeholder="Tag" value="USER LISTING"><label class="muted"><input id="productRepeat" type="checkbox"> Repeat purchase</label><br><label class="muted"><input id="productShippable" type="checkbox" checked> Physical item — collect shipping address</label></div></div><button class="primary full" onclick="createMerchantProduct()">Publish item</button></section><section class="section"><div class="section-head"><div><div class="eyebrow">MY LISTINGS</div><h2>Your posted items</h2></div><button class="secondary" onclick="loadMyListings()">Refresh</button></div><div id="myListings"><div class="empty">Loading…</div></div></section><section class="section"><div class="section-head"><div><div class="eyebrow">SELLER CENTER</div><h2>Your sales & fulfillment</h2></div><button class="secondary" onclick="loadSellerDashboard()">Refresh</button></div><div id="sellerStats" class="stats"><div class="stat">Revenue<strong>—</strong></div><div class="stat">Orders<strong>—</strong></div><div class="stat">Units<strong>—</strong></div><div class="stat">Lines<strong>—</strong></div></div><div id="sellerOrders"><div class="empty">Loading sales…</div></div></section>');
+ loadMyListings();loadSellerDashboard();
+}
+async function loadSellerDashboard(){
+ if(!session)return;
+ const {data,error}=await supabase.functions.invoke("seller-dashboard");
+ const stats=$("#sellerStats"),box=$("#sellerOrders"); if(!stats||!box)return;
+ if(error||data?.error){stats.innerHTML='<div class="stat">Seller center<strong>Unavailable</strong></div>';box.innerHTML='<div class="notice">Seller data could not be loaded.</div>';return}
+ stats.innerHTML='<div class="stat">Revenue<strong>'+money(data.revenue_cents||0)+'</strong></div><div class="stat">Orders<strong>'+esc(data.orders||0)+'</strong></div><div class="stat">Units<strong>'+esc(data.units||0)+'</strong></div><div class="stat">Lines<strong>'+esc((data.lines||[]).length)+'</strong></div>';
+ box.innerHTML=data.lines?.length?'<div class="table-wrap"><table class="table"><tr><th>Order</th><th>Item</th><th>Qty</th><th>Status</th><th>Shipping</th></tr>'+data.lines.map(x=>'<tr><td>'+esc(String(x.order_id).slice(0,8))+'</td><td>'+esc(x.product_name)+'</td><td>'+esc(x.quantity)+'</td><td>'+esc(x.order?.status||"")+'</td><td>'+esc(x.order?.shipping_status||"unfulfilled")+(x.order?.tracking_number?' · '+esc(x.order.carrier||"Tracking")+' '+esc(x.order.tracking_number):"")+'</td></tr>').join("")+'</table></div>':'<div class="empty">No customer sales yet.</div>';
 }
 function gaia(){shell('<div class="eyebrow">GAIA</div><h2>Human-first commerce</h2><section class="section feature-grid"><div class="feature"><h3>Transparent</h3><p class="muted">No fabricated balances, scarcity or transactions.</p></div><div class="feature"><h3>Accessible</h3><p class="muted">Responsive layouts and large touch targets across devices.</p></div><div class="feature"><h3>Responsible</h3><p class="muted">Payments, identity and sensitive credentials stay with their proper providers.</p></div></section>')}
 function render(){
@@ -190,10 +196,11 @@ function render(){
  document.querySelectorAll("[data-nav]").forEach(x=>x.classList.toggle("active",x.dataset.nav===page));
  ({home,shop,crypto,drops,rewards,wallet,profile,cart,checkout,merchant,gaia}[page]||home)();
 }
-function openProduct(id){
+async function openProduct(id){
  const p=PRODUCTS.find(x=>x.id===id);if(!p)return;
- $("#modal").innerHTML='<div class="modal-backdrop" onclick="closeModal()"></div><div class="modal-card"><button class="modal-close" onclick="closeModal()">×</button><div class="product-art large"><span>'+esc(p.icon)+'</span></div><span class="tag">'+esc(p.tag)+'</span><h2>'+esc(p.name)+'</h2><p class="muted">'+esc(p.desc)+'</p><div class="price">'+money(p.price)+'</div><button class="primary full" onclick="addToCart('+p.id+');closeModal()">Add to cart</button></div>';
- $("#modal").classList.remove("hidden");
+ const image=p.metadata?.image_url;
+ $("#modal").innerHTML='<div class="modal-backdrop" onclick="closeModal()"></div><div class="modal-card"><button class="modal-close" onclick="closeModal()">×</button><div class="product-modal-art">'+(image?'<img class="product-image large-image" src="'+esc(image)+'" alt="'+esc(p.name)+'">':'<span>'+esc(p.icon)+'</span>')+'</div><span class="tag">'+esc(p.tag)+'</span><h2>'+esc(p.name)+'</h2><p class="muted">'+esc(p.desc)+'</p><div class="price">'+money(p.price)+'</div><button class="primary full" onclick="addToCart('+p.id+');closeModal()">Add to cart</button><div id="productReviews"><div class="muted">Loading reviews…</div></div></div>';
+ $("#modal").classList.remove("hidden"); await loadProductReviews(p.id);
 }
 function closeModal(){$("#modal").classList.add("hidden");$("#modal").innerHTML=""}
 function addToCart(id){state.cart[id]=(Number(state.cart[id])||0)+1;save();toast("Added to cart");render()}
@@ -212,6 +219,24 @@ async function shareProduct(id){
  const p=PRODUCTS.find(x=>x.id===id);if(!p)return;
  const url=location.origin+location.pathname+"#shop?product="+id;
  try{if(navigator.share)await navigator.share({title:p.name,text:"Check out "+p.name+" on Rollin",url});else await navigator.clipboard.writeText(url);toast("Share link ready")}catch{}
+}
+async function loadProductReviews(productId){
+ const box=$("#productReviews"); if(!box)return;
+ const {data,error}=await supabase.from("product_reviews").select("rating,title,body,created_at").eq("product_id",productId).order("created_at",{ascending:false}).limit(30);
+ if(error){box.innerHTML='<div class="section notice">Reviews are temporarily unavailable.</div>';return}
+ const avg=data?.length?(data.reduce((n,r)=>n+Number(r.rating||0),0)/data.length).toFixed(1):"—";
+ box.innerHTML='<section class="section"><div class="section-head"><h3>Reviews</h3><span class="tag">★ '+avg+'</span></div>'+(data?.length?data.map(r=>'<article class="review"><strong>'+("★".repeat(Number(r.rating||0)))+'</strong><div><strong>'+esc(r.title||"Verified purchase")+'</strong><p class="muted">'+esc(r.body||"")+'</p></div></article>').join(""):'<div class="empty">No reviews yet.</div>')+'</section>';
+ if(session) box.innerHTML+='<section class="section feature"><h3>Leave a review</h3><select id="reviewRating" class="search full"><option value="5">5 stars</option><option value="4">4 stars</option><option value="3">3 stars</option><option value="2">2 stars</option><option value="1">1 star</option></select><input id="reviewTitle" class="search full" placeholder="Title"><textarea id="reviewBody" class="search full" placeholder="What did you think?"></textarea><button class="secondary full" onclick="submitReview('+productId+')">Submit review</button></section>';
+}
+async function submitReview(productId){
+ if(!session)return toast("Sign in to review a purchase");
+ const rating=Number($("#reviewRating")?.value||0),title=$("#reviewTitle")?.value.trim(),body=$("#reviewBody")?.value.trim();
+ const {data:items}=await supabase.from("order_items").select("order_id,orders!inner(id,user_id,status)").eq("product_id",productId).eq("orders.user_id",session.user.id);
+ const order=(items||[]).find(x=>["paid","succeeded","complete","completed"].includes(String(x.orders?.status||"").toLowerCase()));
+ if(!order)return toast("Only verified purchasers can review this item");
+ const {error}=await supabase.from("product_reviews").insert({product_id:productId,user_id:session.user.id,order_id:order.order_id,rating,title,body});
+ if(error)return toast(error.code==="23505"?"You already reviewed this purchase":"Could not submit review");
+ toast("Review submitted"); await loadProductReviews(productId);
 }
 function isShippable(p){if(!p)return false;const m=p.metadata||{};if(typeof m.shippable==="boolean")return m.shippable;return !["digital","service","auto"].includes(String(p.cat||"").toLowerCase())}
 async function startCheckout(){
@@ -286,7 +311,7 @@ window.addEventListener("hashchange",render);
 window.addEventListener("storage",()=>{state=loadState();applyTheme();render()});
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 
-window.closeModal=closeModal;window.addToCart=addToCart;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
+window.closeModal=closeModal;window.addToCart=addToCart;window.submitReview=submitReview;window.loadSellerDashboard=loadSellerDashboard;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
 window.startCheckout=startCheckout;window.signIn=signIn;window.signUp=signUp;window.signOut=signOut;window.subscribe=subscribe;
 window.merchantLead=merchantLead;window.loadMerchantDashboard=loadMerchantDashboard;window.updateFulfillment=updateFulfillment;window.createMerchantProduct=createMerchantProduct;window.loadMerchantCatalog=loadMerchantCatalog;window.editMerchantProduct=editMerchantProduct;window.toggleMerchantProduct=toggleMerchantProduct;window.copyReferral=copyReferral;window.copyText=copyText;window.money=money;window.render=render;
 
