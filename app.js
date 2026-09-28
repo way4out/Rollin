@@ -361,3 +361,6 @@ async function boot(){
  supabase.auth.onAuthStateChange(async(_event,s)=>{session=s;await loadProfile();if(s)await loadFavorites();render()});
 }
 boot().catch(e=>{console.error(e);toast("Rollin backend connection needs attention");render()});
+
+
+function updateQuickCart(){const el=document.querySelector("#quickCartCount");if(el)el.textContent=String(cartCount())}document.addEventListener("click",e=>{if(e.target.closest("#quickCart"))location.hash="cart";setTimeout(updateQuickCart,0)});setTimeout(updateQuickCart,500);
