@@ -50,7 +50,7 @@ jobs:
             grep -q "<html" "$f"
             grep -q "</html>" "$f"
           done
-          test "$(find .github/workflows -maxdepth 1 -type f -name '*.yml' -o -name '*.yaml' | wc -l)" -eq 1
+          test "$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l)" -eq 1
           echo "Rollin production build validation passed."
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
