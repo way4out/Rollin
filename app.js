@@ -326,7 +326,8 @@ async function signIn(){
  const {error}=await supabase.auth.signInWithPassword({email,password});
  if(error)return toast(error.message);toast("Signed in");
 }
-async function claimWelcome(){ const ref=new URLSearchParams(location.search).get("ref")||""; const {data,error}=await supabase.rpc("claim_welcome_reward",{p_referral_code:ref}); if(error)return; if(data?.claimed){toast("🎁 Welcome! +500 Rollin Rewards"); await loadProfile(); render()} }\nasync function signUp(){
+async function claimWelcome(){ const ref=new URLSearchParams(location.search).get("ref")||""; const {data,error}=await supabase.rpc("claim_welcome_reward",{p_referral_code:ref}); if(error)return; if(data?.claimed){toast("🎁 Welcome! +500 Rollin Rewards"); await loadProfile(); render()} }
+async function signUp(){
  const name=$("#newName")?.value.trim(),email=$("#newEmail")?.value.trim(),password=$("#newPassword")?.value;
  if(!email||!password)return toast("Enter email and password");
  if(password.length<6)return toast("Password must be at least 6 characters");
@@ -368,7 +369,8 @@ document.addEventListener("click",e=>{
 $("#desktopNav").innerHTML=navHtml();$("#mobileNav").innerHTML=navHtml();
 $("#themeBtn").onclick=()=>{state.theme=state.theme==="dark"?"light":"dark";applyTheme();save()};
 $("#walletBtn").onclick=()=>route("wallet");
-window.addEventListener("popstate",render);\nif(session) setTimeout(claimWelcome,350);
+window.addEventListener("popstate",render);
+if(session) setTimeout(claimWelcome,350);
 window.addEventListener("storage",()=>{state=loadState();applyTheme();render()});
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register(APP_BASE+"sw.js").catch(()=>{}));
 
