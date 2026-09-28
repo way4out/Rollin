@@ -29,7 +29,7 @@ async function loadProducts(){
 
 const NAV = [
   ["home","⌂","Home"],["shop","▦","Shop"],["drops","◈","Drops"],["rewards","★","Rewards"],
-  ["wallet","◉","Wallet"],["profile","●","Profile"],["gaia","♧","Gaia"],["merchant","◇","Sell"]
+  ["wallet","◉","Wallet"],["profile","●","Profile"],["crypto","₿","Crypto"],["gaia","♧","Gaia"],["merchant","◇","Sell"]
 ];
 
 const DEFAULT = {
@@ -78,6 +78,8 @@ function shop(){
  '<div class="toolbar"><input id="search" class="search" autocomplete="off" placeholder="Search products, categories…"><select id="filter" class="search"><option value="all">All categories</option>'+[...new Set(PRODUCTS.map(p=>p.cat))].map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join("")+'</select></div><div id="shopGrid" class="grid">'+PRODUCTS.map(productCard).join("")+'</div>');
  const filter=()=>{const q=$("#search").value.trim().toLowerCase(),c=$("#filter").value;const list=PRODUCTS.filter(p=>(c==="all"||p.cat===c)&&(p.name+" "+p.cat+" "+p.desc).toLowerCase().includes(q));$("#shopGrid").innerHTML=list.length?list.map(productCard).join(""):'<div class="empty wide">No matching products.</div>'};
  $("#search").oninput=filter;$("#filter").onchange=filter;
+ const productId=new URLSearchParams(location.hash.split("?")[1]||"").get("product");
+ if(productId) setTimeout(()=>openProduct(Number(productId)),0);
 }
 function drops(){shell('<div class="drop-banner"><div class="eyebrow">DROP CENTER</div><h2>Member Drop</h2><p class="muted">Catalog availability is shown from the live product database.</p><div class="count">LIVE</div></div><div class="grid section">'+PRODUCTS.filter(p=>p.tag==="DROP").map(productCard).join("")+'</div>')}
 function rewards(){
@@ -239,10 +241,11 @@ async function seller(){
  const name=profile?.display_name||"Rollin Seller";
  shell('<div class="section-head"><div><div class="eyebrow">SELLER STORE</div><h2>'+esc(name)+'</h2><p class="muted">'+esc(profile?.tier||"Seller")+' · '+products.length+' active products</p></div><button class="secondary" onclick="location.hash='shop'">Back to Shop</button></div><section class="section seller-hero feature"><div class="seller-avatar">'+esc(name.slice(0,1).toUpperCase())+'</div><h2>'+esc(name)+'</h2><p class="muted">Browse this seller’s Rollin catalog.</p></section><section class="section"><div class="grid">'+(products.length?products.map(productCard).join(""):'<div class="empty wide">No active products yet.</div>')+'</div></section>');
 }
+function notFound(){shell('<section class="section feature"><div class="eyebrow">ROLLIN</div><h2>Page not found</h2><p class="muted">That destination is not available. Use the buttons below to continue.</p><div class="hero-actions"><button class="primary" onclick="location.hash=\'home\'">Home</button><button class="secondary" onclick="location.hash=\'shop\'">Shop</button><button class="secondary" onclick="location.hash=\'profile\'">Profile</button></div></section>', "Page not found")}
 function render(){
  const page=(location.hash.slice(1)||"home").split("?")[0];
  document.querySelectorAll("[data-nav]").forEach(x=>x.classList.toggle("active",x.dataset.nav===page));
- ({home,shop,crypto,drops,rewards,wallet,profile,cart,checkout,merchant,gaia,seller}[page]||home)();
+ ({home,shop,crypto,drops,rewards,wallet,profile,cart,checkout,merchant,gaia,seller}[page]||notFound)();
 }
 async function openProduct(id){
  const p=PRODUCTS.find(x=>x.id===id);if(!p)return;
