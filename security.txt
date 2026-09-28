@@ -1,0 +1,3 @@
+Contact: mailto:security@rollin.example
+Preferred-Languages: en
+Canonical: https://rollin-commerce-hub.lovable.app/.well-known/security.txt
