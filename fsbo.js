@@ -5,8 +5,8 @@ const SUPABASE_KEY="sb_publishable_X1eIeVVNUOHuhmL_10bkDw_1HuT4Vcq";
 const S=createClient(SUPABASE_URL,SUPABASE_KEY);
 const B="/Rollin/";
 const TOKENS={
- USDC:{symbol:"USDC",name:"USD Coin",contract:"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",decimals:6,peg:"USD"},
- USDS:{symbol:"USDS",name:"Sky Dollar",contract:"0x820C137fa70C8691f0e44Dc420a5e53c168921Dc",decimals:18,peg:"USD"},
+ USDC:{symbol:"USDC",name:"USD Coin",contract:"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",decimals:6,peg:"USD",settlement_enabled:true},
+ USDS:{symbol:"USDS",name:"Sky Dollar",contract:"0x820C137fa70C8691f0e44Dc420a5e53c168921Dc",decimals:18,peg:"USD",settlement_enabled:true},
  DAI:{symbol:"DAI",name:"Dai",contract:"0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",decimals:18,peg:"USD",settlement_enabled:true},
  EURC:{symbol:"EURC",name:"Euro Coin",contract:"0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42",decimals:6,peg:"EUR",settlement_enabled:true}
 };
