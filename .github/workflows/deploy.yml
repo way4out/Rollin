@@ -34,6 +34,13 @@ jobs:
           test -f cars-trucks/index.html
           test -f boats/index.html
           test -f planes/index.html
+          test -f contact-us/index.html
+          test -f sitemap/index.html
+          test -f sitemap.xml
+          test -f robots.txt
+          grep -q "https://way4out.github.io/Rollin/sitemap.xml" robots.txt
+          grep -q "contact-us" sitemap.xml
+          grep -q "sitemap" sitemap.xml
           grep -q "supabase" fsbo.js
           grep -q "rollin-stripe-fsbo-checkout" fsbo.js
           grep -q "rollin-verify-base-usdc" fsbo.js
