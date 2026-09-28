@@ -269,7 +269,7 @@ async function toggleFav(id){
  }
  render();
 }
-async function shareProduct(id){
+async async function shareProduct(id){
  const p=PRODUCTS.find(x=>x.id===id);if(!p)return;
  const url=location.origin+APP_BASE+"shop/?product="+encodeURIComponent(id);
  try{if(navigator.share)await navigator.share({title:p.name,text:"Check out "+p.name+" on Rollin",url});else await navigator.clipboard.writeText(url);toast("Share link ready")}catch{}
@@ -370,7 +370,7 @@ $("#themeBtn").onclick=()=>{state.theme=state.theme==="dark"?"light":"dark";appl
 $("#walletBtn").onclick=()=>route("wallet");
 window.addEventListener("popstate",render);\nif(session) setTimeout(claimWelcome,350);
 window.addEventListener("storage",()=>{state=loadState();applyTheme();render()});
-if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register(APP_BASE+"sw.js").catch(()=>{}));
 
 window.route=route;window.closeModal=closeModal;window.addToCart=addToCart;window.submitReview=submitReview;window.loadSellerDashboard=loadSellerDashboard;window.updateSellerFulfillment=updateSellerFulfillment;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
 window.startCheckout=startCheckout;window.signIn=signIn;window.signUp=signUp;window.signOut=signOut;window.subscribe=subscribe;
