@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1025 255" role="img" aria-labelledby="title desc">
+<title id="title">Rollin</title><desc id="desc">Rollin wordmark with the red-orange orbital swoosh through the O.</desc>
+<rect width="1025" height="255" rx="22" fill="#fff"/>
+<g fill="#050505" font-family="Arial Black,Arial,Helvetica,sans-serif" font-size="205" font-weight="900" letter-spacing="-9"><text x="16" y="205">ROLLIN</text></g>
+<path d="M188 187 C286 181 355 147 421 92 C441 75 461 59 482 39 C466 77 438 113 405 139 C342 188 266 210 188 215 C166 216 151 211 188 187Z" fill="#ff2b16"/>
+<path d="M188 187 C281 178 350 143 421 86 C443 68 463 50 482 29 C469 72 441 110 406 139 C343 189 266 210 188 215 C169 216 157 210 188 187Z" fill="#ff5a00" opacity=".78"/>
+</svg>
