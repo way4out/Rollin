@@ -1,8 +1,10 @@
-# Rollin Commerce Hub
+# Rollin Global Asset Marketplace
 
 Rollin is a standalone, mobile-first commerce PWA built independently of Lovable hosting.
 
 ## Production surface
+
+Rollin is a marketplace interface for lawful owner-direct listings of real estate, autos, motorcycles/motos, boats, aircraft and businesses. It supports jurisdiction-aware listing fields, seller/buyer workflows, messaging, offers and category-specific documentation prompts.
 - GitHub Pages deployment via `.github/workflows/pages.yml`
 - Responsive web/PWA experience for iPhone, Android and desktop
 - Product discovery, search, categories, favorites, cart, demo checkout
@@ -11,6 +13,12 @@ Rollin is a standalone, mobile-first commerce PWA built independently of Lovable
 - Gaia human-first / sustainability design layer
 - Offline-first service worker and installable manifest
 - Verified-data gate for wallet/token features
+
+## Compliance boundary
+
+Rollin does not represent that a listing or transaction is lawful worldwide. Requirements differ by country, state/province, municipality and asset type. Sellers are responsible for truthful advertising and required ownership, title, registration, licensing, tax, zoning, disclosure and transfer requirements; buyers should independently verify the applicable official records and transaction terms. Payment is never represented as successful until a real provider confirms it.
+
+For automobiles, advertised pricing must be truthful and include mandatory dealer charges where applicable; the FTC's September 2026 guidance is incorporated as a U.S. auto-advertising reference, not as a worldwide rule.
 
 ## Monetization architecture
 Designed for real revenue from:
