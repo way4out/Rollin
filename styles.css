@@ -98,3 +98,21 @@ body{background:radial-gradient(900px 500px at 10% -5%,#163047 0,transparent 58%
 .empty{border:1px dashed #ffffff18!important;border-radius:20px;padding:50px!important;background:#ffffff03}
 @media(max-width:800px){.page{padding:24px 16px 90px}.toolbar{top:72px}.topbar{gap:10px}.top-actions{display:flex;gap:6px}.top-actions .secondary{display:none}.nav-link{font-size:.82rem}.offer-row{align-items:flex-start;flex-direction:column}.modal{padding:20px!important;border-radius:22px!important}}
 @media(max-width:520px){.page{padding-left:12px;padding-right:12px}.hero h1{font-size:clamp(3.1rem,16vw,5rem)}.hero-actions{display:grid}.hero-actions>*{width:100%;text-align:center}.card-body{padding:16px}.price{font-size:1.45rem}}
+
+/* Rollin brand lockup — shared across every page */
+.brand .logo{
+  width:148px;
+  height:40px;
+  flex:0 0 148px;
+  border-radius:10px;
+  background:#fff url("./assets/rollin-logo.svg") center/contain no-repeat;
+  color:transparent;
+  font-size:0;
+  overflow:hidden;
+  border:1px solid #ffffff22;
+  box-shadow:0 0 28px #0008;
+}
+.brand>span:last-child{display:none}
+@media(max-width:520px){
+  .brand .logo{width:124px;height:34px;flex-basis:124px}
+}
