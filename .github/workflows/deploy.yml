@@ -48,6 +48,10 @@ jobs:
             grep -q "</html>" "$f"
           done
           echo "Rollin production build validation passed."
+      - name: Audit local HTML links
+        run: node .github/scripts/audit-links.mjs
+      - name: Verify Rollin brand asset
+        run: test -f assets/rollin-logo.svg && grep -q "ROLLIN" assets/rollin-logo.svg
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
