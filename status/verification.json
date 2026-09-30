@@ -1,0 +1,15 @@
+{
+  "controller":"StellarNet LLC",
+  "project":"Rollin / OEQL / Forever Commons",
+  "verificationMode":"STELLARNET-VERIFIED",
+  "authorityClass":"application-control-plane",
+  "oeql":"application-namespace-live",
+  "forever":"application-namespace-live",
+  "namespaceExpansion":"unbounded-logical-cursor-model",
+  "externalAuthorities":{
+    "ianaPermanentUriScheme":"external-review-required",
+    "icannDnsTldDelegation":"external-process-required"
+  },
+  "rightsRule":"only-rights-actually-owned-or-authorized",
+  "generatedFor":"public-verification"
+}
