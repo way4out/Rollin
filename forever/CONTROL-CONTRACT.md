@@ -1,56 +1,47 @@
-# OEQL Forever Control Contract
+# OEQL Forever Control & Lease Contract Model
 
 Copyright (c) 2026 StellarNet LLC
 
-## Purpose
+## 1. Scope
+StellarNet LLC publishes and stewards the OEQL Forever Commons implementation and may operate an application-level namespace, resolver, issuance system, or other control plane where it has actual technical and contractual authority.
 
-This document defines the intended control model for the OEQL Forever Commons implementation published by StellarNet LLC.
+## 2. Maximum-rights rule
+For every issued identifier, StellarNet may grant the maximum rights it actually owns or is legally authorized to grant, and no more. Deployment, publication, generation, or display of a name does not create rights that StellarNet does not possess.
 
-## 1. Lead namespace and implementation stewardship
+## 3. Lease / license model
+An issued .forever identifier is, by default, a license/lease of use rather than a sale of the underlying protocol, namespace, registry, software, trademark, or infrastructure rights. The applicable authorization record controls scope, duration, renewal, revocation, transferability, and permitted uses.
 
-StellarNet LLC is the publisher and steward of the OEQL Forever Commons implementation in this repository. The implementation may define and enforce its own application-level namespace, resolver, issuance, authorization, and policy controls.
+## 4. Authorization record
+A production authorization record should contain at least:
+- canonical OEQL identifier;
+- normalized name;
+- controlling namespace;
+- lessee / authorized party;
+- signer identities;
+- signer count (1–100);
+- same-name requirement when applicable;
+- issuance timestamp;
+- effective time and expiry;
+- renewal status;
+- revocation status;
+- permitted uses and restrictions;
+- record version;
+- cryptographic record hash;
+- applicable governing terms and dispute mechanism.
 
-This statement concerns rights in the software, documentation, control plane, and any namespace that StellarNet LLC actually controls through a valid technical or contractual mechanism. It does not by itself create ownership of Internet infrastructure, the DNS root, an IANA registry entry, an ICANN top-level domain, or another party's registered domain.
+The public interface can generate a deterministic draft record. A legally binding agreement requires an actual acceptance/signature mechanism and applicable law.
 
-## 2. Free public protocol use
+## 5. Free protocol use
+The software/protocol format may remain free for compatible public implementations. Free protocol use does not mean every generated string is an exclusive legal registration.
 
-The public protocol format is intended to remain free to use. A person may create a compatible OEQL identifier without paying StellarNet LLC a protocol-use fee.
+## 6. No retroactive or external rights
+Nothing here transfers another party's domain, trademark, registry position, IANA registration, ICANN contract, or infrastructure rights.
 
-Free protocol use is not the same thing as a grant of exclusive legal title to a particular name.
+## 7. Global Internet status
+The deployed software can operate an OEQL application namespace and a .forever naming model under the control mechanisms StellarNet actually operates. It does not by itself establish global Internet authority. A permanent global URI scheme requires the applicable IANA/IETF registration process, and a DNS top-level domain requires the applicable DNS/root/registry mechanisms.
 
-## 3. Authorized-use rule
+## 8. Resolution
+Authoritative resolution requires an actual authoritative service, registry, or distributed control mechanism. Static HTML is only a client/presentation layer.
 
-Where StellarNet LLC operates the applicable OEQL/Forever control plane, authorization is determined by that control plane's published rules and authoritative records.
-
-Only an authorized controller, registrant, delegate, or other party recognized by the applicable control mechanism may administer an issued name. Public protocol use does not automatically grant administrative control over a name that has already been assigned under the authoritative system.
-
-## 4. No retroactive ownership
-
-A generated identifier does not retroactively transfer rights from an existing registrant, trademark owner, registry, registrar, or other rights holder.
-
-Disputes and third-party rights remain subject to applicable law, contracts, registry policies, and dispute-resolution procedures.
-
-## 5. Technical operation
-
-The public client may support:
-- OEQL URI generation;
-- deterministic identifiers;
-- local verification;
-- HTTPS fallback;
-- dark/light presentation;
-- authorized-control metadata;
-- published policy and license discovery.
-
-A production authoritative resolver requires an actual authoritative service, registry, or distributed consensus system. A static webpage alone does not create legal title or authoritative global control.
-
-## 6. Legal status
-
-This document is a software/protocol governance statement, not a legal opinion and not a substitute for a domain registration agreement, trademark registration, registry agreement, or other contract.
-
-For registered Internet domain names, the applicable registry/registrar records and agreements determine registrant rights. ICANN describes a registrant as the person or entity that registers a domain name and enters a contract with the registrar.
-
-## 7. Preservation
-
-StellarNet LLC may publish revisions to this implementation and its governance documents. Independent compatible implementations may exist.
-
-The Apache License 2.0 terms in `LICENSE` continue to govern the covered software unless a later, valid license expressly supersedes them for a particular contribution or component.
+## 9. Governing documents
+The software remains subject to the repository's LICENSE. This document is a protocol/commercial governance model and is not a legal opinion or substitute for counsel, registration agreements, or executed contracts.
