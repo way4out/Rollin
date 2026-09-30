@@ -1,0 +1,10 @@
+{
+  "name":"StellarNet AI Control Plane",
+  "version":"1.0",
+  "identity":"soulbound-role-bound",
+  "principles":["care-first","human-approval","least-privilege","auditable","reversible"],
+  "pipeline":["identity","permissions","tools","memory","task","approval","execution","audit","billing"],
+  "agents":["carekeeper","navigator","merchant","guardian","builder","resolver","publisher","auditor","mission"],
+  "approvalRequiredFor":["payments","external publication","account changes","namespace issuance","deletion","legal commitments"],
+  "rightsBoundary":"agents act only through permissions actually granted by StellarNet-controlled applications and users"
+}
