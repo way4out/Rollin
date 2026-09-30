@@ -3,7 +3,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL="https://qwjjaxzmneawwppcpaap.supabase.co";
 const SUPABASE_KEY="sb_publishable_X1eIeVVNUOHuhmL_10bkDw_1HuT4Vcq";
 const S=createClient(SUPABASE_URL,SUPABASE_KEY);
-const B="/Rollin/";
+const B=new URL("./",import.meta.url).pathname;
 const TOKENS={
  USDC:{symbol:"USDC",name:"USD Coin",contract:"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",decimals:6,peg:"USD",settlement_enabled:true},
  USDS:{symbol:"USDS",name:"Sky Dollar",contract:"0x820C137fa70C8691f0e44Dc420a5e53c168921Dc",decimals:18,peg:"USD",settlement_enabled:true},
