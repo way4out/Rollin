@@ -1,1 +1,69 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="OEQL Forever Web — Rollin's decentralized naming and publishing control plane."><meta name="theme-color" content="#07090e"><title>OEQL Forever Web · Rollin</title><style>body{margin:0;background:#07090e;color:#f7fafc;font:16px/1.55 system-ui,-apple-system,sans-serif}main{max-width:1050px;margin:auto;padding:48px 22px 80px}.card{border:1px solid #263241;border-radius:22px;background:#0d121d;padding:24px;margin:18px 0}.eyebrow{font-size:12px;letter-spacing:.16em;color:#8bffcf;font-weight:800}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.pill{display:inline-block;padding:7px 10px;border:1px solid #263241;border-radius:999px;margin:4px 4px 4px 0}a{color:#8bffcf}code{color:#8bffcf}h1{font-size:clamp(42px,8vw,82px);line-height:.95;margin:12px 0}h2{margin-top:0}.note{color:#aeb8c5}</style></head><body><main><div class="eyebrow">ROLLIN · STELLARNET LLC · OEQL</div><h1>FOREVER WEB</h1><p class="note">A production control plane for publishing Rollin and future OEQL applications through decentralized naming systems.</p><div class="card"><h2>Flagship</h2><p><strong>Rollin.forever</strong></p><p class="note">This page does not falsely claim that the name, the .forever namespace, or any registry is owned. A name becomes portfolio-controlled only after its actual registration transaction succeeds.</p><a href="../">Open Rollin →</a></div><div class="grid"><section class="card"><h2>Resolver layer</h2><p>Keep ordinary HTTPS/DNS as a compatibility path while supporting decentralized name resolution where the client and resolver support it.</p></section><section class="card"><h2>OEQL layer</h2><p><code>oeql://</code> is treated as an application/deep-link scheme. It requires an installed handler or compatible client; it is not assumed to be a universal browser protocol.</p></section><section class="card"><h2>Portfolio ledger</h2><p>Track each name by exact name, registry, registration transaction, controller, status, resolver target and canonical HTTPS destination.</p></section><section class="card"><h2>Safety gate</h2><p>Never overwrite an existing registrant, misrepresent ownership, or bypass registry rules. Brand, trademark, sanctions, jurisdiction and content checks remain part of acquisition.</p></section></div><div class="card"><h2>Publishing protocol</h2><p><span class="pill">1 · Discover</span><span class="pill">2 · Verify availability</span><span class="pill">3 · Register</span><span class="pill">4 · Verify control</span><span class="pill">5 · Resolve</span><span class="pill">6 · Publish</span><span class="pill">7 · Monitor</span></p><p class="note">The system is designed to scale to large portfolios without treating proposed names as acquired assets.</p></div><div class="card"><h2>Ownership model</h2><p>StellarNet LLC can be the business owner/controller for names actually acquired by the company. Personal registrations can remain under the individual's account where appropriate. Keep registration credentials and signing keys under direct authorized control.</p><p class="note">This implementation is infrastructure and software, not a legal transfer instrument or declaration of title.</p></div></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="OEQL Forever Commons — a free-to-use naming and publishing layer for open OEQL applications.">
+<meta name="theme-color" content="#07090e">
+<title>OEQL Forever Commons · Rollin</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#07090e;color:#f7fafc;font:16px/1.55 system-ui,-apple-system,sans-serif}main{max-width:1100px;margin:auto;padding:34px 20px 80px}.eyebrow{font-size:12px;letter-spacing:.16em;color:#8bffcf;font-weight:800}h1{font-size:clamp(42px,8vw,82px);line-height:.92;margin:12px 0}h2{margin-top:0}.lead,.note{color:#aeb8c5}.hero,.card{border:1px solid #263241;border-radius:22px;background:#0d121d;padding:24px;margin:18px 0}.hero{background:linear-gradient(145deg,#0d121d,#101827)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:14px}.pill{display:inline-block;padding:7px 10px;border:1px solid #263241;border-radius:999px;margin:4px 4px 4px 0}.row{display:flex;gap:10px;flex-wrap:wrap}input{flex:1;min-width:220px;background:#07090e;color:#fff;border:1px solid #39485a;border-radius:12px;padding:13px;font-size:16px}button,a.btn{border:1px solid #8bffcf;background:#8bffcf;color:#06110d;border-radius:12px;padding:12px 16px;font-weight:800;text-decoration:none;cursor:pointer}.out{margin-top:14px;padding:16px;border-radius:14px;background:#07090e;border:1px solid #263241;word-break:break-all}code{color:#8bffcf}.ok{color:#8bffcf}.warn{color:#ffd58a}a{color:#8bffcf}
+</style>
+</head>
+<body>
+<main>
+<div class="eyebrow">ROLLIN · STELLARNET LLC · OEQL</div>
+<h1>FOREVER COMMONS</h1>
+<p class="lead">A free-to-use naming layer for anyone: human-readable OEQL names, deterministic identity, and an HTTPS compatibility path — without pretending that a name is legally registered when it is not.</p>
+
+<section class="hero">
+<h2>Create a free OEQL name</h2>
+<p class="note">Enter a name. The browser derives a deterministic free identifier locally. No payment and no account are required for this demo/protocol layer.</p>
+<div class="row"><input id="name" maxlength="48" placeholder="your-name"><button id="make">Create name</button></div>
+<div id="result" class="out" hidden></div>
+</section>
+
+<div class="grid">
+<section class="card"><h2>Free by design</h2><p>The protocol format is free to use. It can be implemented by anyone and does not require a paid domain purchase merely to create a deterministic identity.</p></section>
+<section class="card"><h2>Open resolution</h2><p><code>oeql://name.forever</code> is an application/deep-link form. The HTTPS fallback keeps the experience usable in ordinary browsers.</p></section>
+<section class="card"><h2>Portable identity</h2><p>Names are normalized and hashed in the browser, so the same input produces the same protocol identifier without a central account.</p></section>
+<section class="card"><h2>No false ownership</h2><p>A generated protocol name is not automatically a legal domain registration, trademark right, or exclusive claim in a third-party registry.</p></section>
+</div>
+
+<section class="card">
+<h2>Resolution model</h2>
+<p><span class="pill">1 · Normalize</span><span class="pill">2 · Derive ID</span><span class="pill">3 · Resolve</span><span class="pill">4 · Publish</span><span class="pill">5 · Verify</span></p>
+<p class="note">A compatible client may resolve an OEQL identifier directly. Otherwise, the HTTPS compatibility route can serve the application. Registered namespaces can be layered on later without changing the protocol shape.</p>
+</section>
+
+<section class="card">
+<h2>What “free forever” means here</h2>
+<p class="ok"><strong>Free protocol use:</strong> yes — the naming algorithm and client-side format can be offered without a fee.</p>
+<p class="warn"><strong>Guaranteed free global registration forever:</strong> not claimed — that depends on whoever operates a particular registry, namespace, hosting service, or blockchain.</p>
+<p class="note">The goal is an open standard where people can create and use names without a mandatory payment gate, while registered names remain governed by the actual registry that controls them.</p>
+</section>
+
+<section class="card">
+<a class="btn" href="../">Open Rollin</a>
+<a href="../oeql/">OEQL layer</a>
+</section>
+</main>
+<script>
+const normalize=s=>s.trim().toLowerCase().replace(/[^a-z0-9-]+/g,"-").replace(/^-+|-+$/g,"").replace(/-{2,}/g,"-").slice(0,40)||"name";
+async function derive(){
+ const raw=document.getElementById("name").value;
+ const label=normalize(raw);
+ const bytes=new TextEncoder().encode(label+"|oeql-forever-commons-v1");
+ const hash=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",bytes))).map(b=>b.toString(16).padStart(2,"0")).join("");
+ const short=hash.slice(0,16);
+ const oeql="oeql://"+label+"-"+short+".forever";
+ const https=new URL("../forever/?name="+encodeURIComponent(label+"-"+short),location.href).href;
+ const box=document.getElementById("result");box.hidden=false;
+ box.innerHTML="<strong>"+oeql+"</strong><br><span class='note'>HTTPS fallback: "+https+"</span><br><br><button id='copy'>Copy OEQL name</button>";
+ document.getElementById("copy").onclick=()=>navigator.clipboard?.writeText(oeql);
+}
+document.getElementById("make").onclick=derive;
+document.getElementById("name").addEventListener("keydown",e=>{if(e.key==="Enter")derive()});
+</script>
+</body>
+</html>
