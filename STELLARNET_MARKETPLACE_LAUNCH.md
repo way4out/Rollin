@@ -1,6 +1,7 @@
 # StellarNet Marketplace Launch Manifest
 
 Status: DEPLOYMENT_PREPARED
+Lane model: POINHI logical lanes scale as 69^n by recursive depth n.
 Public service: https://stellarnet-marketplace.onrender.com
 Source: https://github.com/way4out/Rollin
 
@@ -29,3 +30,17 @@ Each listing should have a real raster image URL or seller-uploaded image. Place
 
 ## Release gate
 Do not label a listing "sold", "paid", "on-chain", "verified", or "live" until the corresponding backend/on-chain evidence has been confirmed.
+
+## One-tap purchase
+The marketplace UI exposes a 1-Tap Buy action per active listing. It resolves the current listing record and routes to the configured secure checkout. A completed sale still requires successful payment and order verification.
+
+## Required sale categories
+- Auto / Cars + Trucks
+- Aircraft / Planes
+- Boats
+- Businesses (subject to lawful sale and jurisdictional requirements)
+- Motorcycles
+- Real Estate: development, commercial, developed, undeveloped
+
+## POINHI lane topology
+69 base lanes; recursive depth n uses 69^n logical lanes. This is a software orchestration model, not a claim of infinite physical network capacity.
