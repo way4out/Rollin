@@ -58,16 +58,17 @@ function shell(content,title=""){
   window.scrollTo({top:0,behavior:"instant"});
 }
 function productCard(p){
-  const fav=state.favorites.includes(p.id);
+  const fav=state.favorites.includes(p.id), img=p.metadata?.image_url;
   return '<article class="card">'+
-    '<button class="product-art" data-product="'+p.id+'" aria-label="View '+esc(p.name)+'"><span>'+esc(p.icon)+'</span><span class="art-glow"></span></button>'+
+    '<button class="product-art" data-product="'+p.id+'" aria-label="View '+esc(p.name)+'">'+(img?'<img class="product-image" src="'+esc(img)+'" alt="'+esc(p.name)+'">':'<span>'+esc(p.icon)+'</span>')+'<span class="art-glow"></span></button>'+
     '<div class="card-body"><span class="tag">'+esc(p.tag)+'</span><h3>'+esc(p.name)+'</h3><p class="muted">'+esc(p.desc)+'</p>'+
     '<div class="price">'+money(p.price)+'</div><div class="card-actions">'+
-    '<button class="primary" data-buy="'+p.id+'">1-Tap Buy</button><button class="secondary" data-add="'+p.id+'">Add</button><button class="secondary" data-share="'+p.id+'">Share</button>'+
+    '<button class="primary" data-buy="'+p.id+'">1-Tap Buy</button><button class="primary" onclick="buyOnchainNow('+p.id+')">1-Tap Onchain</button><button class="secondary" data-add="'+p.id+'">Add</button><button class="secondary" data-share="'+p.id+'">Share</button>'+
     '<button class="fav '+(fav?"on":"")+'" data-fav="'+p.id+'" aria-label="Favorite">'+(fav?"♥":"♡")+'</button></div></div></article>';
 }
 
 async function buyNow(productId){const p=PRODUCTS.find(x=>x.id===Number(productId));if(!p)return toast("Listing unavailable");state.cart={[productId]:1};save();await startCheckout();}
+async function buyOnchainNow(productId){const p=PRODUCTS.find(x=>x.id===Number(productId));if(!p)return toast("Listing unavailable");if(!session){route("profile");return}state.cart={[productId]:1};save();route("crypto");}
 const COPY_PACKAGES=[
 {id:"stellarnet-llc-website",name:"StellarNet LLC Website",price_cents:3500000,scope:"Public company website and recreation data"},
 {id:"rollin-github-pages",name:"Rollin GitHub Pages Deployment",price_cents:2500000,scope:"Public Rollin deployment and recreation data"},
