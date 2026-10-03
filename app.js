@@ -29,6 +29,8 @@ async function loadProducts(){
 
 const APP_BASE=new URL("./",import.meta.url).pathname;
 function route(page,query=""){const p=page.replace(/^\/+|\/+$/g,"");const target=p==="home"?APP_BASE:APP_BASE+p+"/";location.href=target+(query?("?"+query):"")}
+const TELCOM_PROMO = '<div class="telcom-scroll-banner" role="region" aria-label="Quantum Telecom promotion"><div class="telcom-scroll-track"><a href="'+APP_BASE+'telecom/?plan=4-monthly" class="telcom-banner-link">QUANTUM TELCOM · eSIM + PHYSICAL SIM · $4 START + $4/MONTH · 1-TAP BUY · GLOBAL AVAILABILITY SUBJECT TO CARRIER/COUNTRY SUPPORT →</a><a href="'+APP_BASE+'telecom/?plan=4-monthly" class="telcom-banner-link">1-TAP BUY · ACTIVATE eSIM WHEN ELIGIBLE · PHYSICAL SIM SHIPPING WHERE AVAILABLE →</a><a href="'+APP_BASE+'shop/?category=Telecom" class="telcom-banner-link">UPGRADE GLOBAL MARKETPLACE CAPACITY · 1-TAP BUY · SHARE →</a></div></div>';
+
 const NAV = [
   ["home","⌂","Home"],["shop","▦","Shop"],["packages","⬇","Packages"],["drops","◈","Drops"],["rewards","★","Rewards"],
   ["wallet","◉","Wallet"],["profile","●","Profile"],["crypto","₿","Crypto"],["gaia","♧","Gaia"],["merchant","◇","Sell"]
@@ -54,7 +56,7 @@ function navHtml(){return NAV.map(([id,ic,label])=>'<a class="nav-link" data-nav
 
 function shell(content,title=""){
   document.title = title ? title+" — Rollin" : "Rollin — Shop. Earn. Unlock. Repeat.";
-  $("#view").innerHTML='<div class="page">'+content+'<footer class="footer"><strong>Rollin</strong> commerce. Payments are processed by Stripe Checkout; card data is not stored by this site.</footer></div>';
+  $("#view").innerHTML=TELCOM_PROMO+'<div class="page">'+content+'<footer class="footer"><strong>Rollin</strong> commerce. Payments are processed by Stripe Checkout; card data is not stored by this site.</footer></div>';
   window.scrollTo({top:0,behavior:"instant"});
 }
 function productCard(p){
