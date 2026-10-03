@@ -1,0 +1,16 @@
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+const S=createClient("https://qwjjaxzmneawwppcpaap.supabase.co","sb_publishable_X1eIeVVNUOHuhmL_10bkDw_1HuT4Vcq");
+const BASE="../";
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const money=c=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(Number(c||0)/100);
+async function session(){const r=await S.auth.getSession();return r.data.session||null}
+function card(d){const p=d.products||{};return '<article class="card"><div class="product-art"><span>⬡</span></div><div class="card-body"><span class="tag">'+esc(p.category||"Digital")+'</span><h3>'+esc(d.title)+'</h3><p class="muted">'+esc(d.description||p.description||"Digital download")+'</p><div class="price">'+money(d.price_cents)+'</div><div class="card-actions"><button class="primary buy" data-id="'+d.product_id+'">1-tap Buy</button><a class="secondary" href="../purchases/">Purchases</a></div></div></article>'}
+async function load(){const g=document.querySelector("#catalogGrid");const r=await S.from("digital_products").select("*,products(name,category,description)").eq("active",true).order("created_at",{ascending:false});if(r.error){g.innerHTML='<div class="empty wide">Catalog unavailable: '+esc(r.error.message)+'</div>';return}g.innerHTML=r.data?.length?r.data.map(card).join(""):'<div class="empty wide">No digital products are published yet.</div>';document.querySelectorAll(".buy").forEach(b=>b.onclick=()=>buy(Number(b.dataset.id)));}
+async function buy(productId){const s=await session();if(!s){alert("Sign in first, then return to Digital Sales.");location.href="../account/";return}
+const r=await fetch("https://qwjjaxzmneawwppcpaap.supabase.co/functions/v1/create-crypto-checkout",{method:"POST",headers:{Authorization:"Bearer "+s.access_token,"Content-Type":"application/json"},body:JSON.stringify({items:[{product_id:productId,quantity:1}],asset:"USDC"})});
+const x=await r.json();if(!r.ok){alert(x.error||"Unable to create checkout.");return}
+const msg="Pay "+x.amount_usd+" USDC on Base to "+x.receiving_address+" . Open your Bankr wallet, approve the transfer, then return here with the transaction hash.";
+if(confirm(msg+"\n\nOpen the wallet payment request now?")){try{location.href=x.payment_uri}catch{}}
+const tx=prompt("After the transaction confirms on Base, paste the transaction hash (0x…). Leave blank to confirm later from My Purchases.");if(!tx)return;
+const c=await fetch("https://qwjjaxzmneawwppcpaap.supabase.co/functions/v1/confirm-crypto-payment",{method:"POST",headers:{Authorization:"Bearer "+s.access_token,"Content-Type":"application/json"},body:JSON.stringify({payment_id:x.payment_id,tx_hash:tx.trim()})});const y=await c.json();if(!c.ok){alert(y.error||"Payment verification failed.");return}alert("Payment verified on-chain. Your digital entitlement has been issued. Open My Purchases to download.");location.href="../purchases/";}
+load();
