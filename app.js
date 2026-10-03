@@ -30,7 +30,7 @@ async function loadProducts(){
 const APP_BASE=new URL("./",import.meta.url).pathname;
 function route(page,query=""){const p=page.replace(/^\/+|\/+$/g,"");const target=p==="home"?APP_BASE:APP_BASE+p+"/";location.href=target+(query?("?"+query):"")}
 const NAV = [
-  ["home","⌂","Home"],["shop","▦","Shop"],["drops","◈","Drops"],["rewards","★","Rewards"],
+  ["home","⌂","Home"],["shop","▦","Shop"],["packages","⬇","Packages"],["drops","◈","Drops"],["rewards","★","Rewards"],
   ["wallet","◉","Wallet"],["profile","●","Profile"],["crypto","₿","Crypto"],["gaia","♧","Gaia"],["merchant","◇","Sell"]
 ];
 
@@ -68,6 +68,16 @@ function productCard(p){
 }
 
 async function buyNow(productId){const p=PRODUCTS.find(x=>x.id===Number(productId));if(!p)return toast("Listing unavailable");state.cart={[productId]:1};save();await startCheckout();}
+const COPY_PACKAGES=[
+{id:"stellarnet-master",name:"StellarNet Master Source Package",price_cents:9900,scope:"Master StellarNet sellables index + manifests + public source links"},
+{id:"nftqr-copy",name:"NFTQR Reproduction Data Package",price_cents:4900,scope:"NFTQR metadata, QR schema, issuance rules and recreation manifest"},
+{id:"telecom-copy",name:"Quantum Telecom Data Package",price_cents:4900,scope:"Telecom catalog, service configuration and recreation manifest"},
+{id:"simulator-copy",name:"Simulator Data Package",price_cents:4900,scope:"Simulator configuration, routes and recreation manifest"}
+];
+function packageManifest(p){return {schema:"stellarnet.copy-package.v1",package_id:p.id,name:p.name,scope:p.scope,rights:"single_download_copy_right",download_policy:"one verified paid entitlement -> one download token; token consumed atomically",payment:{chain:"base",processor:"BANKR"},integrity:{hash:"generated_server_side_at_release"}}}
+function packages(){shell('<div class="eyebrow">STELLARNET COPY MARKET</div><h2>1-Tap Copy Packages</h2><p class="muted">Each package is a separate digital listing. A paid entitlement is designed for one successful download; the server must verify the Base transaction before issuing the one-use token.</p><section class="section grid">'+COPY_PACKAGES.map(p=>'<article class="feature"><span class="tag">DIGITAL · 1×</span><h3>'+esc(p.name)+'</h3><p class="muted">'+esc(p.scope)+'</p><div class="price">'+money(p.price_cents)+'</div><button class="primary full" onclick="buyCopyPackage(\''+p.id+'\')">1-Tap Buy + Copy</button><button class="secondary full" onclick="previewCopyPackage(\''+p.id+'\')">Preview manifest</button></article>').join("")+'</section><section class="section notice"><strong>On-chain rail:</strong> BANKR/Base. No Bankr key is exposed in the browser.</section>')}
+function previewCopyPackage(id){const p=COPY_PACKAGES.find(x=>x.id===id);if(!p)return;const blob=new Blob([JSON.stringify(packageManifest(p),null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=p.id+"-manifest.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("Manifest downloaded; payment is not included")}
+async function buyCopyPackage(id){if(!COPY_PACKAGES.find(x=>x.id===id))return;if(!session){route("profile");return}toast("Preparing one-use Base/BANKR entitlement…");const {data,error}=await supabase.functions.invoke("create-copy-package-checkout",{body:{package_id:id,origin:location.origin+APP_BASE+"packages/"}});if(error||data?.error)return toast(error?.message||data?.error||"Copy checkout is not configured yet");if(data?.checkout_url)location.href=data.checkout_url;else toast("Payment intent created; awaiting verified settlement")}
 function growthRecommendations(){return PRODUCTS.filter(p=>!state.favorites.includes(p.id)).slice(0,4)}
 function home(){
  shell('<section class="hero"><div class="hero-card"><div class="eyebrow">ROLLIN COMMERCE OS</div><h1>SHOP.<br>EARN.<br>REPEAT.</h1><p>One fast, mobile-first place for products, drops, rewards, referrals and merchant growth.</p><div class="hero-actions"><a class="primary" href="/Rollin/shop/">Explore Shop →</a><a class="secondary" href="/Rollin/merchant/">Sell on Rollin</a></div><div class="trust-row"><span>✓ Mobile-first</span><span>✓ PWA-ready</span><span>✓ Human-first</span></div></div><div class="wallet-card"><div><div class="eyebrow">ROLLIN ACCOUNT</div><div class="balance">'+(session?(profileData?.tier||"Free"):"Guest")+'</div><div class="status"><span class="dot"></span>'+(session?"Signed in":"Guest mode")+'</div></div><div><p class="muted">'+cartCount()+' item(s) in cart.</p><a class="secondary" href="/Rollin/cart/">Open Cart</a></div></div></section>'+
@@ -250,7 +260,7 @@ function render(){
  const relative=location.pathname.startsWith(APP_BASE)?location.pathname.slice(APP_BASE.length):"";
  const page=(relative.split("/").filter(Boolean)[0]||"home").toLowerCase();
  document.querySelectorAll("[data-nav]").forEach(x=>x.classList.toggle("active",x.dataset.nav===page));
- ({home,shop,crypto,drops,rewards,wallet,profile,cart,checkout,merchant,gaia,seller}[page]||notFound)();
+ ({home,shop,packages,crypto,drops,rewards,wallet,profile,cart,checkout,merchant,gaia,seller}[page]||notFound)();
 }
 async function openProduct(id){
  const p=PRODUCTS.find(x=>x.id===id);if(!p)return;
@@ -376,7 +386,7 @@ if(session) setTimeout(claimWelcome,350);
 window.addEventListener("storage",()=>{state=loadState();applyTheme();render()});
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register(APP_BASE+"sw.js").catch(()=>{}));
 
-window.route=route;window.closeModal=closeModal;window.addToCart=addToCart;window.submitReview=submitReview;window.loadSellerDashboard=loadSellerDashboard;window.updateSellerFulfillment=updateSellerFulfillment;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
+window.route=route;window.packages=packages;window.buyCopyPackage=buyCopyPackage;window.previewCopyPackage=previewCopyPackage;window.closeModal=closeModal;window.addToCart=addToCart;window.submitReview=submitReview;window.loadSellerDashboard=loadSellerDashboard;window.updateSellerFulfillment=updateSellerFulfillment;window.changeQty=changeQty;window.removeFromCart=removeFromCart;
 window.startCheckout=startCheckout;window.signIn=signIn;window.signUp=signUp;window.signOut=signOut;window.subscribe=subscribe;
 window.startSellerOnboarding=startSellerOnboarding;window.loadSellerConnectStatus=loadSellerConnectStatus;window.merchantLead=merchantLead;window.loadMerchantDashboard=loadMerchantDashboard;window.updateFulfillment=updateFulfillment;window.createMerchantProduct=createMerchantProduct;window.loadMerchantCatalog=loadMerchantCatalog;window.editMerchantProduct=editMerchantProduct;window.toggleMerchantProduct=toggleMerchantProduct;window.copyReferral=copyReferral;window.copyText=copyText;window.money=money;window.render=render;
 
