@@ -1,0 +1,73 @@
+{
+  "schema": "stellarnet.copy-package-catalog.v1",
+  "status": "marketplace-flow-ready; onchain broadcast requires server-side BANKR write credentials",
+  "chain": "base",
+  "payment_processor": "BANKR",
+  "download_policy": "one verified paid entitlement per package; issue one single-use download token; atomically consume token before transfer",
+  "packages": [
+    {
+      "id": "stellarnet-master",
+      "name": "StellarNet Master Source Package",
+      "price_usd": 99,
+      "scope": [
+        "master source index",
+        "sellables manifests",
+        "public deployment links",
+        "recreation metadata"
+      ]
+    },
+    {
+      "id": "nftqr-copy",
+      "name": "NFTQR Reproduction Data Package",
+      "price_usd": 49,
+      "scope": [
+        "QR schema",
+        "edition metadata",
+        "issuance rules",
+        "recreation manifest"
+      ]
+    },
+    {
+      "id": "telecom-copy",
+      "name": "Quantum Telecom Data Package",
+      "price_usd": 49,
+      "scope": [
+        "service catalog",
+        "package metadata",
+        "configuration",
+        "recreation manifest"
+      ]
+    },
+    {
+      "id": "simulator-copy",
+      "name": "Simulator Data Package",
+      "price_usd": 49,
+      "scope": [
+        "simulator routes",
+        "configuration",
+        "package metadata",
+        "recreation manifest"
+      ]
+    },
+    {
+      "id": "rollin-marketplace-copy",
+      "name": "StellarNet Marketplace Copy Package",
+      "price_usd": 79,
+      "scope": [
+        "marketplace catalog",
+        "one-tap buy UI",
+        "copy-package flow",
+        "recreation manifest"
+      ]
+    }
+  ],
+  "rights_note": "Copy/download entitlement does not by itself transfer trademarks, copyrights, source ownership, domains, accounts, or other IP. Those rights require an explicit license or assignment.",
+  "security": [
+    "Never expose BANKR API keys in browser code or public repositories",
+    "Verify Base transaction on server",
+    "Bind entitlement to purchaser and package id",
+    "Use nonce/idempotency",
+    "Consume one-time download token atomically",
+    "Record tx hash and package hash"
+  ]
+}
