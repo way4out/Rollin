@@ -1,0 +1,1 @@
+window.STELLAR_LOTTO_CONFIG={business:"StellarNet Business LLC",unit:"Standalone #5",location:"Mesa, AZ 85210",chainId:8453,chainName:"Base",paymentAssets:["USDC"],bankrTokenAddresses:[],paidPlayEnabled:false,domain:"stellar-lotto.onrender.com"};
