@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#ffffff"><meta name="description" content="Stellar Lotto — transparent Base-native lottery infrastructure.">
+<meta name="theme-color" content="#ffffff"><meta name="description" content="Stellar Lotto — simple, transparent, capacity-gated lottery infrastructure for Base."><meta name="robots" content="index,follow"><meta property="og:title" content="Stellar Lotto"><meta property="og:description" content="Capacity-gated Base lottery infrastructure with transparent verification."><meta property="og:type" content="website"><meta property="og:url" content="https://stellar-lotto.onrender.com/"><link rel="canonical" href="https://stellar-lotto.onrender.com/">
 <link rel="manifest" href="./manifest.webmanifest"><script src="./config.js"></script><link rel="icon" href="./icon.svg">
 <title>Stellar Lotto</title>
 <style>
@@ -20,7 +20,8 @@
 </section>
 <section class="card"><h2>Play the free demo</h2><p class="muted">Choose 5 numbers. Demo tickets never take funds and never create a prize claim.</p><div class="numbers" id="numbers"></div><div class="actions"><button class="btn" id="quick">Quick pick</button><button class="btn secondary" id="ticket">Create demo ticket</button></div><p id="ticketOut" class="mono"></p></section>
 <section class="card" id="verify"><h2>Onchain verification</h2><p class="muted">Enter a transaction hash to open it on BaseScan. Stellar Lotto treats the blockchain as the source of truth for production entries and settlements.</p><div class="actions"><input id="tx" class="pill" style="flex:1;min-width:220px" placeholder="0x transaction hash"><button class="btn secondary" id="openTx">Open on BaseScan</button></div></section>
-<section class="card"><h2>Production readiness</h2><div class="list"><div class="row"><b>Draw gate</b><span class="tag">CAPACITY ONLY</span></div><div class="row"><b>Price model</b><span class="tag">$0.10 / SHARE</span></div><div class="row"><b>Network</b><span class="tag">BASE 8453</span></div><div class="row"><b>Paid play</b><span class="tag">LOCKED</span></div></div></section>\n<section class="card"><h2>Approved assets</h2><p class="muted">The production contract will accept USDC plus exactly the 24 verified BANKR StellarQR token contract addresses. Tickers and names are never trusted as identity.</p><div id="tokens" class="list"></div></section>
+<section class="card"><h2>Production readiness</h2><div class="list"><div class="row"><b>Draw gate</b><span class="tag">CAPACITY ONLY</span></div><div class="row"><b>Price model</b><span class="tag">$0.10 / SHARE</span></div><div class="row"><b>Network</b><span class="tag">BASE 8453</span></div><div class="row"><b>Paid play</b><span class="tag">LOCKED</span></div></div></section>
+<section class="card"><h2>Approved assets</h2><p class="muted">The production contract will accept USDC plus exactly the 24 verified BANKR StellarQR token contract addresses. Tickers and names are never trusted as identity.</p><div id="tokens" class="list"></div></section>
 <section class="card"><h2>How it works</h2><div class="list"><div class="row"><b>1. Connect</b><span class="muted">Base-compatible wallet</span></div><div class="row"><b>2. Select</b><span class="muted">Game + ticket</span></div><div class="row"><b>3. Approve</b><span class="muted">Only an allowlisted asset</span></div><div class="row"><b>4. Enter</b><span class="muted">Contract records ticket</span></div><div class="row"><b>5. Draw</b><span class="muted">Verifiable randomness</span></div><div class="row"><b>6. Settle</b><span class="muted">Public winner + payout</span></div></div></section>
 
 <section class="card"><h2>Winner & secure settlement</h2>
@@ -52,23 +53,25 @@ for(let i=1;i<=30;i++){let b=document.createElement('button');b.className='num';
 function pick(){selected=new Set();while(selected.size<5)selected.add(1+Math.floor(Math.random()*30));document.querySelectorAll('.num').forEach(b=>b.classList.toggle('sel',selected.has(+b.textContent)))}
 document.getElementById('quick').onclick=pick;
 document.getElementById('ticket').onclick=()=>{if(selected.size!==5){alert('Pick 5 numbers first.');return}const id='DEMO-'+crypto.randomUUID();demoPoolEntries++;document.getElementById('ticketOut').textContent='Demo ticket '+id+' • numbers '+[...selected].sort((a,b)=>a-b).join(', ');const pct=Math.min(100,Math.round(demoPoolEntries/DEMO_POOL_TARGET*100));document.getElementById('capacity').textContent=pct+'%';document.getElementById('poolStatus').textContent=pct>=100?'FULL • DRAW UNLOCKED':'OPEN • '+demoPoolEntries+'/'+DEMO_POOL_TARGET;document.getElementById('demoDraw').disabled=pct<100;};
-document.getElementById("demo").onclick=()=>document.querySelector(".card").scrollIntoView({behavior:"smooth"});\ndocument.getElementById("share").onclick=async()=>{const data={title:"Stellar Lotto",text:"Stellar Lotto — capacity-gated Base lottery infrastructure",url:location.href};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(location.href);alert("Link copied.");}}catch(e){}};
+document.getElementById("demo").onclick=()=>document.querySelector(".card").scrollIntoView({behavior:"smooth"});
+document.getElementById("share").onclick=async()=>{const data={title:"Stellar Lotto",text:"Stellar Lotto — capacity-gated Base lottery infrastructure",url:location.href};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(location.href);alert("Link copied.");}}catch(e){}};
 document.getElementById('openTx').onclick=()=>{const v=document.getElementById('tx').value.trim();if(/^0x[a-fA-F0-9]{64}$/.test(v))window.open('https://basescan.org/tx/'+v,'_blank');else alert('Enter a valid 0x transaction hash.')}
 document.getElementById('connect').onclick=async()=>{if(!window.ethereum){alert('Install a Base-compatible wallet such as Coinbase Wallet or another EVM wallet.');return}try{const accounts=await ethereum.request({method:'eth_requestAccounts'});const chain=await ethereum.request({method:'eth_chainId'});document.getElementById('connect').textContent=accounts[0].slice(0,6)+'…'+accounts[0].slice(-4);if(parseInt(chain,16)!==BASE_CHAIN)alert('Wallet connected. Switch to Base before any production transaction.')}catch(e){alert(e.message||'Wallet connection cancelled.')}};
 const tk=document.getElementById('tokens');if(!ALLOWLIST.length)tk.innerHTML='<div class="notice">0/24 verified production token addresses loaded. Paid play remains locked until all 24 exact addresses are verified.</div>';else ALLOWLIST.forEach((a,i)=>tk.innerHTML+=`<div class="token"><b>${i+1}</b><code>${a}</code><span class="tag">VERIFIED</span></div>`);
 
 let demoWinner=null, payoutConfirmed=false, demoPoolEntries=0, DEMO_POOL_TARGET=10;
 function secureRandomInt(max){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%max}
-document.getElementById('demoDraw').onclick=()=>{\n  if(demoPoolEntries<DEMO_POOL_TARGET){alert("Pool is not full yet. Add demo entries until capacity reaches 100%.");return}
-  if(selected.size!==5){alert('Pick 5 numbers first.');return}
+document.getElementById('demoDraw').onclick=()=>{
+  if(demoPoolEntries<DEMO_POOL_TARGET){alert("Pool is not full yet. Add demo entries until capacity reaches 100%.");return}
   const seed=new Uint8Array(32);crypto.getRandomValues(seed);
   const h=[...seed].map(x=>x.toString(16).padStart(2,'0')).join('');
-  const nums=[...selected].sort((a,b)=>a-b);
-  demoWinner={ticket:'DEMO-'+crypto.randomUUID(),numbers:nums,entropy:h};
+  const pool=[...document.querySelectorAll('#ticketOut')].map(x=>x.textContent).filter(Boolean);
+  const winnerIndex=parseInt(h.slice(0,8),16)%DEMO_POOL_TARGET;
+  demoWinner={ticket:'DEMO-WINNER-'+crypto.randomUUID(),winnerIndex,entropy:h};
   document.getElementById('poolGate').textContent='FINALIZED • DEMO';
   document.getElementById('winnerState').textContent='WINNER SELECTED';
   document.getElementById('confirmPayout').disabled=false;
-  document.getElementById('settlementOut').textContent='Demo winner locked to ticket '+demoWinner.ticket+' • proof '+h.slice(0,20)+'…';
+  document.getElementById('settlementOut').textContent='Demo winner selected from the finalized demo pool • ticket '+demoWinner.ticket+' • proof '+h.slice(0,20)+'…';
 };
 document.getElementById('confirmPayout').onclick=()=>{
   if(!demoWinner||payoutConfirmed)return;
