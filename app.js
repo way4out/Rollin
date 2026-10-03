@@ -69,10 +69,25 @@ function productCard(p){
 
 async function buyNow(productId){const p=PRODUCTS.find(x=>x.id===Number(productId));if(!p)return toast("Listing unavailable");state.cart={[productId]:1};save();await startCheckout();}
 const COPY_PACKAGES=[
-{id:"stellarnet-master",name:"StellarNet Master Source Package",price_cents:9900,scope:"Master StellarNet sellables index + manifests + public source links"},
-{id:"nftqr-copy",name:"NFTQR Reproduction Data Package",price_cents:4900,scope:"NFTQR metadata, QR schema, issuance rules and recreation manifest"},
-{id:"telecom-copy",name:"Quantum Telecom Data Package",price_cents:4900,scope:"Telecom catalog, service configuration and recreation manifest"},
-{id:"simulator-copy",name:"Simulator Data Package",price_cents:4900,scope:"Simulator configuration, routes and recreation manifest"}
+{id:"stellarnet-llc-website",name:"StellarNet LLC Website",price_cents:3500000,scope:"Public company website and recreation data"},
+{id:"rollin-github-pages",name:"Rollin GitHub Pages Deployment",price_cents:2500000,scope:"Public Rollin deployment and recreation data"},
+{id:"rollin-marketplace-source",name:"Rollin Marketplace Application / Source",price_cents:35000000,scope:"Marketplace application source and recreation data"},
+{id:"stellarnet-marketplace-render",name:"StellarNet Marketplace Render Deployment",price_cents:5000000,scope:"Marketplace deployment configuration and recreation data"},
+{id:"nftqr-application",name:"StellarNet NFTQR Application",price_cents:22500000,scope:"NFTQR application source/configuration and recreation data"},
+{id:"nftqr-public",name:"StellarNet NFTQR Public Deployment",price_cents:2000000,scope:"Public NFTQR deployment and recreation data"},
+{id:"stellarnet-render",name:"StellarNet Primary Render Deployment",price_cents:2500000,scope:"Primary deployment configuration and recreation data"},
+{id:"stellarnet-limited-free",name:"StellarNet Limited Free Deployment",price_cents:1250000,scope:"Limited-free deployment configuration and recreation data"},
+{id:"oeql-quantum-telecom-live",name:"OEQL Quantum Telecom Live Application",price_cents:17500000,scope:"Quantum Telecom live application and recreation data"},
+{id:"oeql-quantum-telecom",name:"OEQL Quantum Telecom Deployment",price_cents:5000000,scope:"Quantum Telecom deployment and recreation data"},
+{id:"oeql-quantum-telecom-phone",name:"OEQL Quantum Telecom Phone",price_cents:5000000,scope:"Quantum Telecom Phone deployment and recreation data"},
+{id:"oeql-quantum-telecom-7g-plus",name:"OEQL Quantum Telecom 7G+ Deployment",price_cents:5000000,scope:"Quantum Telecom 7G+ deployment and recreation data"},
+{id:"oeql-quantum-telecom-api",name:"OEQL Quantum Telecom API",price_cents:15000000,scope:"Quantum Telecom API source/configuration and recreation data"},
+{id:"oeql-bank-forever",name:"OEQL Bank Forever Application",price_cents:25000000,scope:"OEQL Bank Forever application source/configuration and recreation data"},
+{id:"oeql-source-poinhi",name:"OEQL Source + POINHI Architecture",price_cents:45000000,scope:"OEQL source and documented POINHI architecture"},
+{id:"telephone-nftqr-source",name:"Telephone / NFTQR Source",price_cents:30000000,scope:"Telephone/NFTQR source and recreation data"},
+{id:"aetheros-source",name:"AetherOS Source",price_cents:35000000,scope:"AetherOS source and recreation data"},
+{id:"poinhi-23-gate-69-lane",name:"POINHI 23-Gate / 69-Lane Architecture",price_cents:15000000,scope:"Documented 23-gate/69-lane software architecture"},
+{id:"poinhi-69n",name:"POINHI 69^n Recursive Architecture",price_cents:7500000,scope:"Documented 69^n recursive orchestration architecture"}
 ];
 function packageManifest(p){return {schema:"stellarnet.copy-package.v1",package_id:p.id,name:p.name,scope:p.scope,rights:"single_download_copy_right",download_policy:"one verified paid entitlement -> one download token; token consumed atomically",payment:{chain:"base",processor:"BANKR"},integrity:{hash:"generated_server_side_at_release"}}}
 function packages(){shell('<div class="eyebrow">STELLARNET COPY MARKET</div><h2>1-Tap Copy Packages</h2><p class="muted">Each package is a separate digital listing. A paid entitlement is designed for one successful download; the server must verify the Base transaction before issuing the one-use token.</p><section class="section grid">'+COPY_PACKAGES.map(p=>'<article class="feature"><span class="tag">DIGITAL · 1×</span><h3>'+esc(p.name)+'</h3><p class="muted">'+esc(p.scope)+'</p><div class="price">'+money(p.price_cents)+'</div><button class="primary full" onclick="buyCopyPackage(\''+p.id+'\')">1-Tap Buy + Copy</button><button class="secondary full" onclick="previewCopyPackage(\''+p.id+'\')">Preview manifest</button></article>').join("")+'</section><section class="section notice"><strong>On-chain rail:</strong> BANKR/Base. No Bankr key is exposed in the browser.</section>')}
