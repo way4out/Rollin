@@ -49,46 +49,18 @@
 <footer class="footer">Stellar Lotto • Base network • Paid entry only • <span class="mono">v0.3-capacity-gated-executive</span><br><br>Production asset configuration: 23 supplied StellarQR/BANKR contracts + native Base USDC = 24 approved assets. Paid play remains locked until legal authorization, compliance controls, audited contracts and verifiable randomness are deployed.</footer>
 </div>
 <script>
-const CONFIG=window.STELLAR_LOTTO_CONFIG||{}; const ALLOWLIST=CONFIG.bankrTokenAddresses||[]; const USDC=CONFIG.usdcAddress||""; const APPROVED_TOTAL=(ALLOWLIST.length+(USDC?1:0));
-const BASE_CHAIN=8453;
-const nums=document.getElementById('numbers');let selected=new Set();
-for(let i=1;i<=30;i++){let b=document.createElement('button');b.className='num';b.textContent=i;b.onclick=()=>{if(selected.has(i))selected.delete(i);else if(selected.size<5)selected.add(i);b.classList.toggle('sel',selected.has(i))};nums.appendChild(b)}
-function pick(){selected=new Set();while(selected.size<5)selected.add(1+Math.floor(Math.random()*30));document.querySelectorAll('.num').forEach(b=>b.classList.toggle('sel',selected.has(+b.textContent)))}
-document.getElementById('quick').onclick=pick;
-document.getElementById('ticket').onclick=()=>{if(selected.size!==5){alert('Pick 5 numbers first.');return}const id='DEMO-'+crypto.randomUUID();demoPoolEntries++;document.getElementById('ticketOut').textContent='Demo ticket '+id+' • numbers '+[...selected].sort((a,b)=>a-b).join(', ');const pct=Math.min(100,Math.round(demoPoolEntries/DEMO_POOL_TARGET*100));document.getElementById('capacity').textContent=pct+'%';document.getElementById('poolStatus').textContent=pct>=100?'FULL • DRAW UNLOCKED':'OPEN • '+demoPoolEntries+'/'+DEMO_POOL_TARGET;document.getElementById('demoDraw').disabled=pct<100;};
-document.getElementById("share").onclick=async()=>{const data={title:"Stellar Lotto",text:"Stellar Lotto — capacity-gated Base lottery infrastructure",url:location.href};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(location.href);alert("Link copied.");}}catch(e){}};
-document.getElementById('openTx').onclick=()=>{const v=document.getElementById('tx').value.trim();if(/^0x[a-fA-F0-9]{64}$/.test(v))window.open('https://basescan.org/tx/'+v,'_blank');else alert('Enter a valid 0x transaction hash.')}
-document.getElementById('connect').onclick=async()=>{if(!window.ethereum){alert('Install a Base-compatible wallet such as Coinbase Wallet or another EVM wallet.');return}try{const accounts=await ethereum.request({method:'eth_requestAccounts'});const chain=await ethereum.request({method:'eth_chainId'});document.getElementById('connect').textContent=accounts[0].slice(0,6)+'…'+accounts[0].slice(-4);if(parseInt(chain,16)!==BASE_CHAIN)alert('Wallet connected. Switch to Base before any production transaction.')}catch(e){alert(e.message||'Wallet connection cancelled.')}};
-const tk=document.getElementById('tokens');if(!ALLOWLIST.length)tk.innerHTML='<div class="notice">0/24 verified production token addresses loaded. Paid play remains locked until all 24 exact addresses are verified.</div>';else ALLOWLIST.forEach((a,i)=>tk.innerHTML+=`<div class="token"><b>${i+1}</b><code>${a}</code><span class="tag">VERIFIED</span></div>`);
-
-let demoWinner=null, payoutConfirmed=false, demoPoolEntries=0, DEMO_POOL_TARGET=10, watchEnabled=false, deferredInstall=null;
-function secureRandomInt(max){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%max}
-document.getElementById('demoDraw').onclick=()=>{
-  if(demoPoolEntries<DEMO_POOL_TARGET){alert("Pool is not full yet. Add demo entries until capacity reaches 100%.");return}
-  const seed=new Uint8Array(32);crypto.getRandomValues(seed);
-  const h=[...seed].map(x=>x.toString(16).padStart(2,'0')).join('');
-  const pool=[...document.querySelectorAll('#ticketOut')].map(x=>x.textContent).filter(Boolean);
-  const winnerIndex=parseInt(h.slice(0,8),16)%DEMO_POOL_TARGET;
-  demoWinner={ticket:'DEMO-WINNER-'+crypto.randomUUID(),winnerIndex,entropy:h};
-  document.getElementById('poolGate').textContent='FINALIZED • DEMO';
-  document.getElementById('winnerState').textContent='WINNER SELECTED';
-  document.getElementById('confirmPayout').disabled=false;
-  document.getElementById('settlementOut').textContent='Demo winner selected from the finalized demo pool • ticket '+demoWinner.ticket+' • proof '+h.slice(0,20)+'…';
-};
-document.getElementById('confirmPayout').onclick=()=>{
-  if(!demoWinner||payoutConfirmed)return;
-  payoutConfirmed=true;
-  document.getElementById('confirmPayout').disabled=true;
-  document.getElementById('settlementOut').textContent+=' • Demo release confirmed ONCE. No funds moved.';
-};
-document.getElementById("demoDraw").disabled=true;
+const CONFIG=window.STELLAR_LOTTO_CONFIG||{}, ALLOWLIST=CONFIG.bankrTokenAddresses||[], USDC=CONFIG.usdcAddress||"", APPROVED_TOTAL=ALLOWLIST.length+(USDC?1:0), BASE_CHAIN=8453;
+document.getElementById("connect").onclick=async()=>{if(!window.ethereum){alert("Install a Base-compatible wallet.");return}try{const accounts=await ethereum.request({method:"eth_requestAccounts"}),chain=await ethereum.request({method:"eth_chainId"});document.getElementById("connect").textContent=accounts[0].slice(0,6)+"…"+accounts[0].slice(-4);if(parseInt(chain,16)!==BASE_CHAIN)alert("Connected. Switch to Base before paid entry.");}catch(e){alert(e.message||"Connection cancelled.")}};
+document.getElementById("openTx").onclick=()=>{const v=document.getElementById("tx").value.trim();if(/^0x[a-fA-F0-9]{64}$/.test(v))window.open("https://basescan.org/tx/"+v,"_blank","noopener,noreferrer");else alert("Enter a valid 0x transaction hash.")};
+const tk=document.getElementById("tokens");tk.innerHTML='<div class="token"><b>USDC</b><code>'+USDC+'</code><span class="tag">BASE</span></div>';ALLOWLIST.forEach((a,i)=>tk.innerHTML+='<div class="token"><b>'+ (i+1) +'</b><code>'+a+'</code><span class="tag">ALLOWLISTED</span></div>');tk.innerHTML+='<div class="notice ok">'+APPROVED_TOTAL+'/24 approved assets configured. Paid entry remains locked until production gates are complete.</div>';
+let watchEnabled=false,deferredInstall=null;
+document.getElementById("watch").onclick=()=>{watchEnabled=!watchEnabled;document.getElementById("watchState").textContent=watchEnabled?"WATCHING":"READY";document.getElementById("watch").textContent=watchEnabled?"Watching: ON":"Enable watch updates";document.getElementById("watchOut").textContent=watchEnabled?"Watch mode enabled. Production capacity will come from contract/indexer state.":"Watch mode paused."};
+document.getElementById("notify").onclick=async()=>{if(!("Notification"in window)){alert("Notifications are not supported here.");return}if(Notification.permission==="granted"){document.getElementById("notify").textContent="Notifications: ON";return}const p=await Notification.requestPermission();document.getElementById("notify").textContent=p==="granted"?"Notifications: ON":"Notifications: OFF"};
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;document.getElementById("install").disabled=false});
 document.getElementById("install").onclick=async()=>{if(deferredInstall){deferredInstall.prompt();deferredInstall=null}else alert("On iPhone: Share → Add to Home Screen. On Android: use the browser Install option.")};
-const shareText="Stellar Lotto — transparent, capacity-gated lottery infrastructure for Base. Watch the pool, verify draws, and explore the free demo. Paid play is locked until required legal, compliance and contract controls are complete."; const shareUrl=location.href;
+const shareText="Stellar Lotto — paid-entry-only lottery infrastructure for Base with transparent capacity tracking, 24 approved assets, public verification and a mobile-ready experience. Paid play remains locked until required legal and production controls are live.";
+const shareUrl=location.href;
 document.getElementById("shareFacebook").onclick=()=>window.open("https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(shareUrl)+"&quote="+encodeURIComponent(shareText),"_blank","noopener,noreferrer");
 document.getElementById("shareX").onclick=()=>window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(shareText)+"&url="+encodeURIComponent(shareUrl),"_blank","noopener,noreferrer");
 document.getElementById("copyShare").onclick=async()=>{try{await navigator.clipboard.writeText(shareText+" "+shareUrl);document.getElementById("communityOut").textContent="Share text copied."}catch(e){document.getElementById("communityOut").textContent=shareText+" "+shareUrl}};
-document.getElementById("watch").onclick=()=>{watchEnabled=!watchEnabled;document.getElementById("watchState").textContent=watchEnabled?"WATCHING":"READY";document.getElementById("watch").textContent=watchEnabled?"Watching: ON":"Enable watch updates";document.getElementById("watchOut").textContent=watchEnabled?"Watch mode enabled. This demo only changes when you create demo entries. Production will read contract/indexer state.":"Watch mode paused."};
-document.getElementById("notify").onclick=async()=>{if(!("Notification" in window)){alert("Notifications are not supported here.");return}if(Notification.permission==="granted"){document.getElementById("notify").textContent="Notifications: ON";return}const p=await Notification.requestPermission();document.getElementById("notify").textContent=p==="granted"?"Notifications: ON":"Notifications: OFF"};
-
 </script><script>if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js");</script></body></html>
