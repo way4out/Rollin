@@ -29,7 +29,7 @@ async function loadProducts(){
 
 const APP_BASE=new URL("./",import.meta.url).pathname;
 function route(page,query=""){const p=page.replace(/^\/+|\/+$/g,"");const target=p==="home"?APP_BASE:APP_BASE+p+"/";location.href=target+(query?("?"+query):"")}
-const TELCOM_PROMO = '<div class="telcom-scroll-banner" role="region" aria-label="Quantum Telecom promotion"><div class="telcom-scroll-track"><a href="'+APP_BASE+'telecom/?plan=4-monthly" class="telcom-banner-link">QUANTUM TELCOM · eSIM + PHYSICAL SIM · $4 START + $4/MONTH · 1-TAP BUY · GLOBAL AVAILABILITY SUBJECT TO CARRIER/COUNTRY SUPPORT →</a><a href="'+APP_BASE+'telecom/?plan=4-monthly" class="telcom-banner-link">1-TAP BUY · ACTIVATE eSIM WHEN ELIGIBLE · PHYSICAL SIM SHIPPING WHERE AVAILABLE →</a><a href="'+APP_BASE+'shop/?category=Telecom" class="telcom-banner-link">UPGRADE GLOBAL MARKETPLACE CAPACITY · 1-TAP BUY · SHARE →</a></div></div>';
+const TELCOM_PROMO = '<div class="telcom-scroll-banner" role="region" aria-label="Quantum Telecom promotion"><div class="telcom-scroll-track"><a href="https://buy.stripe.com/28E00leF9bjm6Yf09UdIA06" class="telcom-banner-link">QUANTUM TELCOM · eSIM · $4 START + $4/MONTH · 1-TAP BUY →</a><a href="https://buy.stripe.com/9B6eVf1Snafi1DV7CmdIA07" class="telcom-banner-link">PHYSICAL SIM · $4 START + $4/MONTH · 1-TAP BUY · SHIPPING/ACTIVATION SUBJECT TO PROVIDER ELIGIBILITY →</a><a href="'+APP_BASE+'shop/?category=Telecom" class="telcom-banner-link">GLOBAL MARKETPLACE · 1-TAP BUY · SHARE · CAPACITY UPGRADE →</a></div></div>';
 
 const NAV = [
   ["home","⌂","Home"],["shop","▦","Shop"],["packages","⬇","Packages"],["drops","◈","Drops"],["rewards","★","Rewards"],
