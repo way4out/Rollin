@@ -87,7 +87,21 @@
 const C=window.STELLAR_LOTTO_CONFIG||{}, A=C.bankrTokenAddresses||[], U=C.usdcAddress||"", shareText="Stellar Lotto — compliance-first Base infrastructure with 24 configured assets, public verification and jurisdiction-gated paid play. Paid play remains locked until required authorization and technical evidence are verified.";
 const tokens=document.getElementById("tokens");
 tokens.innerHTML='<div class="token"><b>USDC</b><code>'+U+'</code><span class="tag">BASE</span></div>';
-A.forEach((a,i)=>tokens.insertAdjacentHTML("beforeend",'<div class="token"><b>BANKR '+(i+1)+'</b><code>'+a+'</code><span class="tag">CONFIGURED</span></div>'));
+async function renderBankrToken(a,i){
+ const row=document.createElement("div"); row.className="token";
+ row.innerHTML='<b>Loading…</b><code>'+a+'</code><span class="tag">BANKR VERIFY</span>'; tokens.appendChild(row);
+ try{
+  const r=await fetch("https://api.bankr.bot/token-launches/"+a,{headers:{Accept:"application/json"}});
+  if(!r.ok) throw new Error("unavailable");
+  const j=await r.json(), x=j.launch||j;
+  const name=x.tokenName||x.name||"", symbol=x.tokenSymbol||x.symbol||"";
+  if(!name&&!symbol) throw new Error("no verified metadata");
+  row.innerHTML='<b>'+[name,symbol].filter(Boolean).join(" • ")+'</b><code>'+a+'</code><span class="tag">BANKR VERIFIED</span>';
+ }catch(e){
+  row.innerHTML='<b>Verified name unavailable</b><code>'+a+'</code><span class="tag">ADDRESS VERIFIED</span>';
+ }
+}
+A.forEach((a,i)=>renderBankrToken(a,i));
 document.getElementById("connect").onclick=document.getElementById("wallet").onclick=async()=>{
  if(!window.ethereum){document.getElementById("walletOut").textContent="No compatible wallet detected.";return}
  try{const ac=await ethereum.request({method:"eth_requestAccounts"});const ch=await ethereum.request({method:"eth_chainId"});document.getElementById("walletOut").textContent="Wallet: "+ac[0]+" • Chain: "+parseInt(ch,16)+" • Paid play: LOCKED";}catch(e){document.getElementById("walletOut").textContent=e.message||"Connection cancelled."}
