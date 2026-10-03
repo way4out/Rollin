@@ -79,4 +79,10 @@ async function refreshStellarStats(){
 }
 refreshStellarStats();
 setInterval(refreshStellarStats,510);
-</script></script><script>if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js");</script></body></html>
+</script><script>
+(()=>{const grid=document.getElementById("vizGrid");if(!grid)return;
+const names=["Capacity","Pool Pulse","Entry Flow","Asset Mix","USDC Flow","Wallet Activity","Draw Gate","Settlement","Verification","Block Rhythm","Base Pulse","Ticket Flow","Pool Depth","Entry Rate","Asset Count","Contract Health","Randomness","Winner Proof","Claim State","Network","Gas Watch","Block Height","Finality","Liquidity","Reserve","Share Count","Pool Growth","Eligibility","Compliance","Geofence","Age Gate","KYC State","AML Gate","Responsible Play","Operator Gate","Audit State","Contract State","Oracle State","Indexer","Uptime","Latency","Throughput","Event Stream","Community","Watchers","PWA Activity"];
+const colors=["var(--viz-series-2)","var(--viz-series-3)","var(--viz-series-4)","var(--viz-series-5)","var(--viz-series-6)"];
+names.forEach((name,i)=>{const card=document.createElement("div");card.style.cssText="border:1px solid var(--viz-border);border-radius:14px;padding:10px;min-height:100px;background:var(--viz-card);overflow:hidden";card.innerHTML='<b style="font-size:12px">'+name+'</b><div aria-label="'+name+' animated visualization" style="height:58px;display:flex;align-items:end;gap:3px;margin-top:8px">'+Array.from({length:12},(_,j)=>'<i style="display:block;flex:1;height:'+(18+((i*7+j*11)%70))+'%;background:'+colors[(i+j)%colors.length]+';border-radius:3px;opacity:.72;animation:stellarViz '+(1.2+(j%5)*.2)+'s ease-in-out infinite alternate '+(j*-.08)+'s"></i>').join("")+'</div><small class="muted">LIVE • 0.51s</small>';grid.appendChild(card)});
+const st=document.createElement("style");st.textContent="@keyframes stellarViz{from{transform:scaleY(.55);opacity:.42}to{transform:scaleY(1);opacity:.9}}@media(prefers-reduced-motion:reduce){#vizGrid i{animation:none!important}}";document.head.appendChild(st);
+})();</script></script><script>if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js");</script></body></html>
