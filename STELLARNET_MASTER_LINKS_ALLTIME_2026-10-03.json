@@ -1,13 +1,8 @@
 {
-  "updated": "2026-10-03",
-  "scope": "all-time",
-  "repos": [
-    "way4out/Rollin",
-    "way4out/Telephone",
-    "way4out/OEQL",
-    "way4out/AetherOS"
-  ],
-  "primary_paths": [
+  "index":"StellarNet Master Source Index — ALL TIME",
+  "updated":"2026-10-03",
+  "scope":"all-time cumulative source index",
+  "live_paths":[
     "https://www.stellarnetllc.com/",
     "https://way4out.github.io/Rollin/",
     "https://stellarnet-marketplace.onrender.com/",
@@ -20,31 +15,19 @@
     "https://oeql-quantum-telecom-phone.onrender.com/",
     "https://oeql-quantum-telecom-7g-plus.onrender.com/",
     "https://oeql-quantum-telecom-api.onrender.com/",
-    "https://oeql-bank-forever.onrender.com/",
-    "https://bankr.bot/u/0x13653b6b8bd4b274da565faf6fa894e3418a6d10/apps/oeql-bank-forever",
-    "https://github.com/way4out/OEQL",
-    "https://github.com/way4out/OEQL/tree/main/quantum-telecom/triad",
-    "https://github.com/way4out/OEQL/tree/main/quantum-telecom",
+    "https://oeql-bank-forever.onrender.com/"
+  ],
+  "source_repositories":[
     "https://github.com/way4out/Rollin",
     "https://github.com/way4out/Telephone",
+    "https://github.com/way4out/OEQL",
     "https://github.com/way4out/AetherOS"
   ],
-  "architecture": [
-    "POINHI 23 gates / 69 logical lanes",
-    "Recursive logical lane model 69^n",
-    "YIN/YANG/YONG triad routing",
-    "Bankr launch/quote control-plane integration",
-    "Rollin marketplace one-tap purchase surface",
-    "NFTQR/Base payment and mint source",
-    "AetherOS DSi/NDS build source"
+  "oeql_paths":[
+    "https://github.com/way4out/OEQL/tree/main/quantum-telecom",
+    "https://github.com/way4out/OEQL/tree/main/quantum-telecom/triad"
   ],
-  "evidence": [
-    "GitHub commits are source evidence, not runtime proof",
-    "Render deployment status is deployment evidence",
-    "Onchain claims require transaction receipt and contract/token address",
-    "Marketplace settlement requires verified payment and order state",
-    "Quantum/multiversal terms are software topology unless physical evidence exists"
-  ],
-  "audit_method": "Paginated GitHub REST commit history; per_page=100; continue until no next page.",
-  "github_docs": "https://docs.github.com/en/rest/commits/commits"
+  "architecture":["23 gates","YIN/YANG/YONG","69 logical lanes","69^n recursive logical lane model"],
+  "evidence":["Git history is source evidence","Render status is deployment evidence","Onchain claims require receipt and contract/token address","Sales require verified payment and order state","AetherOS requires hardware runtime verification"],
+  "github_pagination":"Complete all-time history requires traversing paginated commit results; maximum per_page is 100."
 }
