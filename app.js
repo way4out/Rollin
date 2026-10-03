@@ -69,7 +69,7 @@ function productCard(p){
     '<button class="fav '+(fav?"on":"")+'" data-fav="'+p.id+'" aria-label="Favorite">'+(fav?"♥":"♡")+'</button></div></div></article>';
 }
 
-async function buyNow(productId){const p=PRODUCTS.find(x=>x.id===Number(productId));if(!p)return toast("Listing unavailable");state.cart={[productId]:1};save();await startCheckout();}
+async function buyNow(productId){const p=PRODUCTS.find(x=>x.id===Number(productId));if(!p)return toast("Listing unavailable");const external=p.metadata?.external_checkout;if(external){window.location.href=external;return}state.cart={[productId]:1};save();await startCheckout();}
 async function buyOnchainNow(productId){const p=PRODUCTS.find(x=>x.id===Number(productId));if(!p)return toast("Listing unavailable");if(!session){route("profile");return}state.cart={[productId]:1};save();route("crypto","autobuy=1");}
 const COPY_PACKAGES=[
 {id:"stellarnet-llc-website",name:"StellarNet LLC Website",price_cents:3500000,scope:"Public company website and recreation data"},
