@@ -22,12 +22,30 @@
 <section class="card" id="verify"><h2>Onchain verification</h2><p class="muted">Enter a transaction hash to open it on BaseScan. Stellar Lotto treats the blockchain as the source of truth for production entries and settlements.</p><div class="actions"><input id="tx" class="pill" style="flex:1;min-width:220px" placeholder="0x transaction hash"><button class="btn secondary" id="openTx">Open on BaseScan</button></div></section>
 <section class="card"><h2>Approved assets</h2><p class="muted">The production contract will accept USDC plus exactly the 24 verified BANKR StellarQR token contract addresses. Tickers and names are never trusted as identity.</p><div id="tokens" class="list"></div></section>
 <section class="card"><h2>How it works</h2><div class="list"><div class="row"><b>1. Connect</b><span class="muted">Base-compatible wallet</span></div><div class="row"><b>2. Select</b><span class="muted">Game + ticket</span></div><div class="row"><b>3. Approve</b><span class="muted">Only an allowlisted asset</span></div><div class="row"><b>4. Enter</b><span class="muted">Contract records ticket</span></div><div class="row"><b>5. Draw</b><span class="muted">Verifiable randomness</span></div><div class="row"><b>6. Settle</b><span class="muted">Public winner + payout</span></div></div></section>
+
+<section class="card"><h2>Winner & secure settlement</h2>
+<p class="muted">A production draw must wait for the pool-close condition. Winner selection is generated from an independent verifiable-randomness source and bound to the finalized ticket set. The browser never chooses a production winner.</p>
+<div class="grid">
+<div class="card"><h3>Pool gate</h3><div class="big" id="poolGate">LOCKED</div><div class="muted">Winner generation requires finalized pool state</div></div>
+<div class="card"><h3>Winner</h3><div class="big" id="winnerState">NOT DRAWN</div><div class="muted">No payout until proof + confirmation</div></div>
+</div>
+<div class="actions"><button class="btn" id="demoDraw">Generate demo winner</button><button class="btn secondary" id="confirmPayout" disabled>1-tap confirm release</button></div>
+<p id="settlementOut" class="mono"></p>
+</section>
+<section class="card"><h2>Anti-tamper gates</h2><div class="list">
+<div class="row"><b>1. Pool finalized</b><span class="muted">No entries accepted after close</span></div>
+<div class="row"><b>2. Ticket snapshot</b><span class="muted">Immutable draw input commitment</span></div>
+<div class="row"><b>3. Randomness proof</b><span class="muted">Independent verifiable source</span></div>
+<div class="row"><b>4. Winner proof</b><span class="muted">Winner derived from snapshot + randomness</span></div>
+<div class="row"><b>5. Single-release guard</b><span class="muted">Onchain state must be UNPAID → PAID exactly once</span></div>
+<div class="row"><b>6. Recipient lock</b><span class="muted">Funds can only target the recorded winner</span></div>
+</div><p class="legal">“Quantum” is used here as a design goal, not a claim that ordinary web code is quantum-secure. A real production deployment should use audited smart contracts, a verifiable randomness oracle, replay protection, reentrancy protection, pull-based claims and an explicit one-time payout state.</p></section>
 <section class="card"><h2>Rules & safeguards</h2><div class="legal">Stellar Lotto is not offering a real-money lottery through this demo. Any production launch must be operated only where legally authorized. Jurisdiction, age, identity, responsible-play and sanctions controls must be enforced before paid play. Smart contracts should be independently audited before holding customer funds.</div></section>
 </main>
-<footer class="footer">Stellar Lotto • Base network • Free demo • <span class="mono">v0.1-live-shell</span><br><br>For production, replace the empty token allowlist with the 24 exact verified Base contract addresses from the BANKR StellarQR configuration and deploy the audited lottery contracts.</footer>
+<footer class="footer">Stellar Lotto • Base network • Free demo • <span class="mono">v0.2-secure-draw-shell</span><br><br>For production, replace the empty token allowlist with the 24 exact verified Base contract addresses from the BANKR StellarQR configuration and deploy the audited lottery contracts.</footer>
 </div>
 <script>
-const ALLOWLIST = []; // Intentionally empty until the exact 24 verified Base addresses are supplied/confirmed.
+const ALLOWLIST = (window.STELLAR_LOTTO_CONFIG && window.STELLAR_LOTTO_CONFIG.bankrTokenAddresses) || [];
 const BASE_CHAIN=8453;
 const nums=document.getElementById('numbers');let selected=new Set();
 for(let i=1;i<=30;i++){let b=document.createElement('button');b.className='num';b.textContent=i;b.onclick=()=>{if(selected.has(i))selected.delete(i);else if(selected.size<5)selected.add(i);b.classList.toggle('sel',selected.has(i))};nums.appendChild(b)}
@@ -38,5 +56,25 @@ document.getElementById('demo').onclick=()=>document.querySelector('.card').scro
 document.getElementById('openTx').onclick=()=>{const v=document.getElementById('tx').value.trim();if(/^0x[a-fA-F0-9]{64}$/.test(v))window.open('https://basescan.org/tx/'+v,'_blank');else alert('Enter a valid 0x transaction hash.')}
 document.getElementById('connect').onclick=async()=>{if(!window.ethereum){alert('Install a Base-compatible wallet such as Coinbase Wallet or another EVM wallet.');return}try{const accounts=await ethereum.request({method:'eth_requestAccounts'});const chain=await ethereum.request({method:'eth_chainId'});document.getElementById('connect').textContent=accounts[0].slice(0,6)+'…'+accounts[0].slice(-4);if(parseInt(chain,16)!==BASE_CHAIN)alert('Wallet connected. Switch to Base before any production transaction.')}catch(e){alert(e.message||'Wallet connection cancelled.')}};
 const tk=document.getElementById('tokens');if(!ALLOWLIST.length)tk.innerHTML='<div class="notice">0/24 verified production token addresses loaded. Paid play remains locked until all 24 exact addresses are verified.</div>';else ALLOWLIST.forEach((a,i)=>tk.innerHTML+=`<div class="token"><b>${i+1}</b><code>${a}</code><span class="tag">VERIFIED</span></div>`);
+
+let demoWinner=null, payoutConfirmed=false;
+function secureRandomInt(max){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%max}
+document.getElementById('demoDraw').onclick=()=>{
+  if(selected.size!==5){alert('Pick 5 numbers first.');return}
+  const seed=new Uint8Array(32);crypto.getRandomValues(seed);
+  const h=[...seed].map(x=>x.toString(16).padStart(2,'0')).join('');
+  const nums=[...selected].sort((a,b)=>a-b);
+  demoWinner={ticket:'DEMO-'+crypto.randomUUID(),numbers:nums,entropy:h};
+  document.getElementById('poolGate').textContent='FINALIZED • DEMO';
+  document.getElementById('winnerState').textContent='WINNER SELECTED';
+  document.getElementById('confirmPayout').disabled=false;
+  document.getElementById('settlementOut').textContent='Demo winner locked to ticket '+demoWinner.ticket+' • proof '+h.slice(0,20)+'…';
+};
+document.getElementById('confirmPayout').onclick=()=>{
+  if(!demoWinner||payoutConfirmed)return;
+  payoutConfirmed=true;
+  document.getElementById('confirmPayout').disabled=true;
+  document.getElementById('settlementOut').textContent+=' • Demo release confirmed ONCE. No funds moved.';
+};
 let end=Date.now()+3600000;setInterval(()=>{let s=Math.max(0,Math.floor((end-Date.now())/1000));document.getElementById('timer').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0')},250);
 </script><script>if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js");</script></body></html>
