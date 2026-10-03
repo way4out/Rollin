@@ -74,3 +74,19 @@ These are **indicative asking/value ranges for a buyer evaluating each digital a
 **Do not sum this table.** Several entries overlap. A whole-company sale should instead value the operating business once revenue, profit, contracts, users, IP ownership, liabilities, and transferable accounts are verified. For a pre-revenue digital asset, technical complexity alone does not establish a buyer-clearing price. citeturn0search7turn0search9
 
 **Repository evidence currently verified:** Rollin 507 KB, Telephone 644 KB, OEQL 1,826 KB, and AetherOS 3,472 KB of GitHub repository storage metadata. Repository size is evidence of repository footprint, **not** a valuation formula.
+
+## 1-Tap Copy Package Marketplace — 2026-10-03
+
+The Rollin marketplace now includes a dedicated **Packages** route for individually listed digital copy/recreation packages. Current package catalog: `STELLARNET_COPY_PACKAGE_CATALOG.json`.
+
+| Package | Indicative list price | One-time download policy | On-chain rail |
+|---|---:|---|---|
+| StellarNet Master Source Package | $99 | 1 verified entitlement → 1 download token | Base / BANKR |
+| NFTQR Reproduction Data Package | $49 | 1 verified entitlement → 1 download token | Base / BANKR |
+| Quantum Telecom Data Package | $49 | 1 verified entitlement → 1 download token | Base / BANKR |
+| Simulator Data Package | $49 | 1 verified entitlement → 1 download token | Base / BANKR |
+| StellarNet Marketplace Copy Package | $79 | 1 verified entitlement → 1 download token | Base / BANKR |
+
+**Implementation boundary:** the public marketplace UI is deployed with a server-side checkout hook named `create-copy-package-checkout`. Actual BANKR broadcast and one-use download issuance require a server-side write-enabled BANKR integration; no private/API key is placed in browser code or GitHub. BANKR documents that write operations require an appropriate write-enabled API key and that direct transactions are signed/broadcast by hosted wallets or by the integrating application. citeturn0search1turn0search2
+
+**Rights boundary:** buying a data package does not automatically transfer StellarNet trademarks, copyrights, domains, accounts, or ownership of source IP. Any such transfer must be stated in a separate license/assignment agreement.
