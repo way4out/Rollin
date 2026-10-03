@@ -109,8 +109,8 @@ function shop(){
  '<div class="toolbar"><input id="search" class="search" autocomplete="off" placeholder="Search products, categories…"><select id="filter" class="search"><option value="all">All categories</option>'+[...new Set(PRODUCTS.map(p=>p.cat))].map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join("")+'</select></div><div id="shopGrid" class="grid">'+PRODUCTS.map(productCard).join("")+'</div>');
  const filter=()=>{const q=$("#search").value.trim().toLowerCase(),c=$("#filter").value;const list=PRODUCTS.filter(p=>(c==="all"||p.cat===c)&&(p.name+" "+p.cat+" "+p.desc).toLowerCase().includes(q));$("#shopGrid").innerHTML=list.length?list.map(productCard).join(""):'<div class="empty wide">No matching products.</div>'};
  $("#search").oninput=filter;$("#filter").onchange=filter;
- const productId=new URLSearchParams(location.search).get("product");
- if(productId) setTimeout(()=>openProduct(Number(productId)),0);
+ const params=new URLSearchParams(location.search); const productId=params.get("product");
+ if(productId) setTimeout(()=>{openProduct(Number(productId)); if(params.get("autobuy")==="1") setTimeout(()=>buyOnchainNow(Number(productId)),120);},0);
 }
 function drops(){shell('<div class="drop-banner"><div class="eyebrow">DROP CENTER</div><h2>Member Drop</h2><p class="muted">Catalog availability is shown from the live product database.</p><div class="count">LIVE</div></div><div class="grid section">'+PRODUCTS.filter(p=>p.tag==="DROP").map(productCard).join("")+'</div>')}
 function rewards(){
