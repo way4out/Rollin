@@ -63,10 +63,11 @@ function productCard(p){
     '<button class="product-art" data-product="'+p.id+'" aria-label="View '+esc(p.name)+'"><span>'+esc(p.icon)+'</span><span class="art-glow"></span></button>'+
     '<div class="card-body"><span class="tag">'+esc(p.tag)+'</span><h3>'+esc(p.name)+'</h3><p class="muted">'+esc(p.desc)+'</p>'+
     '<div class="price">'+money(p.price)+'</div><div class="card-actions">'+
-    '<button class="primary" data-add="'+p.id+'">Add</button><button class="secondary" data-share="'+p.id+'">Share</button>'+
+    '<button class="primary" data-buy="'+p.id+'">1-Tap Buy</button><button class="secondary" data-add="'+p.id+'">Add</button><button class="secondary" data-share="'+p.id+'">Share</button>'+
     '<button class="fav '+(fav?"on":"")+'" data-fav="'+p.id+'" aria-label="Favorite">'+(fav?"♥":"♡")+'</button></div></div></article>';
 }
 
+async function buyNow(productId){const p=PRODUCTS.find(x=>x.id===Number(productId));if(!p)return toast("Listing unavailable");state.cart={[productId]:1};save();await startCheckout();}
 function growthRecommendations(){return PRODUCTS.filter(p=>!state.favorites.includes(p.id)).slice(0,4)}
 function home(){
  shell('<section class="hero"><div class="hero-card"><div class="eyebrow">ROLLIN COMMERCE OS</div><h1>SHOP.<br>EARN.<br>REPEAT.</h1><p>One fast, mobile-first place for products, drops, rewards, referrals and merchant growth.</p><div class="hero-actions"><a class="primary" href="/Rollin/shop/">Explore Shop →</a><a class="secondary" href="/Rollin/merchant/">Sell on Rollin</a></div><div class="trust-row"><span>✓ Mobile-first</span><span>✓ PWA-ready</span><span>✓ Human-first</span></div></div><div class="wallet-card"><div><div class="eyebrow">ROLLIN ACCOUNT</div><div class="balance">'+(session?(profileData?.tier||"Free"):"Guest")+'</div><div class="status"><span class="dot"></span>'+(session?"Signed in":"Guest mode")+'</div></div><div><p class="muted">'+cartCount()+' item(s) in cart.</p><a class="secondary" href="/Rollin/cart/">Open Cart</a></div></div></section>'+
@@ -244,6 +245,7 @@ async function seller(){
  shell('<div class="section-head"><div><div class="eyebrow">SELLER STORE</div><h2>'+esc(name)+'</h2><p class="muted">'+esc(profile?.tier||"Seller")+' · '+products.length+' active products</p></div><button class="secondary" onclick="route("shop")">Back to Shop</button></div><section class="section seller-hero feature"><div class="seller-avatar">'+esc(name.slice(0,1).toUpperCase())+'</div><h2>'+esc(name)+'</h2><p class="muted">Browse this seller’s Rollin catalog.</p></section><section class="section"><div class="grid">'+(products.length?products.map(productCard).join(""):'<div class="empty wide">No active products yet.</div>')+'</div></section>');
 }
 function notFound(){shell('<section class="section feature"><div class="eyebrow">ROLLIN</div><h2>Page not found</h2><p class="muted">That destination is not available. Use the buttons below to continue.</p><div class="hero-actions"><button class="primary" onclick="route(\'home\')">Home</button><button class="secondary" onclick="route(\'shop\')">Shop</button><button class="secondary" onclick="route(\'profile\')">Profile</button></div></section>', "Page not found")}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-buy]");if(b){e.preventDefault();buyNow(Number(b.dataset.buy));}});
 function render(){
  const relative=location.pathname.startsWith(APP_BASE)?location.pathname.slice(APP_BASE.length):"";
  const page=(relative.split("/").filter(Boolean)[0]||"home").toLowerCase();
