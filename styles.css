@@ -99,13 +99,13 @@ body{background:radial-gradient(900px 500px at 10% -5%,#163047 0,transparent 58%
 @media(max-width:800px){.page{padding:24px 16px 90px}.toolbar{top:72px}.topbar{gap:10px}.top-actions{display:flex;gap:6px}.top-actions .secondary{display:none}.nav-link{font-size:.82rem}.offer-row{align-items:flex-start;flex-direction:column}.modal{padding:20px!important;border-radius:22px!important}}
 @media(max-width:520px){.page{padding-left:12px;padding-right:12px}.hero h1{font-size:clamp(3.1rem,16vw,5rem)}.hero-actions{display:grid}.hero-actions>*{width:100%;text-align:center}.card-body{padding:16px}.price{font-size:1.45rem}}
 
-/* Rollin brand lockup — shared across every page */
+/* The Multiverse Market brand lockup — shared across every page */
 .brand .logo{
   width:148px;
   height:40px;
   flex:0 0 148px;
   border-radius:10px;
-  background:#fff url("./assets/rollin-logo.svg") center/contain no-repeat;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
   color:transparent;
   font-size:0;
   overflow:hidden;
@@ -118,8 +118,8 @@ body{background:radial-gradient(900px 500px at 10% -5%,#163047 0,transparent 58%
 }
 
 .telcom-scroll-banner{position:sticky;top:0;z-index:1000;overflow:hidden;background:#07131c;border-bottom:1px solid #7fffd433;box-shadow:0 6px 24px #0008;white-space:nowrap}
-.telcom-scroll-track{display:inline-flex;min-width:max-content;animation:rollinTelcom 28s linear infinite}
+.telcom-scroll-track{display:inline-flex;min-width:max-content;animation:multiverseTelcom 28s linear infinite}
 .telcom-banner-link{display:inline-block;padding:10px 28px;font-weight:900;letter-spacing:.03em;text-decoration:none;color:#fff}
 .telcom-banner-link:hover{background:#ffffff08;text-decoration:underline}
-@keyframes rollinTelcom{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes multiverseTelcom{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media(prefers-reduced-motion:reduce){.telcom-scroll-track{animation:none}}
