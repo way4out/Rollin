@@ -1,93 +1,101 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#ffffff"><meta name="description" content="Stellar Lotto — simple, transparent, capacity-gated lottery infrastructure for Base."><meta name="robots" content="index,follow"><meta property="og:title" content="Stellar Lotto"><meta property="og:description" content="Capacity-gated Base lottery infrastructure with transparent verification."><meta property="og:type" content="website"><meta property="og:url" content="https://stellar-lotto.onrender.com/"><link rel="canonical" href="https://stellar-lotto.onrender.com/">
-<link rel="manifest" href="./manifest.webmanifest"><script src="./config.js"></script><link rel="icon" href="./icon.svg">
-<title>Stellar Lotto</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="Stellar Lotto — executive compliance-first Base lottery infrastructure. Paid play remains jurisdiction-gated and fail-closed.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://stellar-lotto.onrender.com/">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg">
+<script src="./config.js"></script>
+<title>Stellar Lotto | Executive Compliance Center</title>
 <style>
-:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111827;background:#f4f7fb}*{box-sizing:border-box}body{margin:0;background:#f4f7fb;min-height:100vh}a{color:inherit}.wrap{max-width:980px;margin:auto;padding:18px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;background:#ffffffee;backdrop-filter:blur(16px);padding:10px 0;z-index:5;border-bottom:1px solid #dbe2ea}.brand{font-weight:900;letter-spacing:.08em}.pill{border:1px solid #cbd5e1;border-radius:999px;padding:8px 12px;background:#fff;color:#111827}.hero{padding:46px 0 24px;text-align:center}.hero h1{font-size:clamp(42px,9vw,82px);line-height:.92;margin:0 0 16px}.hero p{color:#475569;max-width:650px;margin:auto;font-size:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:26px 0}.card{background:#fff;border:1px solid #dbe2ea;border-radius:18px;padding:20px;box-shadow:0 8px 24px #11182714}.card h2,.card h3{margin-top:0}.big{font-size:30px;font-weight:900}.btn{display:inline-flex;justify-content:center;align-items:center;min-height:50px;padding:0 20px;border-radius:12px;border:1px solid #111827;background:#111827;color:#fff;font-weight:800;cursor:pointer}.btn.secondary{background:#fff;color:#111827}.btn:disabled{opacity:.45;cursor:not-allowed}.actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:24px}.notice{border-left:4px solid #111827;background:#eef2f7;color:#1e293b;padding:16px;border-radius:12px}.ok{border-left-color:#15803d;background:#f0fdf4;color:#14532d}.muted{color:#64748b}.list{display:grid;gap:10px}.row{display:flex;justify-content:space-between;gap:15px;padding:12px 0;border-bottom:1px solid #e2e8f0}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;word-break:break-all}.footer{padding:45px 0 70px;color:#718096;font-size:13px}.hidden{display:none}.tag{font-size:11px;border:1px solid #cbd5e1;padding:4px 7px;border-radius:8px;color:#334155}.numbers{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.num{width:42px;height:42px;border-radius:50%;border:1px solid #cbd5e1;background:#fff;display:grid;place-items:center;color:#111827}.num.sel{background:#111827;color:#fff}.legal{font-size:13px;line-height:1.55;color:#475569}.token{display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid #dbe2ea;border-radius:12px}.token code{font-size:10px;color:#475569;max-width:55%;overflow:hidden;text-overflow:ellipsis}
-</style></head>
+:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0f172a;background:#eef2f7;--ink:#0f172a;--muted:#64748b;--line:#d9e1ea;--card:#fff;--soft:#f8fafc;--ok:#166534;--warn:#92400e;--danger:#991b1b}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#e9eef5,#f8fafc 55%);min-height:100vh}.wrap{max-width:1120px;margin:auto;padding:16px}
+.top{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;background:#f8fafcea;backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}.brand{font-weight:950;letter-spacing:.12em}.pill,.tag{border:1px solid var(--line);border-radius:999px;background:#fff;padding:7px 10px;font-size:12px}.tag{border-radius:8px;font-weight:800}
+.actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.btn{min-height:46px;border:1px solid var(--ink);border-radius:11px;background:var(--ink);color:#fff;padding:0 17px;font-weight:850;cursor:pointer}.btn.secondary{background:#fff;color:var(--ink)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.hero{padding:54px 0 25px}.hero h1{font-size:clamp(42px,8vw,78px);line-height:.9;margin:14px 0}.hero p{font-size:19px;color:#475569;max-width:780px}.eyebrow{font-size:12px;font-weight:900;letter-spacing:.12em;color:#475569}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:13px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 10px 30px #0f172a0b;margin:14px 0}.card h2,.card h3{margin-top:0}.metric{font-size:30px;font-weight:950}.muted{color:var(--muted)}.notice{border-left:5px solid var(--ink);background:#f1f5f9;border-radius:12px;padding:16px;line-height:1.5}.notice.ok{border-color:#15803d;background:#f0fdf4;color:#14532d}.notice.warn{border-color:#b45309;background:#fffbeb;color:#78350f}.notice.danger{border-color:#b91c1c;background:#fef2f2;color:#7f1d1d}
+.row{display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid #e5e7eb}.row:last-child{border-bottom:0}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;word-break:break-all}.legal{font-size:13px;line-height:1.65;color:#475569}.footer{padding:35px 0 70px;color:#64748b;font-size:12px}.token{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:9px;border:1px solid var(--line);border-radius:11px;margin:7px 0}.token code{max-width:65%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}.executive{display:grid;grid-template-columns:2fr 1fr;gap:14px}@media(max-width:760px){.executive{grid-template-columns:1fr}.top{align-items:flex-start}.top .actions{justify-content:flex-end}.hero{padding-top:38px}}
+</style>
+</head>
 <body><div class="wrap">
-<header class="top"><div class="brand">✦ STELLAR LOTTO</div><div><span class="pill" id="network">Base</span> <button class="btn secondary" id="install">Install app</button> <button class="btn secondary" id="connect">Connect wallet</button></div></header>
+<header class="top">
+<div class="brand">✦ STELLAR LOTTO</div>
+<div class="actions"><span class="pill">BASE • 8453</span><button class="btn secondary" id="connect">Connect wallet</button></div>
+</header>
 <main>
-<section class="hero"><div class="tag">BASE • PAID PLAY LOCKED • COMPLIANCE FAIL-CLOSED</div><h1>Stellar Lotto</h1><p>Paid-entry lottery infrastructure for Base with transparent capacity tracking and verifiable production settlement.</p><div class="actions"><a class="btn secondary" href="#verify">Verify a draw</a><a class="btn secondary" href="./compliance.html">Legal & Compliance</a><button class="btn secondary" id="share">Share</button></div></section>
-<div class="notice"><b>Paid-entry safety lock:</b> Stellar Lotto is paid-entry only. Real-money entry remains disabled until all required legal/operator authorization, jurisdiction and geofence controls, age/KYC/AML and responsible-play safeguards, audited contracts, verifiable randomness and onchain settlement are live.</div>
-<section class="grid">
-<div class="card"><h3>Grand pool</h3><div class="big">$0.00 USDC</div><div class="muted">Production pool locked</div></div>
-<div class="card"><h3>Pool capacity</h3><div class="big" id="capacity">0%</div><div class="muted">Draw unlocks only when the pool target is full</div></div>
-<div class="card"><h3>Pool status</h3><div class="big" id="poolStatus">OPEN</div><div class="muted">Entries build the pool</div></div>
-<div class="card"><h3>Watch mode</h3><div class="big" id="watchState">READY</div><div class="muted">Opt-in updates only; no pressure alerts</div></div>
+<section class="hero">
+<div class="eyebrow">EXECUTIVE FRONT END • COMPLIANCE-FIRST • FAIL-CLOSED</div>
+<h1>Stellar Lotto</h1>
+<p>Transparent onchain lottery infrastructure for Base. The interface clearly separates what is configured, what is verified, and what is legally authorized.</p>
+<div class="actions"><a class="btn secondary" href="#status">Live status</a><a class="btn secondary" href="./compliance.html">Compliance center</a><button class="btn secondary" id="share">Share</button></div>
 </section>
-<section class="card"><h2>Community</h2><p class="muted">Share Stellar Lotto with your community. Sharing opens your platform when supported; it never sends a post without your action.</p><div class="actions"><button class="btn" id="shareFacebook">Share to Facebook</button><button class="btn secondary" id="shareX">Share to X</button><button class="btn secondary" id="copyShare">Copy share text</button></div><p id="communityOut" class="mono"></p></section>
-<section class="card"><h2>Watch the paid pool</h2><p class="muted">Keep this page open to watch verified paid-entry capacity updates. Production status must come from the lottery contract/indexer—not simulated numbers.</p><div class="actions"><button class="btn secondary" id="watch">Enable watch updates</button><button class="btn secondary" id="notify">Notifications: OFF</button></div><p id="watchOut" class="mono"></p></section>
-<section class="card"><h2>Enter the Lotto</h2><p class="muted">Paid entry only. $0.10 per share. Entry stays locked until the production operator, jurisdiction, age/identity, responsible-play, contract, randomness and settlement controls are approved and live.</p><div class="actions"><button class="btn" id="enterLotto" disabled>Paid entry locked</button></div><p id="entryOut" class="mono">Production payment is not enabled.</p></section>
-<section class="card" id="verify"><h2>Onchain verification</h2><p class="muted">Enter a transaction hash to open it on BaseScan. Stellar Lotto treats the blockchain as the source of truth for production entries and settlements.</p><div class="actions"><input id="tx" class="pill" style="flex:1;min-width:220px" placeholder="0x transaction hash"><button class="btn secondary" id="openTx">Open on BaseScan</button></div></section>
-<section class="card"><h2>Production readiness</h2><div class="list"><div class="row"><b>Draw gate</b><span class="tag">CAPACITY ONLY</span></div><div class="row"><b>Price model</b><span class="tag">$0.10 / SHARE</span></div><div class="row"><b>Network</b><span class="tag">BASE 8453</span></div><div class="row"><b>Paid play</b><span class="tag">LOCKED</span></div></div></section>
-<section class="card"><h2>Approved assets</h2><p class="muted">Production accepts native USDC on Base plus the 23 supplied StellarQR/BANKR token contracts: 24 approved assets total. Contract addresses—not names or tickers—are the identity.</p><div id="tokens" class="list"></div></section>
-<section class="card"><h2>How it works</h2><div class="list"><div class="row"><b>1. Connect</b><span class="muted">Base-compatible wallet</span></div><div class="row"><b>2. Select</b><span class="muted">Game + ticket</span></div><div class="row"><b>3. Approve</b><span class="muted">Only an allowlisted asset</span></div><div class="row"><b>4. Enter</b><span class="muted">Contract records ticket</span></div><div class="row"><b>5. Draw</b><span class="muted">Verifiable randomness</span></div><div class="row"><b>6. Settle</b><span class="muted">Public winner + payout</span></div></div></section>
 
-<section class="card"><h2>Winner & secure settlement</h2>
-<p class="muted">The draw is capacity-driven, not time-driven. When the configured pool reaches 100%, entry closes, the ticket set is finalized, and only then can an independently verifiable random process select the winner.</p>
-<div class="grid">
-<div class="card"><h3>Pool gate</h3><div class="big" id="poolGate">LOCKED</div><div class="muted">Winner generation requires finalized pool state</div></div>
-<div class="card"><h3>Winner</h3><div class="big" id="winnerState">NOT DRAWN</div><div class="muted">No payout until proof + confirmation</div></div>
-</div>
-<div class="actions"><button class="btn" id="drawStatus" disabled>Draw locked</button><button class="btn secondary" id="confirmPayout" disabled>Winner claim locked</button></div>
-<p id="settlementOut" class="mono"></p>
+<section class="executive">
+<div class="card"><div class="eyebrow">EXECUTIVE CONTROL</div><h2>Paid play: <span id="paidState">LOCKED</span></h2><p class="muted">No wager, deposit, entry, draw, or payout is enabled unless every required authorization and technical gate is current.</p><div class="notice danger"><b>FAIL-CLOSED.</b> No license, audit, KYC/AML approval, regulator authorization, balance, or legal status is implied without evidence.</div></div>
+<div class="card"><div class="eyebrow">REGISTRY</div><h2>24 assets</h2><p class="muted">23 configured BANKR/Stellar token contracts + native Base USDC.</p><span class="tag">ONCHAIN REGISTRY</span></div>
 </section>
-<section class="card"><h2>Anti-tamper gates</h2><div class="list">
-<div class="row"><b>1. Pool finalized</b><span class="muted">No entries accepted after close</span></div>
-<div class="row"><b>2. Ticket snapshot</b><span class="muted">Immutable draw input commitment</span></div>
-<div class="row"><b>3. Randomness proof</b><span class="muted">Independent verifiable source</span></div>
-<div class="row"><b>4. Winner proof</b><span class="muted">Winner derived from snapshot + randomness</span></div>
-<div class="row"><b>5. Single-release guard</b><span class="muted">Onchain state must be UNPAID → PAID exactly once</span></div>
-<div class="row"><b>6. Recipient lock</b><span class="muted">Funds can only target the recorded winner</span></div>
-</div><p class="legal">“Quantum” is used here as a design goal, not a claim that ordinary web code is quantum-secure. A real production deployment should use audited smart contracts, a verifiable randomness oracle, replay protection, reentrancy protection, pull-based claims and an explicit one-time payout state.</p></section>
-<section class="card"><h2>Legal launch gate</h2><p class="legal"><b>FAIL-CLOSED:</b> paid play, deposits, wagers and payouts remain disabled unless every required jurisdiction, operator, age/identity, KYC/AML, responsible-play, geolocation, audited-contract, randomness and settlement gate is independently verified.</p><p><a class="btn secondary" href="./compliance.html">Open full Legal & Compliance Center</a></p></section><section class="card"><h2>Rules & safeguards</h2><div class="legal">Stellar Lotto is not offering a real-money lottery through this demo. Any production launch must be operated only where legally authorized. Jurisdiction, age, identity, responsible-play and sanctions controls must be enforced before paid play. Smart contracts should be independently audited before holding customer funds.</div></section>
+
+<section id="status" class="grid">
+<div class="card"><h3>Operator</h3><div class="metric">EVIDENCE</div><div class="muted">Authorization required</div></div>
+<div class="card"><h3>Jurisdiction</h3><div class="metric">DENY</div><div class="muted">Default until individually authorized</div></div>
+<div class="card"><h3>California</h3><div class="metric">DENY</div><div class="muted">Paid online gambling blocked</div></div>
+<div class="card"><h3>Onchain funds</h3><div class="metric">VERIFY</div><div class="muted">Balance must be observed onchain</div></div>
+</section>
+
+<section class="card"><h2>Production gate matrix</h2><div class="list">
+<div class="row"><b>Operator authorization</b><span class="tag">EVIDENCE REQUIRED</span></div>
+<div class="row"><b>Jurisdiction rules</b><span class="tag">FAIL-CLOSED</span></div>
+<div class="row"><b>Server geofence</b><span class="tag">EVIDENCE REQUIRED</span></div>
+<div class="row"><b>Age verification</b><span class="tag">EVIDENCE REQUIRED</span></div>
+<div class="row"><b>Identity / KYC</b><span class="tag">EVIDENCE REQUIRED</span></div>
+<div class="row"><b>AML / sanctions</b><span class="tag">EVIDENCE REQUIRED</span></div>
+<div class="row"><b>Responsible play</b><span class="tag">EVIDENCE REQUIRED</span></div>
+<div class="row"><b>Audited contracts</b><span class="tag">EVIDENCE REQUIRED</span></div>
+<div class="row"><b>Verifiable randomness</b><span class="tag">EVIDENCE REQUIRED</span></div>
+<div class="row"><b>Onchain settlement</b><span class="tag">EVIDENCE REQUIRED</span></div>
+</div></section>
+
+<section class="card"><h2>Onchain asset registry</h2><p class="muted">Contract addresses are the identity. No ticker or display name can authorize an asset.</p><div id="tokens"></div></section>
+
+<section class="grid">
+<div class="card"><h2>Pool</h2><div class="metric">$0.00 USDC</div><p class="muted">No production pool is represented until verified contract/indexer data exists.</p></div>
+<div class="card"><h2>Capacity</h2><div class="metric">0%</div><p class="muted">Capacity is not simulated as production data.</p></div>
+<div class="card"><h2>Draw</h2><div class="metric">LOCKED</div><p class="muted">Finalization + randomness proof required.</p></div>
+<div class="card"><h2>Settlement</h2><div class="metric">LOCKED</div><p class="muted">Audited contract + one-time claim guard required.</p></div>
+</section>
+
+<section class="card"><h2>Wallet & verification</h2><div class="actions"><button class="btn" id="wallet">Connect Base wallet</button><input id="tx" class="pill" style="flex:1;min-width:220px" placeholder="0x transaction hash"><button class="btn secondary" id="openTx">Verify on BaseScan</button></div><p id="walletOut" class="mono"></p></section>
+
+<section class="card"><h2>Public verification model</h2><div class="grid">
+<div><h3>1. Eligibility</h3><p class="muted">Server-authoritative jurisdiction, age, identity and compliance decision.</p></div>
+<div><h3>2. Entry</h3><p class="muted">Only an authorized asset and authorized jurisdiction can proceed.</p></div>
+<div><h3>3. Draw</h3><p class="muted">Immutable ticket snapshot plus independently verifiable randomness.</p></div>
+<div><h3>4. Claim</h3><p class="muted">One-time onchain payout guard and reconciliation.</p></div>
+</div></section>
+
+<section class="card"><h2>Public sharing</h2><p class="muted">Sharing is user-initiated and does not represent legal authorization or paid-play availability.</p><div class="actions"><button class="btn" id="facebook">Facebook</button><button class="btn secondary" id="x">X</button><button class="btn secondary" id="copy">Copy</button></div><p id="shareOut" class="mono"></p></section>
+
+<section class="card"><h2>Rules & safeguards</h2><p class="legal"><b>Paid play remains disabled.</b> Production activation requires current evidence for operator authorization, jurisdiction eligibility, geolocation integrity, age/identity verification, KYC/AML, responsible-play controls, independent contract audit, verifiable randomness and onchain settlement. The interface never substitutes a display status for legal authorization.</p><p><a class="btn secondary" href="./compliance.html">Open full compliance center</a></p></section>
 </main>
-<footer class="footer">Stellar Lotto • Base network • Paid entry only • <span class="mono">v0.3-capacity-gated-executive</span><br><br>Production asset configuration: 23 supplied StellarQR/BANKR contracts + native Base USDC = 24 approved assets. Paid play remains locked until legal authorization, compliance controls, audited contracts and verifiable randomness are deployed.</footer>
+<footer class="footer">Stellar Lotto • Base • Compliance-first executive interface • 23 BANKR/Stellar token contracts + native USDC = 24 configured assets • Paid play remains fail-closed.</footer>
 </div>
 <script>
-const CONFIG=window.STELLAR_LOTTO_CONFIG||{}, ALLOWLIST=CONFIG.bankrTokenAddresses||[], USDC=CONFIG.usdcAddress||"", APPROVED_TOTAL=ALLOWLIST.length+(USDC?1:0), BASE_CHAIN=8453;
-document.getElementById("connect").onclick=async()=>{if(!window.ethereum){alert("Install a Base-compatible wallet.");return}try{const accounts=await ethereum.request({method:"eth_requestAccounts"}),chain=await ethereum.request({method:"eth_chainId"});document.getElementById("connect").textContent=accounts[0].slice(0,6)+"…"+accounts[0].slice(-4);if(parseInt(chain,16)!==BASE_CHAIN)alert("Connected. Switch to Base before paid entry.");}catch(e){alert(e.message||"Connection cancelled.")}};
-document.getElementById("openTx").onclick=()=>{const v=document.getElementById("tx").value.trim();if(/^0x[a-fA-F0-9]{64}$/.test(v))window.open("https://basescan.org/tx/"+v,"_blank","noopener,noreferrer");else alert("Enter a valid 0x transaction hash.")};
-const tk=document.getElementById("tokens");tk.innerHTML='<div class="token"><b>USDC</b><code>'+USDC+'</code><span class="tag">BASE</span></div>';ALLOWLIST.forEach((a,i)=>tk.innerHTML+='<div class="token"><b>'+ (i+1) +'</b><code>'+a+'</code><span class="tag">ALLOWLISTED</span></div>');tk.innerHTML+='<div class="notice ok">'+APPROVED_TOTAL+'/24 approved assets configured. Paid entry remains locked until production gates are complete.</div>';
-let watchEnabled=false,deferredInstall=null;
-document.getElementById("watch").onclick=()=>{watchEnabled=!watchEnabled;document.getElementById("watchState").textContent=watchEnabled?"WATCHING":"READY";document.getElementById("watch").textContent=watchEnabled?"Watching: ON":"Enable watch updates";document.getElementById("watchOut").textContent=watchEnabled?"Watch mode enabled. Production capacity will come from contract/indexer state.":"Watch mode paused."};
-document.getElementById("notify").onclick=async()=>{if(!("Notification"in window)){alert("Notifications are not supported here.");return}if(Notification.permission==="granted"){document.getElementById("notify").textContent="Notifications: ON";return}const p=await Notification.requestPermission();document.getElementById("notify").textContent=p==="granted"?"Notifications: ON":"Notifications: OFF"};
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;document.getElementById("install").disabled=false});
-document.getElementById("install").onclick=async()=>{if(deferredInstall){deferredInstall.prompt();deferredInstall=null}else alert("On iPhone: Share → Add to Home Screen. On Android: use the browser Install option.")};
-const shareText="Stellar Lotto — paid-entry-only lottery infrastructure for Base with transparent capacity tracking, 24 approved assets, public verification and a mobile-ready experience. Paid play remains locked until required legal and production controls are live.";
-const shareUrl=location.href;
-document.getElementById("shareFacebook").onclick=()=>window.open("https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(shareUrl)+"&quote="+encodeURIComponent(shareText),"_blank","noopener,noreferrer");
-document.getElementById("shareX").onclick=()=>window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(shareText)+"&url="+encodeURIComponent(shareUrl),"_blank","noopener,noreferrer");
-document.getElementById("copyShare").onclick=async()=>{try{await navigator.clipboard.writeText(shareText+" "+shareUrl);document.getElementById("communityOut").textContent="Share text copied."}catch(e){document.getElementById("communityOut").textContent=shareText+" "+shareUrl}};
-<script>
-/* Schumann/live stats: UI refresh cadence 510ms. Production values must come from verified contract/indexer data. */
-window.STELLAR_STATS_REFRESH_MS=510;
-let lastStats=null;
-async function refreshStellarStats(){
-  const now=new Date();
-  const el=document.getElementById("watchOut");
-  const state=document.getElementById("watchState");
-  if(el && state){
-    state.textContent="LIVE";
-    el.textContent="Live stats refresh: 0.51s • "+now.toLocaleTimeString()+" • Production source: verified contract/indexer when connected.";
-  }
-  lastStats={updatedAt:now.toISOString(),refreshMs:510,source:"verified contract/indexer"};
-}
-refreshStellarStats();
-setInterval(refreshStellarStats,510);
-</script><script>
-const publicShareText="Stellar Lotto is now live on Base: paid-entry-only design, 24 approved assets, transparent capacity tracking, 46 immersive live visualization views, mobile/PWA support and public verification. Production paid entry remains locked until all required legal, compliance, audited-contract, verifiable-randomness and settlement controls are live. Explore: "+location.href;
-document.getElementById("shareFacebook")?.addEventListener("click",()=>window.open("https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(location.href)+"&quote="+encodeURIComponent(publicShareText),"_blank","noopener,noreferrer"));
-document.getElementById("shareX")?.addEventListener("click",()=>window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(publicShareText),"_blank","noopener,noreferrer"));
-document.getElementById("copyShare")?.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(publicShareText);document.getElementById("communityOut").textContent="Public share post copied."}catch(e){document.getElementById("communityOut").textContent=publicShareText}});
-</script><script>
-(()=>{const grid=document.getElementById("vizGrid");if(!grid)return;
-const names=["Capacity","Pool Pulse","Entry Flow","Asset Mix","USDC Flow","Wallet Activity","Draw Gate","Settlement","Verification","Block Rhythm","Base Pulse","Ticket Flow","Pool Depth","Entry Rate","Asset Count","Contract Health","Randomness","Winner Proof","Claim State","Network","Gas Watch","Block Height","Finality","Liquidity","Reserve","Share Count","Pool Growth","Eligibility","Compliance","Geofence","Age Gate","KYC State","AML Gate","Responsible Play","Operator Gate","Audit State","Contract State","Oracle State","Indexer","Uptime","Latency","Throughput","Event Stream","Community","Watchers","PWA Activity"];
-const colors=["var(--viz-series-2)","var(--viz-series-3)","var(--viz-series-4)","var(--viz-series-5)","var(--viz-series-6)"];
-names.forEach((name,i)=>{const card=document.createElement("div");card.style.cssText="border:1px solid var(--viz-border);border-radius:14px;padding:10px;min-height:100px;background:var(--viz-card);overflow:hidden";card.innerHTML='<b style="font-size:12px">'+name+'</b><div aria-label="'+name+' animated visualization" style="height:58px;display:flex;align-items:end;gap:3px;margin-top:8px">'+Array.from({length:12},(_,j)=>'<i style="display:block;flex:1;height:'+(18+((i*7+j*11)%70))+'%;background:'+colors[(i+j)%colors.length]+';border-radius:3px;opacity:.72;animation:stellarViz '+(1.2+(j%5)*.2)+'s ease-in-out infinite alternate '+(j*-.08)+'s"></i>').join("")+'</div><small class="muted">LIVE • 0.51s</small>';grid.appendChild(card)});
-const st=document.createElement("style");st.textContent="@keyframes stellarViz{from{transform:scaleY(.55);opacity:.42}to{transform:scaleY(1);opacity:.9}}@media(prefers-reduced-motion:reduce){#vizGrid i{animation:none!important}}";document.head.appendChild(st);
-})();</script></script><script>if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js");</script><section class="card" id="public-share"><h2>Public launch</h2><p class="muted">Share the live Stellar Lotto page with your community. Posting always requires your action.</p><div class="actions"><button class="btn" id="shareFacebook">Share to Facebook</button><button class="btn" id="shareX">Share to X</button><button class="btn secondary" id="copyShare">Copy share post</button></div><p id="communityOut" class="mono"></p></section></body></html>
+const C=window.STELLAR_LOTTO_CONFIG||{}, A=C.bankrTokenAddresses||[], U=C.usdcAddress||"", shareText="Stellar Lotto — compliance-first Base infrastructure with 24 configured assets, public verification and jurisdiction-gated paid play. Paid play remains locked until required authorization and technical evidence are verified.";
+const tokens=document.getElementById("tokens");
+tokens.innerHTML='<div class="token"><b>USDC</b><code>'+U+'</code><span class="tag">BASE</span></div>';
+A.forEach((a,i)=>tokens.insertAdjacentHTML("beforeend",'<div class="token"><b>BANKR '+(i+1)+'</b><code>'+a+'</code><span class="tag">CONFIGURED</span></div>'));
+document.getElementById("connect").onclick=document.getElementById("wallet").onclick=async()=>{
+ if(!window.ethereum){document.getElementById("walletOut").textContent="No compatible wallet detected.";return}
+ try{const ac=await ethereum.request({method:"eth_requestAccounts"});const ch=await ethereum.request({method:"eth_chainId"});document.getElementById("walletOut").textContent="Wallet: "+ac[0]+" • Chain: "+parseInt(ch,16)+" • Paid play: LOCKED";}catch(e){document.getElementById("walletOut").textContent=e.message||"Connection cancelled."}
+};
+document.getElementById("openTx").onclick=()=>{const v=document.getElementById("tx").value.trim();if(/^0x[a-fA-F0-9]{64}$/.test(v))open("https://basescan.org/tx/"+v,"_blank","noopener,noreferrer");else document.getElementById("walletOut").textContent="Enter a valid 0x transaction hash."};
+document.getElementById("share").onclick=()=>navigator.clipboard?.writeText(shareText+" "+location.href).then(()=>alert("Share text copied."));
+document.getElementById("facebook").onclick=()=>open("https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(location.href)+"&quote="+encodeURIComponent(shareText),"_blank","noopener,noreferrer");
+document.getElementById("x").onclick=()=>open("https://twitter.com/intent/tweet?text="+encodeURIComponent(shareText)+"&url="+encodeURIComponent(location.href),"_blank","noopener,noreferrer");
+document.getElementById("copy").onclick=async()=>{try{await navigator.clipboard.writeText(shareText+" "+location.href);document.getElementById("shareOut").textContent="Public share text copied."}catch(e){document.getElementById("shareOut").textContent=shareText+" "+location.href}};
+</script>
+</body></html>
