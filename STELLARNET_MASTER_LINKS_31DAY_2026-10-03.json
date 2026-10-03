@@ -1,0 +1,42 @@
+{
+  "index_version": "31-day",
+  "updated": "2026-10-03",
+  "window": {
+    "since": "2026-09-02T00:00:00Z",
+    "through": "2026-10-03T23:59:59Z"
+  },
+  "totals": {
+    "Rollin": 392,
+    "Telephone": 342,
+    "OEQL": 153,
+    "AetherOS": 883,
+    "total": 1770
+  },
+  "primary_paths": [
+    "https://www.stellarnetllc.com/",
+    "https://way4out.github.io/Rollin/",
+    "https://stellarnet-marketplace.onrender.com/",
+    "https://stellarnet-nftqr.onrender.com/",
+    "https://stellarnet-nftqr-public.onrender.com/",
+    "https://stellarnet.onrender.com/",
+    "https://stellarnet-limited-free.onrender.com/",
+    "https://oeql-quantum-telecom-live.onrender.com/",
+    "https://oeql-quantum-telecom.onrender.com/",
+    "https://oeql-quantum-telecom-phone.onrender.com/",
+    "https://oeql-quantum-telecom-7g-plus.onrender.com/",
+    "https://oeql-quantum-telecom-api.onrender.com/",
+    "https://oeql-bank-forever.onrender.com/",
+    "https://bankr.bot/u/0x13653b6b8bd4b274da565faf6fa894e3418a6d10/apps/oeql-bank-forever",
+    "https://github.com/way4out/OEQL",
+    "https://github.com/way4out/OEQL/tree/main/quantum-telecom/triad",
+    "https://github.com/way4out/OEQL/tree/main/quantum-telecom",
+    "https://github.com/way4out/Rollin",
+    "https://github.com/way4out/Telephone",
+    "https://github.com/way4out/AetherOS"
+  ],
+  "audit_api": "https://api.github.com/repos/{owner}/{repo}/commits?since=2026-09-02T00:00:00Z&per_page=100",
+  "notes": [
+    "The counts above are from paginated GitHub REST commit history scans.",
+    "Evidence boundaries are explicit; commit existence is not runtime/onchain proof."
+  ]
+}
