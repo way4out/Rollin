@@ -116,3 +116,10 @@ body{background:radial-gradient(900px 500px at 10% -5%,#163047 0,transparent 58%
 @media(max-width:520px){
   .brand .logo{width:124px;height:34px;flex-basis:124px}
 }
+
+.telcom-scroll-banner{position:sticky;top:0;z-index:1000;overflow:hidden;background:#07131c;border-bottom:1px solid #7fffd433;box-shadow:0 6px 24px #0008;white-space:nowrap}
+.telcom-scroll-track{display:inline-flex;min-width:max-content;animation:rollinTelcom 28s linear infinite}
+.telcom-banner-link{display:inline-block;padding:10px 28px;font-weight:900;letter-spacing:.03em;text-decoration:none;color:#fff}
+.telcom-banner-link:hover{background:#ffffff08;text-decoration:underline}
+@keyframes rollinTelcom{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.telcom-scroll-track{animation:none}}
