@@ -25,10 +25,30 @@ details summary{font-weight:800;cursor:pointer}.settings{display:grid;grid-templ
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 @media(prefers-contrast:more){:root{--line:#7c8780}.card,button,input,select{border-width:2px}}
 
-<style>.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choices .btn{min-height:54px}body[data-mode="explore"] .advancedOnly{display:block}body:not([data-mode="explore"]) .advancedOnly{display:none}.stateLine{margin-top:10px;font-size:14px;color:var(--muted)}</style>
+<style>.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choices .btn{min-height:54px}body[data-mode="explore"] .advancedOnly{display:block}body:not([data-mode="explore"]) .advancedOnly{display:none}.stateLine{margin-top:10px;font-size:14px;color:var(--muted)}</style><style>
+/* Simple-first redesign: one obvious action per card, large controls, low reading load. */
+:root{--bg:#f7f8f6;--surface:#fff;--text:#111814;--muted:#65706a;--line:#d9dfdb;--brand:#12633f;--brandSoft:#e8f4ed;--radius:14px}
+body{font-size:17px}.app{width:min(680px,100%);padding:0 14px 40px}
+header{height:58px}.brand{font-size:19px}.headerActions{gap:6px}.headerActions .select{min-height:40px;padding:7px 9px}
+.hero{padding:28px 0 18px}.hero h1,h1{font-size:clamp(38px,10vw,58px);margin:6px 0 12px}.lead{font-size:17px}
+.card{border-radius:var(--radius);padding:16px;margin:10px 0;box-shadow:none}.card h2{font-size:20px;margin-bottom:9px}.cardIntro{font-size:14px;margin:-3px 0 12px}
+button,input,select{min-height:50px;border-radius:11px}.choices{grid-template-columns:1fr;gap:7px}.choices button{min-height:54px;text-align:left;padding-left:16px}
+.products{gap:0}.product{padding:12px 0}.productAction button{min-height:46px}
+.search,.amount,.check{grid-template-columns:1fr}.searchTools{display:grid;grid-template-columns:1fr 1fr}.settings{grid-template-columns:1fr}.receipt{font-size:11px}
+details summary{padding:8px 0}.advancedOnly{display:none!important}
+.simple-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;position:sticky;top:0;z-index:9;background:var(--bg);padding:7px 0}
+.simple-nav button{min-height:44px;padding:7px;font-size:14px}.simple-nav .active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.help-line{font-size:13px;color:var(--muted);margin:8px 0 0}.step-num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--brandSoft);margin-right:6px;font-weight:850}
+@media(max-width:420px){.simple-nav{grid-template-columns:repeat(2,1fr)}.product{display:block}.productAction{margin-top:8px;align-items:stretch}.productAction button{width:100%}}
+</style>
 <link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#071018"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head>
 <body>
-<div class="app">
+<div class="app"><nav class="simple-nav" aria-label="Simple navigation">
+<button class="active" onclick="go('home')">Home</button>
+<button onclick="go('pay')">Pay</button>
+<button onclick="go('radio')">Radio</button>
+<button onclick="go('energy')">Energy</button>
+</nav>
 <header><div class="brand"><span class="mark"></span>Quantum24</div><div class="headerActions"><select id="lang" class="select" aria-label="Language"><option>English</option><option>Español</option><option>Français</option><option>Deutsch</option><option>Português</option><option>中文</option><option>日本語</option><option>한국어</option><option>العربية</option><option>हिन्दी</option></select><button id="wallet" onclick="connect()">Connect</button></div></header>
 
 <section class="hero"><div class="eyebrow">Quantum24 Expanded · native Render platform</div><h1>Quantum24</h1><p class="lead" id="heroText">Expanded Render front door beyond the Bankr baseline: verified Base payments, media directories, communications tools, Quantum registry, and project integrations.</p><div class="notice" style="margin-top:18px"><strong>Source app:</strong> <a href="https://bankr.bot/u/0x13653b6b8bd4b274da565faf6fa894e3418a6d10/apps/quantum24-gains" target="_blank" rel="noopener">Open Quantum24 Gains on Bankr ↗</a><br><span>Native Render expansion · merchant 0x1365…6d10 · Base Mainnet</span></div></section>
