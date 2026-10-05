@@ -52,6 +52,7 @@ details summary{font-weight:800;cursor:pointer}.settings{display:grid;grid-templ
 
 <section class="card"><details><summary>Accessibility & settings</summary><div class="settings"><button onclick="textSize(-1)">Smaller text</button><button onclick="textSize(1)">Larger text</button><button onclick="contrast()">Contrast</button><button onclick="haptic()">Haptics</button><button onclick="share()">Share</button><button onclick="orient()">Screen</button></div></details></section>
 
+<section class="card" id="qhash-core"><h2>QHash · Universal Quantification</h2><p class="cardIntro">Every supported interaction can be represented as bytes, bits, canonical data and a deterministic SHA-256 fingerprint. Physical IR/NIR sensing is reported only when hardware exists.</p><div class="grid"><button class="primary" onclick="quantifyPage()">Quantify current app state</button><button onclick="verifyQHashCapabilities()">Verify QHash coverage</button></div><div id="qhashQuantState" class="stateLine" aria-live="polite">Ready.</div><pre id="qhashQuantOut" class="receipt"></pre></section>
 <div class="footer">Quantum24 · Base · A payment is marked paid only after on-chain verification.</div>
 </div>
 <nav class="bottom"><button onclick="go('expanded')">Home</button><button onclick="go('pay')">Pay</button><button onclick="go('radio')">Radio</button></nav><div id="toast" class="toast"></div>
@@ -113,4 +114,17 @@ async function q24Click(e){const el=e.target.closest('button,a,[role="button"],i
 document.addEventListener('click',q24Click,{capture:true,passive:true});
 window.Quantum24QHash={async record(eventType,data={})=>{try{const r=await fetch('/api/qhash-event',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({eventType,appId:'quantum24-gains',surface:'web',actorKind:'anonymous',deviceId,data,parentQHash:localStorage.getItem(KEY)})});const j=await r.json();if(j.qhash)localStorage.setItem(KEY,j.qhash);return j}catch(e){return{ok:false,error:String(e)}}}};
 })();
+</script><script>
+async function quantifyPage(){
+  try{
+    const data={url:location.href,path:location.pathname,title:document.title,mode:document.body.dataset.mode||null,locale:navigator.language||null,screen:{w:innerWidth,h:innerHeight,dpr:devicePixelRatio||1},touch:'ontouchstart'in window,online:navigator.onLine,visibility:document.visibilityState,time:new Date().toISOString()};
+    const r=await fetch('/api/qhash-data',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({kind:'json',data})});
+    const j=await r.json();$('qhashQuantState').textContent=j.ok?'Quantified · '+j.byteLength+' bytes · '+j.bitLength+' bits · 4 deterministic representations':'Quantification failed';$('qhashQuantOut').textContent=JSON.stringify(j,null,2);
+    window.Quantum24QHash?.record('quantify_page',{byteLength:j.byteLength,bitLength:j.bitLength,byteQHash:j.byteQHash});
+  }catch(e){$('qhashQuantState').textContent='Quantification unavailable.'}
+}
+async function verifyQHashCapabilities(){
+  try{const j=await fetch('/api/qhash-capabilities',{cache:'no-store'}).then(r=>r.json());$('qhashQuantState').textContent='Coverage verified · '+j.eventCoverage.length+' event classes · '+j.algorithm;window.Quantum24QHash?.record('qhash_capabilities_verified',{events:j.eventCoverage.length})}catch{$('qhashQuantState').textContent='Coverage check unavailable.'}
+}
+(()=>{const send=(type,data)=>window.Quantum24QHash?.record(type,data);['visibilitychange','online','offline'].forEach(ev=>document.addEventListener(ev,()=>send(ev,{visibility:document.visibilityState,online:navigator.onLine}),{passive:true}));window.addEventListener('error',e=>send('client_error',{message:String(e.message||'').slice(0,180),path:location.pathname}),{capture:true});window.addEventListener('unhandledrejection',e=>send('client_rejection',{message:String(e.reason?.message||e.reason||'').slice(0,180),path:location.pathname}));document.addEventListener('input',e=>{const el=e.target;if(el&&['INPUT','SELECT','TEXTAREA'].includes(el.tagName))send('input',{id:el.id||null,type:el.type||el.tagName,valueLength:String(el.value||'').length})},{capture:true,passive:true});})();
 </script></body></html>
