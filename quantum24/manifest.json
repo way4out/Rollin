@@ -1,0 +1,9 @@
+{
+  "name": "Quantum24 Gains",
+  "short_name": "Quantum24",
+  "start_url": "/quantum24/",
+  "display": "standalone",
+  "background_color": "#071018",
+  "theme_color": "#071018",
+  "icons": []
+}
