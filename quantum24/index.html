@@ -85,4 +85,11 @@ setMode(localStorage.getItem('q-mode')||'calm');
 $('q').addEventListener('input',e=>{if(/^0x[a-fA-F0-9]{64}$/.test(e.target.value.trim())){$('tx').value=e.target.value.trim();toast('Transaction hash detected — Check is ready.')}});
 document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();focusFind()}});
 </script>
-</body></html>
+<script>
+(function(){
+const status=document.createElement('div');status.id='quantumStatus';status.className='stateLine';status.setAttribute('aria-live','polite');status.textContent='Quantum24 ready.';
+const target=document.querySelector('footer');if(target)target.prepend(status);
+async function pulse(){try{const r=await fetch('/api/health',{cache:'no-store'});const j=await r.json();status.textContent=j.ok?'Quantum24 live · Base · payments ready':'Quantum24 status unavailable';}catch{status.textContent='Quantum24 connection unavailable — retrying.'}}
+pulse();setInterval(pulse,30000);
+})();
+</script></body></html>
