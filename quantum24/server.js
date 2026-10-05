@@ -5,7 +5,7 @@ const BASE_RPC_URLS=(process.env.BASE_RPC_URLS||process.env.BASE_RPC_URL||'https
 const MERCHANT=(process.env.QUANTUM_MERCHANT||'0x13653b6b8bd4b274da565faf6fa894e3418a6d10').toLowerCase();
 const USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'.toLowerCase();
 const TRANSFER_TOPIC='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a7f5c5a4d1';
-const VERSION='v23';
+const VERSION='v24';
 const products={'Quantum24 Nano':0.24,'Quantum24 Micro':1,'Quantum24 Starter':5,'Quantum24 Basic':10,'Quantum24 Mini':12,'Quantum24 Core':19.24,'Quantum24 Genesis':24,'Quantum24 Plus':49,'Quantum24 Priority':99,'Quantum24 Pro':249,'Quantum24 Business':499,'Quantum24 Enterprise':999,'Quantum24 Scale':2499,'Quantum24 Quantum':9999,'Quantum24 Apex':24000,'Quantum24 Ultra':99999,'Quantum24 Titan':249999,'Quantum24 Infinity':999999};
 const aiPoints={'AI Nano':{points:1,usd:.01},'AI Micro':{points:10,usd:.10},'AI Starter':{points:24,usd:.24},'AI Basic':{points:100,usd:1},'AI Pro':{points:1000,usd:10},'AI Quantum':{points:2400,usd:24},'AI Priority':{points:9900,usd:99},'AI Enterprise':{points:99900,usd:999}};
 const bankrReferencePricing={'quantum-lite':.10,'quantum-shield':.25,'quantum-timeline':.40,'quantum-premium':1.50,'quantum-batch':2.50,'quantum-contract':5};
@@ -38,6 +38,7 @@ if(p==='/api/ready')return json(res,200,{ok:true,ready:true,service:'quantum24-g
 if(p==='/api/config')return json(res,200,{ok:true,...catalog()});
 if(p==='/api/quantum/capabilities')return json(res,200,capabilities());
 if(p==='/api/qhash'&&req.method==='POST'){const b=await body(req);return json(res,200,{ok:true,qhash:qhash(JSON.stringify(b)),algorithm:'SHA-256',scope:'application fingerprint; not a blockchain transaction hash'});}
+if(p==='/api/selftest'&&req.method==='GET'){const checks={health:true,ready:true,catalog:Array.isArray(bankrTokenMatrix)&&bankrTokenMatrix.length===24,qhash:typeof qhash==='function',paymentRails:['USDC','ETH'],physicsReference:7.83,serverClock:new Date().toISOString()};return json(res,200,{ok:Object.values(checks).every(Boolean),version:VERSION,checks})}
 if(p==='/api/device'&&req.method==='GET')return json(res,200,{ok:true,serverSupported:true,clientProfile:{responsive:true,touchTargets:true,locale:'navigator.language',reducedMotion:'prefers-reduced-motion',safeArea:true}});
 if(p==='/api/physics'&&req.method==='GET')return json(res,200,{ok:true,knownReferences:{schumannFundamentalHz:7.83},calculations:['frequency','period','wavelength','hash-derived identifiers'],claimBoundary:'software calculations and references only; no physical energy generation/access claimed'});
 if(p==='/api/catalog'||p==='/api/pricing')return json(res,200,{ok:true,...catalog()});
