@@ -28,7 +28,7 @@ details summary{font-weight:800;cursor:pointer}.settings{display:grid;grid-templ
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><span class="mark"></span>Quantum24</div><div class="headerActions"><select id="lang" class="select" aria-label="Language"><option>English</option><option>Español</option><option>Français</option><option>Deutsch</option><option>Português</option><option>中文</option><option>日本語</option><option>한국어</option><option>العربية</option><option>हिन्दी</option></select><button id="wallet" onclick="connect()">Connect</button></div></header>
+<header><div class="brand"><span class="mark"></span>Quantum24</div><div class="headerActions"><select id="lang" class="select" aria-label="Language"><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="pt">Português</option><option value="zh">中文</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="ar">العربية</option><option value="hi">हिन्दी</option></select><button id="wallet" onclick="connect()">Connect</button></div></header>
 
 <section class="hero"><div class="eyebrow">Base payments</div><h1>Pay. Find. Done.</h1><p class="lead" id="heroText">Simple payments, simple search, simple receipt checks. Nothing extra in your way.</p></section>
 
@@ -49,8 +49,21 @@ details summary{font-weight:800;cursor:pointer}.settings{display:grid;grid-templ
 <nav class="bottom"><button onclick="go('pay')">Pay</button><button onclick="focusFind()">Find</button><button onclick="go('check')">Check</button></nav><div id="toast" class="toast"></div>
 
 <script>
+const LANG={
+en:{hero:'Simple payments, simple search, simple receipt checks. Nothing extra in your way.',pay:'Pay',find:'Find',check:'Check a payment',search:'Search',web:'Web',clear:'Clear',amount:'Pay another amount',exact:'Pay exact amount',wallet:'Connect'},
+es:{hero:'Pagos simples, búsqueda simple y recibos fáciles de comprobar.',pay:'Pagar',find:'Buscar',check:'Comprobar pago',search:'Buscar',web:'Web',clear:'Limpiar',amount:'Pagar otro importe',exact:'Pagar importe exacto',wallet:'Conectar'},
+fr:{hero:'Paiements simples, recherche simple et vérification claire des reçus.',pay:'Payer',find:'Rechercher',check:'Vérifier un paiement',search:'Rechercher',web:'Web',clear:'Effacer',amount:'Payer un autre montant',exact:'Payer le montant exact',wallet:'Connecter'},
+de:{hero:'Einfache Zahlungen, einfache Suche und klare Belegprüfung.',pay:'Bezahlen',find:'Suchen',check:'Zahlung prüfen',search:'Suchen',web:'Web',clear:'Löschen',amount:'Anderen Betrag zahlen',exact:'Exakten Betrag zahlen',wallet:'Verbinden'},
+pt:{hero:'Pagamentos simples, pesquisa simples e recibos fáceis de verificar.',pay:'Pagar',find:'Pesquisar',check:'Verificar pagamento',search:'Pesquisar',web:'Web',clear:'Limpar',amount:'Pagar outro valor',exact:'Pagar valor exato',wallet:'Conectar'},
+zh:{hero:'简单付款、简单搜索、简单收据检查。',pay:'付款',find:'查找',check:'检查付款',search:'搜索',web:'网页',clear:'清除',amount:'支付其他金额',exact:'支付准确金额',wallet:'连接'},
+ja:{hero:'シンプルな支払い、検索、領収書確認。',pay:'支払う',find:'検索',check:'支払いを確認',search:'検索',web:'Web',clear:'クリア',amount:'別の金額を支払う',exact:'正確な金額を支払う',wallet:'接続'},
+ko:{hero:'간단한 결제, 검색, 영수증 확인.',pay:'결제',find:'찾기',check:'결제 확인',search:'검색',web:'웹',clear:'지우기',amount:'다른 금액 결제',exact:'정확한 금액 결제',wallet:'연결'},
+ar:{hero:'مدفوعات بسيطة وبحث بسيط وفحص واضح للإيصالات.',pay:'دفع',find:'بحث',check:'فحص الدفع',search:'بحث',web:'الويب',clear:'مسح',amount:'دفع مبلغ آخر',exact:'دفع المبلغ المحدد',wallet:'اتصال'},
+hi:{hero:'सरल भुगतान, सरल खोज और आसान रसीद जाँच।',pay:'भुगतान',find:'खोजें',check:'भुगतान जाँचें',search:'खोजें',web:'वेब',clear:'साफ़',amount:'दूसरी राशि का भुगतान',exact:'सटीक राशि भुगतान',wallet:'कनेक्ट'}
+};
 const MERCHANT='0x13653b6b8bd4b274da565faf6fa894e3418a6d10',BASE='0x2105',USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913';
 let account='',token='USDC';
+function applyLanguage(){const l=LANG[$('lang').value]||LANG.en;$('heroText').textContent=l.hero;document.querySelector('#pay h2').textContent=l.pay;document.querySelector('#find h2').textContent=l.find;document.querySelector('#check h2').textContent=l.check;document.querySelector('.amount').previousElementSibling.textContent=l.amount;document.querySelector('.search button.primary').textContent=l.search;document.querySelectorAll('.searchTools button')[0].textContent=l.web;document.querySelectorAll('.searchTools button')[1].textContent=l.clear;document.querySelector('.amount button').textContent=l.exact;document.documentElement.lang=$('lang').value;localStorage.setItem('q-lang',$('lang').value)}
 const $=id=>document.getElementById(id),money=n=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:'USD',maximumFractionDigits:2}).format(Number(n))}catch{return '$'+Number(n).toFixed(2)}};
 function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',4500)}
 function go(id){$(id).scrollIntoView({behavior:'smooth',block:'start'})} function focusFind(){go('find');setTimeout(()=>$('q').focus(),250)}
@@ -74,7 +87,7 @@ function contrast(){document.body.style.filter=document.body.style.filter?'':'co
 function haptic(){navigator.vibrate?navigator.vibrate(18):toast('Haptics are not available.')}
 async function orient(){try{await screen.orientation?.lock?.('portrait');toast('Portrait selected.')}catch{toast('Screen rotation is controlled by your device.')}}
 async function share(){try{if(navigator.share)await navigator.share({title:'Quantum24',text:'Simple Base payments',url:location.href});else{await navigator.clipboard.writeText(location.href);toast('Link copied.')}}catch{}}
-$('q').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});$('amount').addEventListener('keydown',e=>{if(e.key==='Enter')payCustom()});$('tx').addEventListener('keydown',e=>{if(e.key==='Enter')checkReceipt()});
-loadCatalog();live();setInterval(live,10000);
+$('lang').value=localStorage.getItem('q-lang')||'en';$('lang').addEventListener('change',applyLanguage);applyLanguage();$('q').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});$('amount').addEventListener('keydown',e=>{if(e.key==='Enter')payCustom()});$('tx').addEventListener('keydown',e=>{if(e.key==='Enter')checkReceipt()});
+if(window.ethereum){window.ethereum.on?.('accountsChanged',a=>{account=a?.[0]||'';$('wallet').textContent=account?account.slice(0,6)+'…'+account.slice(-4):'Connect'});window.ethereum.on?.('chainChanged',()=>live())}loadCatalog();live();setInterval(live,10000);
 </script>
 </body></html>
