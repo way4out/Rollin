@@ -1,366 +1,80 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#050805"><meta name="description" content="Quantum24 v20 — verified Base checkout, receipts, search and owner controls."><link rel="manifest" href="/manifest.webmanifest"><title>Quantum24 v20</title><style>
-:root{--bg:#f4f6f4;--surface:#fff;--surface2:#eef2ee;--line:#cbd4cd;--text:#17201a;--muted:#5f6b63;--accent:#2f7d59;--accent2:#dceee4;--danger:#a33b3b}
-*{box-sizing:border-box}
-html{background:var(--bg);color-scheme:light}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-main{max-width:760px;margin:auto;padding:16px 16px 90px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 0 18px}
-.brand{font-weight:800;font-size:20px}
-.orb{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent);margin-right:8px}
-.btn{min-height:46px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);font:inherit;font-weight:650;cursor:pointer}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #8fc6aa;outline-offset:2px}
-.hero{padding:22px 0 20px}
-.eyebrow{font-size:12px;font-weight:750;color:var(--muted);letter-spacing:.06em}
-.hero h1{font-size:clamp(38px,10vw,64px);line-height:1.02;letter-spacing:-.04em;margin:8px 0}
-.hero p{font-size:18px;color:var(--muted);margin:0;max-width:600px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin:12px 0}
-.panel h2{font-size:21px;margin:0 0 12px}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.actions .btn{flex:1 1 130px}
-.search{display:flex;gap:8px}
-.search input,.amount,.lang{width:100%;min-height:48px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);font:inherit}
-.search .btn{flex:0 0 auto}
-.products{display:grid;grid-template-columns:1fr;gap:8px}
-.product{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
-.product:last-child{border-bottom:0}
-.product h3{font-size:16px;margin:0;flex:1}
-.product .price{font-weight:750;white-space:nowrap}
-.product .muted{font-size:13px}
-.product .btn{white-space:nowrap}
-.muted{color:var(--muted)}
-.notice{padding:10px 12px;background:var(--surface2);border-radius:9px;color:var(--muted)}
-.stats{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.stat{font-size:13px;color:var(--muted)}
-.big{font-weight:750;color:var(--text)}
-.ok{color:var(--accent)!important}
-.bad{color:var(--danger)!important}
-pre{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;color:var(--muted)}
-details summary{cursor:pointer;font-weight:700}
-.settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
-.mobile-bar{display:none}
-#toast{position:fixed;left:12px;right:12px;bottom:12px;max-width:600px;margin:auto;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:0 8px 28px #0002;display:none;z-index:20}
-.hidden{display:none!important}
-@media(max-width:600px){
- main{padding:10px 12px 82px}
- .top{padding-bottom:10px}
- .hero{padding:18px 0 12px}
- .hero h1{font-size:48px}
- .panel{padding:15px}
- .product{align-items:flex-start;flex-wrap:wrap}
- .product h3{flex-basis:100%}
- .product .btn{margin-left:auto}
- .mobile-bar{position:fixed;display:flex;left:8px;right:8px;bottom:8px;z-index:15;gap:5px;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 24px #0002}
- .mobile-bar button{flex:1;border:0;background:transparent;color:var(--text);font:700 13px inherit;padding:10px 4px;border-radius:8px}
- .mobile-bar button:first-child{background:var(--accent2);color:var(--text)}
-}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-@media(prefers-contrast:more){:root{--line:#7d8880;--text:#0b100d}.btn,.panel,input,select{border-width:2px}}
-</style></head><body><main>
-<header class="top">
-  <div class="brand"><span class="orb"></span>Quantum24</div>
-  <div class="actions"><select id="lang" class="lang" aria-label="Language" style="width:auto;min-width:92px">
-    <option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="pt">Português</option><option value="zh">中文</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="ar">العربية</option><option value="hi">हिन्दी</option>
-  </select><button id="wallet" class="btn" onclick="connect()">Connect</button></div>
-</header>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6f7f5"><meta name="description" content="Quantum24 — simple Base payments.">
+<title>Quantum24</title>
+<style>
+:root{--bg:#f6f7f5;--surface:#fff;--text:#152019;--muted:#66716b;--line:#dfe5e1;--brand:#176b45;--brandSoft:#e7f3ec;--danger:#a33d3d;--radius:18px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}.app{width:min(760px,100%);margin:auto;padding:0 16px 36px}
+header{height:70px;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-weight:850;font-size:21px;letter-spacing:-.03em;display:flex;align-items:center;gap:9px}.mark{width:11px;height:11px;border-radius:50%;background:var(--brand)}
+.headerActions{display:flex;gap:8px;align-items:center}.select,button,input{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;min-height:46px;padding:10px 13px}
+button{font-weight:750}.primary{background:var(--brand);border-color:var(--brand);color:#fff}.ghost{background:transparent}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #a8d2b9;outline-offset:2px}
+.hero{padding:54px 0 28px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}h1{font-size:clamp(48px,12vw,78px);line-height:.95;letter-spacing:-.06em;margin:8px 0 16px}.lead{font-size:19px;line-height:1.45;color:var(--muted);max-width:590px;margin:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:12px 0}.card h2{margin:0 0 14px;font-size:23px;letter-spacing:-.025em}.cardIntro{color:var(--muted);margin:-7px 0 16px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:17px}.choices button{min-height:52px}.products{display:grid}.product{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding:14px 0}.product:first-child{border-top:0;padding-top:0}.product:last-child{padding-bottom:0}.productName{font-weight:800}.productMeta{font-size:13px;color:var(--muted);margin-top:2px}.productAction{display:flex;align-items:center;gap:10px;white-space:nowrap}.price{font-weight:850}.amount{display:grid;grid-template-columns:1fr auto;gap:8px}.amount input{min-width:0}
+.search{display:grid;grid-template-columns:1fr auto;gap:8px}.search input{min-width:0}.searchTools{display:flex;gap:8px;margin-top:8px}.searchTools button{flex:1}.results{margin-top:12px}.result{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding:13px 0}.result:first-child{border-top:0}.resultTitle{font-weight:800}.resultMeta{font-size:13px;color:var(--muted)}.notice{background:var(--brandSoft);color:#315a45;padding:12px 13px;border-radius:12px;font-size:14px;margin-top:15px}
+.check{display:grid;grid-template-columns:1fr auto;gap:8px}.check input{min-width:0}.receipt{margin:12px 0 0;padding:12px;background:#f4f6f4;border-radius:12px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-word;color:var(--muted)}
+.live{display:flex;justify-content:space-between;gap:20px;align-items:center}.label{font-size:13px;color:var(--muted)}.value{font-weight:850}.ok{color:var(--brand)}.liveDot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--brand);margin-right:6px}
+details summary{font-weight:800;cursor:pointer}.settings{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.footer{color:var(--muted);font-size:12px;padding:18px 2px}
+.bottom{display:none}.toast{position:fixed;left:12px;right:12px;bottom:18px;max-width:580px;margin:auto;background:#142018;color:white;padding:13px 15px;border-radius:12px;display:none;z-index:20}
+@media(max-width:620px){.app{padding-left:12px;padding-right:12px}.hero{padding:38px 0 25px}.card{padding:17px}.product{align-items:flex-start}.productAction{flex-direction:column;align-items:flex-end}.bottom{position:fixed;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;left:10px;right:10px;bottom:10px;padding:5px;background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 8px 28px #10201818;z-index:10}.bottom button{border:0;background:transparent;min-height:44px}.bottom button:first-child{background:var(--brandSoft)}.app{padding-bottom:84px}}
+@media(max-width:480px){.amount,.search,.check{grid-template-columns:1fr}.searchTools{display:grid;grid-template-columns:1fr 1fr}.productAction{flex-direction:row}.price{display:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media(prefers-contrast:more){:root{--line:#7c8780}.card,button,input,select{border-width:2px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand"><span class="mark"></span>Quantum24</div><div class="headerActions"><select id="lang" class="select" aria-label="Language"><option>English</option><option>Español</option><option>Français</option><option>Deutsch</option><option>Português</option><option>中文</option><option>日本語</option><option>한국어</option><option>العربية</option><option>हिन्दी</option></select><button id="wallet" onclick="connect()">Connect</button></div></header>
 
-<section class="hero">
-  <div class="eyebrow">BASE PAYMENTS</div>
-  <h1>Pay simply.</h1>
-  <p id="heroText">Choose what you want to pay for, confirm in your wallet, and check the payment here.</p>
-</section>
+<section class="hero"><div class="eyebrow">Base payments</div><h1>Pay. Find. Done.</h1><p class="lead" id="heroText">Simple payments, simple search, simple receipt checks. Nothing extra in your way.</p></section>
 
-<section class="panel" id="payPanel">
-  <h2>Pay</h2>
-  <div class="actions" style="margin-bottom:12px">
-    <button id="usdc" class="btn primary" onclick="setToken('USDC')">USDC</button>
-    <button id="ethbtn" class="btn" onclick="setToken('ETH')">ETH</button>
-  </div>
-  <div id="products" class="products"></div>
-  <div class="notice" style="margin-top:12px">Payments use Base. Verified payment methods: USDC and ETH.</div>
-</section>
+<section class="card" id="pay"><h2>Pay</h2><p class="cardIntro">Choose a payment method, then choose what you want.</p><div class="choices"><button id="usdc" class="primary" onclick="setToken('USDC')">USDC</button><button id="eth" onclick="setToken('ETH')">ETH</button></div><div id="products" class="products"><div class="notice">Loading…</div></div><div class="notice">Payments are verified on Base before they are marked paid.</div></section>
 
-<section class="panel">
-  <h2>Other amount</h2>
-  <div class="search"><input id="amount" class="amount" type="number" min=".01" max="10000000" step=".01" placeholder="$ amount" inputmode="decimal"><button class="btn primary" onclick="payCustom()">Pay</button></div>
-</section>
+<section class="card"><h2>Pay another amount</h2><div class="amount"><input id="amount" type="number" min=".01" max="10000000" step=".01" inputmode="decimal" placeholder="$0.00"><button class="primary" onclick="payCustom()">Pay exact amount</button></div></section>
 
-<section class="panel" id="searchPanel">
-  <h2>Find</h2>
-  <div class="search"><input id="quickSearch" autocomplete="off" enterkeyhint="search" placeholder="Product or transaction"><button class="btn primary" onclick="quickSearch()">Search</button></div>
-  <div class="actions" style="margin-top:8px"><button class="btn" onclick="webSearch()">Web</button><button class="btn" onclick="clearSearch()">Clear</button></div>
-  <div id="results" style="margin-top:10px"></div>
-</section>
+<section class="card" id="find"><h2>Find</h2><p class="cardIntro">Search Quantum24 first. Use the web only when you need it.</p><div class="search"><input id="q" placeholder="Product or transaction" autocomplete="off"><button class="primary" onclick="doSearch()">Search</button></div><div class="searchTools"><button onclick="webSearch()">Web</button><button onclick="clearSearch()">Clear</button></div><div id="results" class="results"></div></section>
 
-<section class="panel">
-  <h2>Check payment</h2>
-  <div class="search"><input id="receiptTx" placeholder="Base transaction hash (0x…)" autocomplete="off"><button class="btn" onclick="receipt()">Check</button></div>
-  <pre id="receiptOut"></pre>
-</section>
+<section class="card" id="check"><h2>Check a payment</h2><p class="cardIntro">Paste a Base transaction hash to see its status.</p><div class="check"><input id="tx" placeholder="0x… transaction hash" autocomplete="off"><button onclick="checkReceipt()">Check</button></div><pre id="receipt" class="receipt"></pre></section>
 
-<section class="panel" id="liveNetwork">
-  <div class="stats">
-    <div class="stat">Network <div id="status" class="big">Checking…</div></div>
-    <div class="stat">ETH/USD <div id="eth" class="big">—</div></div>
-  </div>
-</section>
+<section class="card"><div class="live"><div><div class="label">Base network</div><div class="value ok"><span class="liveDot"></span><span id="status">Checking…</span></div></div><div style="text-align:right"><div class="label">ETH / USD</div><div class="value" id="ethUsd">—</div></div></div></section>
 
-<section class="panel">
-  <details>
-    <summary>Settings</summary>
-    <div class="settings-grid">
-      <button class="btn" onclick="setTextScale(-1)">Smaller text</button>
-      <button class="btn" onclick="setTextScale(1)">Larger text</button>
-      <button class="btn" onclick="toggleContrast()">Contrast</button>
-      <button class="btn" id="hapticBtn" onclick="toggleHaptics()">Haptics: Auto</button>
-      <button class="btn" onclick="orient()">Screen</button>
-      <button class="btn" onclick="shareApp()">Share</button>
-    </div>
-  </details>
-</section>
+<section class="card"><details><summary>Accessibility & settings</summary><div class="settings"><button onclick="textSize(-1)">Smaller text</button><button onclick="textSize(1)">Larger text</button><button onclick="contrast()">Contrast</button><button onclick="haptic()">Haptics</button><button onclick="share()">Share</button><button onclick="orient()">Screen</button></div></details></section>
 
-<section class="panel" id="ownerPanel" style="display:none"><h2>Owner</h2><button class="btn" onclick="owner()">Verify owner</button><pre id="ownerOut"></pre></section>
-<footer class="muted" style="padding:8px 2px;font-size:12px">Quantum24 · Base · payments are only marked paid after on-chain verification.</footer>
-</main>
-<nav class="mobile-bar" aria-label="Quick actions"><button onclick="document.getElementById('payPanel').scrollIntoView({behavior:'smooth'})">Pay</button><button onclick="focusSearch()">Find</button><button onclick="document.getElementById('receiptTx').scrollIntoView({behavior:'smooth'});document.getElementById('receiptTx').focus()">Check</button></nav>
-<div id="toast"></div>
+<div class="footer">Quantum24 · Base · A payment is marked paid only after on-chain verification.</div>
+</div>
+<nav class="bottom"><button onclick="go('pay')">Pay</button><button onclick="focusFind()">Find</button><button onclick="go('check')">Check</button></nav><div id="toast" class="toast"></div>
+
 <script>
-const MERCHANT='0x13653b6b8bd4b274da565faf6fa894e3418a6d10';
-const BASE='0x2105';
-const USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913';
-let account='',token='USDC',installPrompt=null,current=null;
-let displayCurrency=localStorage.getItem('quanta-currency')||'USD';
-let liveTimer=null;
-
-const $=id=>document.getElementById(id);
-const money=n=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:displayCurrency,maximumFractionDigits:2}).format(Number(n))}catch{return '$'+Number(n||0).toFixed(2)}};
-
-const I18N={
- en:{hero:'Pay, find products, and check receipts. Everything important is on this page.',search:'Search…',go:'GO',web:'Web',quanta:'Quanta'},
- es:{hero:'Un buscador simple para Quantum24, pagos, recibos y la web. Busca globalmente y toca un resultado.',search:'Buscar…',go:'IR',web:'Web',quanta:'Quanta'},
- fr:{hero:'Un seul champ pour Quantum24, paiements, reçus et le web. Recherchez partout puis touchez un résultat.',search:'Rechercher…',go:'GO',web:'Web',quanta:'Quanta'},
- de:{hero:'Ein einfaches Suchfeld für Quantum24, Zahlungen, Belege und das Web. Suchen und Ergebnis antippen.',search:'Suchen…',go:'LOS',web:'Web',quanta:'Quanta'},
- pt:{hero:'Uma busca simples para Quantum24, pagamentos, recibos e a web. Pesquise globalmente e toque em um resultado.',search:'Pesquisar…',go:'IR',web:'Web',quanta:'Quanta'},
- zh:{hero:'一个简单搜索框：Quantum24、付款、收据和互联网。全球搜索，点击结果即可操作。',search:'搜索…',go:'搜索',web:'网页',quanta:'Quanta'},
- ja:{hero:'Quantum24、支払い、領収書、ウェブを1つの検索欄で。世界中を検索して結果をタップ。',search:'検索…',go:'検索',web:'Web',quanta:'Quanta'},
- ko:{hero:'Quantum24, 결제, 영수증, 웹을 하나의 검색창에서. 전 세계를 검색하고 결과를 누르세요.',search:'검색…',go:'검색',web:'웹',quanta:'Quanta'},
- ar:{hero:'مربع بحث واحد لـ Quantum24 والمدفوعات والإيصالات والويب. ابحث عالميًا واضغط على النتيجة.',search:'بحث…',go:'بحث',web:'الويب',quanta:'Quanta'},
- hi:{hero:'Quantum24, भुगतान, रसीद और वेब के लिए एक सरल खोज बॉक्स। दुनिया भर में खोजें और परिणाम टैप करें.',search:'खोजें…',go:'जाएं',web:'वेब',quanta:'Quanta'}
-};
-
-function applyLang(){
- const l=$('lang')?.value||'en',v=I18N[l]||I18N.en;
- if($('heroText'))$('heroText').textContent=v.hero;
- if($('quickSearch'))$('quickSearch').placeholder=v.search;
- const primary=document.querySelector('#searchPanel .primary'); if(primary)primary.textContent=v.go;
- const bs=document.querySelectorAll('#searchPanel .actions .btn'); if(bs[0])bs[0].textContent=v.quanta; if(bs[1])bs[1].textContent=v.web;
- document.documentElement.lang=l; localStorage.setItem('quanta-lang',l);
-}
-function setCurrency(c){
- displayCurrency=c; localStorage.setItem('quanta-currency',c);
- refreshCatalog().catch(()=>{});
- show('Display currency: '+c);
-}
-function useMyLanguage(){
- const l=(navigator.language||'en').slice(0,2);
- if($('lang'))$('lang').value=I18N[l]?l:'en';
- applyLang();
-}
-function setToken(t){
- token=t;
- if($('usdc'))$('usdc').className='btn '+(t==='USDC'?'primary':'');
- if($('ethbtn'))$('ethbtn').className='btn '+(t==='ETH'?'primary':'');
- renderLastCatalog();
-}
-async function rpc(method,params=[]){
- if(!window.ethereum)throw Error('Open this page in a compatible wallet.');
- return window.ethereum.request({method,params});
-}
-async function base(){
- const c=await rpc('eth_chainId');
- if(c.toLowerCase()!==BASE)await rpc('wallet_switchEthereumChain',[{chainId:BASE}]);
-}
-async function connect(){
- try{
-  await base();
-  const a=await rpc('eth_requestAccounts');
-  account=a[0]||'';
-  if($('wallet'))$('wallet').textContent=account?account.slice(0,6)+'…'+account.slice(-4):'Connect';
-  show('Wallet connected. No payment has been made.');
- }catch(e){show(e.message||'Wallet connection cancelled.')}
-}
-function erc20(to,u){
- return '0xa9059cbb'+to.slice(2).padStart(64,'0')+BigInt(u).toString(16).padStart(64,'0');
-}
-async function intent(product,customUsd){
- const r=await fetch('/api/intent',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({product,customUsd,token})});
- const j=await r.json(); if(!r.ok||!j.ok)throw Error(j.error||'Checkout unavailable'); return j;
-}
-async function pay(product,customUsd){
- try{
-  await base();
-  if(!account)await connect();
-  if(!account)throw Error('Wallet not connected.');
-  const q=await intent(product,customUsd);
-  const tx=token==='USDC'
-   ?{from:account,to:USDC,data:erc20(MERCHANT,Math.round(q.amountUsd*1e6))}
-   :{from:account,to:MERCHANT,value:q.ethWei};
-  show('Confirm the exact '+money(q.amountUsd)+' '+token+' payment in your wallet.');
-  const hash=await rpc('eth_sendTransaction',[tx]);
-  current={hash,intentId:q.id,from:account,token};
-  show('Sent. Waiting for Base confirmation…');
-  for(let i=0;i<40;i++){
-   await new Promise(r=>setTimeout(r,1000));
-   const rc=await rpc('eth_getTransactionReceipt',[hash]);
-   if(rc){
-    if(rc.status!=='0x1')throw Error('Transaction reverted; no successful payment recorded.');
-    const v=await fetch('/api/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({txHash:hash,intentId:q.id,token,from:account})}).then(r=>r.json());
-    if(!v.ok||v.status!=='paid')throw Error('Transaction confirmed but exact payment could not be matched.');
-    show('✓ Payment verified on Base: '+money(v.amountUsd)+' '+v.token);
-    await receipt(hash); return;
-   }
-  }
-  show('Transaction is pending. Your funds were not marked paid until verification.');
- }catch(e){show(e.message||'Payment failed. No successful payment was recorded.')}
-}
-function payCustom(){
- const a=Number($('amount')?.value);
- if(!Number.isFinite(a)||a<.01||a>10000000)return show('Enter $0.01–$10,000,000.');
- pay('',a);
-}
-let lastCatalog=null;
-function render(c){
- lastCatalog=c;
- if($('products'))$('products').innerHTML=Object.entries(c.quantumProducts||{}).map(([n,p])=>'<article class="product"><h3>'+n+'</h3><div class="price">'+money(p)+'</div><span class="muted">Base · '+token+'</span><button class="btn primary" onclick="pay('+JSON.stringify(n)+')">1-TAP PAY</button></article>').join('');
- if($('tokens'))$('tokens').innerHTML=(c.bankrTokenMatrix||[]).map(t=>'<span class="chip">'+t+'</span>').join('');
-}
-function renderLastCatalog(){if(lastCatalog)render(lastCatalog)}
-async function refreshCatalog(){
- const c=await fetch('/api/catalog').then(r=>r.json()); render(c); return c;
-}
-async function load(){
- await refreshCatalog().catch(()=>{if($('products'))$('products').innerHTML='<div class="notice">Catalog temporarily unavailable. Try again.</div>'});
- await live();
- if(!liveTimer)liveTimer=setInterval(live,10000);
-}
-async function live(){
- try{
-  const j=await fetch('/api/live').then(r=>r.json());
-  if($('status')){$('status').textContent='LIVE';$('status').className='big ok'}
-  if($('eth'))$('eth').textContent=money(j.ethUsd);
-  if($('block'))$('block').textContent=Number(j.blockNumber).toLocaleString();
-  if($('rpc'))$('rpc').textContent=j.rpcLatencyMs+' ms';
- }catch(e){if($('status')){$('status').textContent='RETRYING';$('status').className='big bad'}}
-}
-function focusSearch(){
- $('quickSearch')?.focus();
- $('searchPanel')?.scrollIntoView({behavior:'smooth',block:'center'});
- if(typeof haptic==='function')haptic('tap');
-}
-async function quickSearch(){
- const q=$('quickSearch')?.value.trim(); if(!q)return;
- await search(q);
- $('searchPanel')?.scrollIntoView({behavior:'smooth',block:'center'});
-}
-function webSearch(){
- const q=$('quickSearch')?.value.trim();
- if(q)window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank','noopener');
- else show('Type something to search the web.');
-}
-function clearSearch(){
- if($('quickSearch'))$('quickSearch').value='';
- if($('results'))$('results').innerHTML='';
- $('quickSearch')?.focus();
-}
-async function search(input){
- const q=(input||$('quickSearch')?.value||'').trim(); if(!q)return;
- try{
-  const j=await fetch('/api/search?q='+encodeURIComponent(q)).then(r=>r.json());
-  if(j.type==='transaction'&&j.tx){
-   $('results').innerHTML='<div class="product"><b>Transaction result</b><div class="muted">'+(j.order?.status==='paid'?'Paid on Base':'On-chain transaction found')+'</div><a class="btn" target="_blank" rel="noopener" href="'+j.tx.explorer+'">Open transaction</a></div>';
-   return;
-  }
-  const rows=j.results||[];
-  $('results').innerHTML=rows.map(x=>{
-   const name=x.product||x.token||'Quantum result';
-   const payBtn=x.kind==='quantum'?'<button class="btn primary" onclick="pay('+JSON.stringify(x.product)+')">1-TAP PAY</button>':'';
-   const dl=x.downloadUrl?'<a class="btn" target="_blank" rel="noopener" href="'+x.downloadUrl+'">Download</a>':'';
-   return '<div class="product"><b>'+name+'</b><div class="muted">'+(x.amountUsd?money(x.amountUsd):x.points?x.points+' points':x.status||'Catalog entry')+'</div><div class="actions">'+payBtn+dl+'</div></div>';
-  }).join('')||'<div class="notice">No matches. Try another search.</div>';
- }catch(e){$('results').innerHTML='<div class="notice">Search temporarily unavailable. Try again.</div>'}
-}
-async function receipt(tx){
- tx=tx||$('receiptTx')?.value.trim(); if(!tx)return show('Paste a Base transaction hash.');
- try{
-  const j=await fetch('/api/receipt?tx='+encodeURIComponent(tx)).then(r=>r.json());
-  $('receiptOut').textContent=JSON.stringify(j,null,2);
- }catch(e){$('receiptOut').textContent='Receipt lookup failed.'}
-}
-async function owner(){
- try{
-  await base();
-  const a=(await rpc('eth_requestAccounts'))[0];
-  if(a.toLowerCase()!==MERCHANT)return show('Connect the merchant wallet to use owner controls.');
-  const c=await fetch('/api/owner/challenge',{method:'POST'}).then(r=>r.json());
-  const sig=await rpc('personal_sign',[c.message,a]);
-  const v=await fetch('/api/owner/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:c.id,address:a,signature:sig})}).then(r=>r.json());
-  if(!v.ok)throw Error(v.error||'Owner verification failed.');
-  const p=await fetch('/api/owner/purchases?blocks=50000',{headers:{Authorization:'Bearer '+v.session}}).then(r=>r.json());
-  $('ownerOut').textContent=JSON.stringify(p,null,2);
- }catch(e){$('ownerOut').textContent=e.message||'Owner verification failed.'}
-}
-function toggleSimpleDisplay(){
- const on=document.body.classList.toggle('quantumized');
- localStorage.setItem('quantumized',on?'1':'0');
- if($('quantumizeState'))$('quantumizeState').textContent=on?'Comfort display on':'Simple display on';
- if($('quantumizeBtn'))$('quantumizeBtn').textContent=on?'Use simple display':'Use comfort display';
- if(typeof haptic==='function')haptic('success');
-}
-async function shareApp(){
- try{
-  if(navigator.share)await navigator.share({title:'Quantum24 v20',text:'Quantum24 on Base',url:location.href});
-  else if(navigator.clipboard){await navigator.clipboard.writeText(location.href);show('Link copied.')}
-  else show('Copy this page address to share.');
- }catch(e){}
-}
-async function installApp(){
- if(installPrompt){installPrompt.prompt();installPrompt=null}
- else show('On iPhone: Share → Add to Home Screen.');
-}
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e});
-if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
-document.addEventListener('DOMContentLoaded',()=>{
- if($('lang')){$('lang').value=localStorage.getItem('quanta-lang')||((navigator.language||'en').slice(0,2));if(!I18N[$('lang').value])$('lang').value='en';$('lang').addEventListener('change',applyLang);applyLang()}
- if($('quickSearch'))$('quickSearch').addEventListener('keydown',e=>{if(e.key==='Enter')quickSearch()});
- if($('amount'))$('amount').addEventListener('keydown',e=>{if(e.key==='Enter')payCustom()});
- load();
-});
-</script><script id="quantum-layer-runtime">
-let haptics=localStorage.getItem('quanta-haptics')||'auto';
-function haptic(kind='tap'){
-  if(haptics==='off'||!navigator.vibrate)return;
-  const p=kind==='success'?[18,25,18]:kind==='error'?[55]:[8];
-  try{navigator.vibrate(p)}catch(e){}
-}
-function toggleHaptics(){
-  haptics=haptics==='auto'?'on':haptics==='on'?'off':'auto';
-  localStorage.setItem('quanta-haptics',haptics);
-  $('hapticBtn').textContent='Haptics: '+haptics[0].toUpperCase()+haptics.slice(1);
-  haptic('tap');
-}
-function orient(){
-  try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('any').catch(()=>{})}catch(e){}
-  show('Screen optimized for your device.');
-  haptic('tap');
-}
-function focusSearch(){ $('quickSearch')?.focus(); $('searchPanel')?.scrollIntoView({behavior:'smooth',block:'center'}); haptic('tap'); }
-document.addEventListener('click',e=>{if(e.target.closest('.btn'))haptic('tap')},{passive:true});
-window.addEventListener('error',()=>haptic('error'));
-window.addEventListener('unhandledrejection',()=>haptic('error'));
-const oldPay=window.pay;
-if(typeof oldPay==='function')window.pay=async function(){haptic('tap');try{const r=await oldPay.apply(this,arguments);haptic('success');return r}catch(e){haptic('error');throw e}};
-window.addEventListener('online',()=>{show('Back online.');haptic('success');live().catch(()=>{})});
-window.addEventListener('offline',()=>show('Offline. Reconnecting automatically when available.'));
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)live().catch(()=>{})});
-window.addEventListener('resize',()=>document.documentElement.style.setProperty('--vh',(window.innerHeight*.01)+'px'),{passive:true});
-</script><script id="quantum-preference-runtime">(function(){const root=document.documentElement;let scale=Number(localStorage.getItem("q-text-scale")||1),hi=localStorage.getItem("q-contrast")==="1";function applyPrefs(){root.style.fontSize=(16*scale)+"px";root.classList.toggle("q-hi",hi)}window.setTextScale=function(d){scale=Math.max(.9,Math.min(1.25,scale+d*.05));localStorage.setItem("q-text-scale",scale);applyPrefs();if(typeof haptic==="function")haptic("tap")};window.toggleContrast=function(){hi=!hi;localStorage.setItem("q-contrast",hi?"1":"0");applyPrefs();if(typeof haptic==="function")haptic("tap")};document.head.insertAdjacentHTML("beforeend",'<style id="q-hi-style">.q-hi .panel,.q-hi .product,.q-hi .btn{border-color:#39ff88}.q-hi .muted{color:#c5e8c5}.q-hi .panel{box-shadow:inset 0 0 0 2px #39ff8822,0 14px 40px #000}</style>');applyPrefs();const supported=["en","es","fr","de","pt","zh","ja","ko","ar","hi","it","nl","pl","tr","vi","id","th","sv","no","da","fi","uk","he","el","cs","ro","hu"];const names={it:"Italiano",nl:"Nederlands",pl:"Polski",tr:"Türkçe",vi:"Tiếng Việt",id:"Bahasa Indonesia",th:"ไทย",sv:"Svenska",no:"Norsk",da:"Dansk",fi:"Suomi",uk:"Українська",he:"עברית",el:"Ελληνικά",cs:"Čeština",ro:"Română",hu:"Magyar"};const sel=document.getElementById("lang");if(sel)for(const code of supported)if(![...sel.options].some(o=>o.value===code)){const o=document.createElement("option");o.value=code;o.textContent=names[code]||code;sel.appendChild(o)}window.addEventListener("languagechange",()=>{const l=(navigator.language||"en").slice(0,2);if(sel&&supported.includes(l)){sel.value=l;if(typeof applyLang==="function")applyLang()}})})();</script></body></html>
+const MERCHANT='0x13653b6b8bd4b274da565faf6fa894e3418a6d10',BASE='0x2105',USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913';
+let account='',token='USDC';
+const $=id=>document.getElementById(id),money=n=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:'USD',maximumFractionDigits:2}).format(Number(n))}catch{return '$'+Number(n).toFixed(2)}};
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',4500)}
+function go(id){$(id).scrollIntoView({behavior:'smooth',block:'start'})} function focusFind(){go('find');setTimeout(()=>$('q').focus(),250)}
+async function rpc(method,params=[]){if(!window.ethereum)throw Error('Open Quantum24 in a compatible wallet.');return window.ethereum.request({method,params})}
+async function base(){const c=await rpc('eth_chainId');if(c.toLowerCase()!==BASE)await rpc('wallet_switchEthereumChain',[{chainId:BASE}])}
+async function connect(){try{await base();const a=await rpc('eth_requestAccounts');account=a[0]||'';$('wallet').textContent=account?account.slice(0,6)+'…'+account.slice(-4):'Connect';toast('Wallet connected.')}catch(e){toast(e.message||'Wallet connection cancelled.')}}
+function setToken(t){token=t;$('usdc').className=t==='USDC'?'primary':'';$('eth').className=t==='ETH'?'primary':'';loadCatalog()}
+function calldata(to,u){return '0xa9059cbb'+to.slice(2).padStart(64,'0')+BigInt(u).toString(16).padStart(64,'0')}
+async function intent(product,customUsd){const r=await fetch('/api/intent',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({product,customUsd,token})});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'Checkout unavailable');return j}
+async function pay(product,customUsd){try{await base();if(!account)await connect();if(!account)throw Error('Wallet not connected.');const q=await intent(product,customUsd);const tx=token==='USDC'?{from:account,to:USDC,data:calldata(MERCHANT,Math.round(q.amountUsd*1e6))}:{from:account,to:MERCHANT,value:q.ethWei};toast('Confirm '+money(q.amountUsd)+' '+token+' in your wallet.');const hash=await rpc('eth_sendTransaction',[tx]);toast('Payment sent. Waiting for Base…');for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,1000));const rc=await rpc('eth_getTransactionReceipt',[hash]);if(rc){if(rc.status!=='0x1')throw Error('Transaction reverted. No payment was recorded.');const v=await fetch('/api/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({txHash:hash,intentId:q.id,token,from:account})}).then(r=>r.json());if(!v.ok||v.status!=='paid')throw Error('Transaction confirmed, but exact payment could not be verified.');toast('✓ Payment verified: '+money(v.amountUsd)+' '+v.token);$('tx').value=hash;await checkReceipt(hash);return}}toast('Still pending. It is not marked paid until verification.')}catch(e){toast(e.message||'Payment failed.')}}
+function payCustom(){const a=Number($('amount').value);if(!Number.isFinite(a)||a<.01||a>10000000)return toast('Enter an amount from $0.01 to $10,000,000.');pay('',a)}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function loadCatalog(){try{const c=await fetch('/api/catalog').then(r=>r.json());const rows=Object.entries(c.quantumProducts||{});$('products').innerHTML=rows.length?rows.map(([n,p])=>'<div class="product"><div><div class="productName">'+esc(n)+'</div><div class="productMeta">Base · '+token+'</div></div><div class="productAction"><span class="price">'+money(p)+'</span><button class="primary" onclick="pay('+JSON.stringify(n)+')">Pay</button></div></div>').join(''):'<div class="notice">Nothing is available right now.</div>'}catch(e){$('products').innerHTML='<div class="notice">Catalog unavailable. Try again.</div>'}}
+async function live(){try{const j=await fetch('/api/live').then(r=>r.json());$('status').textContent='LIVE';$('ethUsd').textContent=money(j.ethUsd)}catch(e){$('status').textContent='Retrying…'}}
+async function doSearch(){const q=$('q').value.trim();if(!q)return toast('Enter a search.');try{const j=await fetch('/api/search?q='+encodeURIComponent(q)).then(r=>r.json());if(j.type==='transaction'){const x=j.tx;$('results').innerHTML='<div class="result"><div><div class="resultTitle">Transaction</div><div class="resultMeta">'+(j.order?.status==='paid'?'Paid on Base':'Transaction found')+'</div></div>'+(x?.explorer?'<a class="button" target="_blank" rel="noopener" href="'+x.explorer+'">Open</a>':'')+'</div>';return}const rows=j.results||[];$('results').innerHTML=rows.length?rows.map(x=>'<div class="result"><div><div class="resultTitle">'+esc(x.product||x.token||'Quantum result')+'</div><div class="resultMeta">'+esc(x.amountUsd?money(x.amountUsd):x.status||'Catalog entry')+'</div></div>'+(x.kind==='quantum'?'<button class="primary" onclick="pay('+JSON.stringify(x.product)+')">Pay</button>':'')+'</div>').join(''):'<div class="notice">No matches.</div>'}catch(e){$('results').innerHTML='<div class="notice">Search is temporarily unavailable.</div>'}}
+function webSearch(){const q=$('q').value.trim();if(q)window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank','noopener');else toast('Enter a search first.')}
+function clearSearch(){$('q').value='';$('results').innerHTML='';$('q').focus()}
+async function checkReceipt(tx){tx=tx||$('tx').value.trim();if(!tx)return toast('Paste a Base transaction hash.');try{$('receipt').textContent=JSON.stringify(await fetch('/api/receipt?tx='+encodeURIComponent(tx)).then(r=>r.json()),null,2)}catch(e){$('receipt').textContent='Receipt lookup failed.'}}
+function textSize(d){let n=Number(localStorage.getItem('qsize')||0)+d;n=Math.max(-2,Math.min(3,n));document.documentElement.style.fontSize=(16+n)+'px';localStorage.setItem('qsize',n)}
+function contrast(){document.body.style.filter=document.body.style.filter?'':'contrast(1.12)'}
+function haptic(){navigator.vibrate?navigator.vibrate(18):toast('Haptics are not available.')}
+async function orient(){try{await screen.orientation?.lock?.('portrait');toast('Portrait selected.')}catch{toast('Screen rotation is controlled by your device.')}}
+async function share(){try{if(navigator.share)await navigator.share({title:'Quantum24',text:'Simple Base payments',url:location.href});else{await navigator.clipboard.writeText(location.href);toast('Link copied.')}}catch{}}
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});$('amount').addEventListener('keydown',e=>{if(e.key==='Enter')payCustom()});$('tx').addEventListener('keydown',e=>{if(e.key==='Enter')checkReceipt()});
+loadCatalog();live();setInterval(live,10000);
+</script>
+</body></html>
