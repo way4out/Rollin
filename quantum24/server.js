@@ -5,7 +5,7 @@ const BASE_RPC_URLS=(process.env.BASE_RPC_URLS||process.env.BASE_RPC_URL||'https
 const MERCHANT=(process.env.QUANTUM_MERCHANT||'0x13653b6b8bd4b274da565faf6fa894e3418a6d10').toLowerCase();
 const USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'.toLowerCase();
 const TRANSFER_TOPIC='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a7f5c5a4d1';
-const VERSION='v18';
+const VERSION='v19';
 const products={'Quantum24 Nano':0.24,'Quantum24 Micro':1,'Quantum24 Starter':5,'Quantum24 Basic':10,'Quantum24 Mini':12,'Quantum24 Core':19.24,'Quantum24 Genesis':24,'Quantum24 Plus':49,'Quantum24 Priority':99,'Quantum24 Pro':249,'Quantum24 Business':499,'Quantum24 Enterprise':999,'Quantum24 Scale':2499,'Quantum24 Quantum':9999,'Quantum24 Apex':24000,'Quantum24 Ultra':99999,'Quantum24 Titan':249999,'Quantum24 Infinity':999999};
 const aiPoints={'AI Nano':{points:1,usd:.01},'AI Micro':{points:10,usd:.10},'AI Starter':{points:24,usd:.24},'AI Basic':{points:100,usd:1},'AI Pro':{points:1000,usd:10},'AI Quantum':{points:2400,usd:24},'AI Priority':{points:9900,usd:99},'AI Enterprise':{points:99900,usd:999}};
 const bankrReferencePricing={'quantum-lite':.10,'quantum-shield':.25,'quantum-timeline':.40,'quantum-premium':1.50,'quantum-batch':2.50,'quantum-contract':5};
@@ -28,7 +28,7 @@ async function ownerVerify(b){const c=challenges.get(String(b.id));if(!c||Date.n
 function ownerOK(req){const h=String(req.headers.authorization||'');const t=h.startsWith('Bearer ')?h.slice(7):'';const at=sessions.get(t);if(!at||Date.now()-at>3600000){sessions.delete(t);return false}return true}
 async function scanPurchases(span=50000){const latest=bi(await rpc('eth_blockNumber')),n=BigInt(Math.min(Math.max(Number(span)||50000,5000),200000)),start=latest>n?latest-n:0n,topicTo='0x'+MERCHANT.slice(2).padStart(64,'0');const rows=[];for(let b=latest;b>=start;b-=5000n){const a=b-4999n>start?b-4999n:start;const logs=await rpc('eth_getLogs',[{address:USDC,topics:[TRANSFER_TOPIC,null,topicTo],fromBlock:'0x'+a.toString(16),toBlock:'0x'+b.toString(16)}]);for(const l of logs)rows.push({token:'USDC',amountUsd:Number(bi(l.data))/1e6,from:'0x'+String(l.topics[1]).slice(-40),txHash:l.transactionHash,block:Number(bi(l.blockNumber)),explorer:'https://basescan.org/tx/'+l.transactionHash});if(rows.length>=500||a===start)break}return{fromBlock:'0x'+start.toString(16),toBlock:'0x'+latest.toString(16),rows:rows.sort((a,b)=>b.block-a.block).slice(0,500)}}
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json','.svg':'image/svg+xml'};
-http.createServer(async(req,res)=>{try{const u=new URL(req.url,'http://localhost');const p=u.pathname;
+const server=http.createServer(async(req,res)=>{try{const u=new URL(req.url,'http://localhost');const p=u.pathname;
 if(p==='/api/health')return json(res,200,{ok:true,service:'quantum24-gains',version:VERSION,network:'base',verifiedRails:['USDC','ETH'],bankrCompatible:true,failover:{rpcEndpoints:BASE_RPC_URLS.length,priceProviders:2,stalePriceWindowSeconds:300},uptimeSeconds:Math.floor(process.uptime())});
 if(p==='/api/ready')return json(res,200,{ok:true,ready:true,service:'quantum24-gains',version:VERSION,network:'base',merchant:MERCHANT,failoverRpcCount:BASE_RPC_URLS.length,verifiedPaymentRails:['USDC','ETH']});
 if(p==='/api/config')return json(res,200,{ok:true,...catalog()});
@@ -46,4 +46,12 @@ if(p==='/api/owner/verify'&&req.method==='POST')return json(res,200,await ownerV
 if(p==='/api/owner/purchases'&&req.method==='GET'){if(!ownerOK(req))return json(res,401,{ok:false,error:'owner_auth_required'});return json(res,200,{ok:true,owner:MERCHANT,localOrders:[...orders.values()].slice(-500).reverse(),onchain:await scanPurchases(u.searchParams.get('blocks'))})}
 if(p==='/download/quantum-catalog.json')return send(res,200,mime['.json'],JSON.stringify(catalog(),null,2));
 if(req.method==='GET'){let file=p==='/index.html'||p==='/'?'index.html':path.basename(p);if(!['index.html','manifest.webmanifest','sw.js'].includes(file))return send(res,404,'text/plain; charset=utf-8','Not found');const f=path.join(ROOT,file);return fs.readFile(f,(e,d)=>e?send(res,404,'text/plain; charset=utf-8','Quantum24 file not found'):send(res,200,mime[path.extname(f)]||'application/octet-stream',d))}
-return json(res,404,{ok:false,error:'not_found'})}catch(e){console.error(e);return json(res,500,{ok:false,error:'server_error',message:e.message})}}).listen(PORT,'0.0.0.0',()=>console.log('Quantum24 '+VERSION+' listening on '+PORT));
+return json(res,404,{ok:false,error:'not_found'})}catch(e){console.error(e);return json(res,500,{ok:false,error:'server_error',message:e.message})}});
+server.keepAliveTimeout=65000;
+server.headersTimeout=70000;
+const shutdown=signal=>{console.log('Quantum24 graceful shutdown '+signal);server.close(()=>process.exit(0));setTimeout(()=>process.exit(1),25000).unref()};
+process.once('SIGTERM',()=>shutdown('SIGTERM'));
+process.once('SIGINT',()=>shutdown('SIGINT'));
+process.on('uncaughtException',e=>{console.error('Quantum24 uncaughtException',e);shutdown('uncaughtException')});
+process.on('unhandledRejection',e=>{console.error('Quantum24 unhandledRejection',e);shutdown('unhandledRejection')});
+server.listen(PORT,'0.0.0.0',()=>console.log('Quantum24 '+VERSION+' listening on '+PORT));
