@@ -1,1 +1,1 @@
-{"name":"quantum24-gains","version":"1.0.0","private":true,"description":"Quantum24 Gains production web/PWA","main":"server.js","scripts":{"start":"node server.js"}}
+{"name":"quantum24-gains","version":"1.0.0","private":true,"description":"Quantum24 Gains production web/PWA","main":"server.js","scripts":{"start":"node server.js"},"dependencies":{"viem":"^2.21.54"}}
