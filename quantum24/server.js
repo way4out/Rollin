@@ -34,7 +34,8 @@ if(p==='/api/ready')return json(res,200,{ok:true,ready:true,service:'quantum24-g
 if(p==='/api/config')return json(res,200,{ok:true,...catalog()});
 if(p==='/api/catalog'||p==='/api/pricing')return json(res,200,{ok:true,...catalog()});
 if(p==='/api/live')return json(res,200,await live());
-if(p==='/api/eth-price')return json(res,200,{ok:true,usd:await ethPrice(),network:'Base Mainnet'});
+if(p==='/api/live-pricing')return json(res,200,{ok:true,network:'Base Mainnet',chainId:8453,ethUsd:await ethPrice(),usdcUsd:1,productPricing:'fixed USD catalog',updatedAt:new Date().toISOString(),cacheSeconds:30});
+if(p==='/api/eth-price')return json(res,200,{ok:true,usd:await ethPrice(),network:'Base Mainnet',updatedAt:new Date().toISOString()});
 if(p==='/api/intent'&&req.method==='POST'){const b=await body(req),x=await quote(String(b.product||''),b.customUsd,String(b.token||'USDC'));if(!x)return json(res,400,{ok:false,error:'invalid_product_or_amount'});return json(res,201,{ok:true,status:'ready',...await x,message:'Ready for wallet confirmation. No funds moved.'})}
 if(p==='/api/verify'&&req.method==='POST')return json(res,200,await verify(await body(req)));
 if(p==='/api/order'&&req.method==='GET'){const tx=String(u.searchParams.get('tx')||'').toLowerCase();return json(res,200,{ok:true,order:orders.get(tx)||null})}
