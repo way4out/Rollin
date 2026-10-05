@@ -110,12 +110,16 @@ async function pulse(){try{const r=await fetch('/api/health',{cache:'no-store'})
 pulse();setInterval(pulse,30000);
 })();
 </script><script>
-(()=>{const KEY='q24:last-qhash',deviceKey='q24:device-id';let deviceId=localStorage.getItem(deviceKey);if(!deviceId){deviceId=(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2));localStorage.setItem(deviceKey,deviceId)}
-async function q24Click(e){const el=e.target.closest('button,a,[role="button"],input,select,summary');if(!el)return;const label=(el.getAttribute('aria-label')||el.textContent||el.value||el.title||'').trim().replace(/\s+/g,' ').slice(0,180);const data={tag:el.tagName,id:el.id||null,label,href:el.href||null,path:location.pathname};try{const r=await fetch('/api/qhash-event',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({eventType:'click',appId:'quantum24-gains',surface:'mobile-web',actorKind:'anonymous',deviceId,data,parentQHash:localStorage.getItem(KEY)})});const j=await r.json();if(j.qhash)localStorage.setItem(KEY,j.qhash)}catch(_){}}
+(()=>{const KEY='q24:last-qhash',deviceKey='q24:device-id',QUEUE='q24:qhash-queue';let deviceId=localStorage.getItem(deviceKey);if(!deviceId){deviceId=crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2);localStorage.setItem(deviceKey,deviceId)}
+function queueGet(){try{return JSON.parse(localStorage.getItem(QUEUE)||'[]')}catch{return[]}}
+function queuePut(q){try{localStorage.setItem(QUEUE,JSON.stringify(q.slice(-100)))}catch{}}
+async function send(ev){const r=await fetch('/api/action',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({eventType:ev.eventType,appId:'quantum24-gains',surface:ev.surface||'web',actorKind:'anonymous',deviceId,data:ev.data||{},parentQHash:localStorage.getItem(KEY)})});const j=await r.json();if(j.qhash)localStorage.setItem(KEY,j.qhash);if(!j.qhash)throw new Error(j.error||'qhash_failed');return j}
+async function flush(){let q=queueGet();while(q.length){try{await send(q[0]);q.shift();queuePut(q)}catch{return}}}
+async function q24Click(e){const el=e.target.closest('button,a,[role="button"],input,select,summary');if(!el)return;const label=(el.getAttribute('aria-label')||el.textContent||el.value||el.title||'').trim().replace(/\s+/g,' ').slice(0,180);const data={tag:el.tagName,id:el.id||null,label,href:el.href||null,path:location.pathname};try{await send({eventType:'click',surface:'mobile-web',data})}catch(_){const q=queueGet();q.push({eventType:'click',surface:'mobile-web',data});queuePut(q)}}
 document.addEventListener('click',q24Click,{capture:true,passive:true});
-window.Quantum24QHash={async record(eventType,data={})=>{try{const r=await fetch('/api/qhash-event',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({eventType,appId:'quantum24-gains',surface:'web',actorKind:'anonymous',deviceId,data,parentQHash:localStorage.getItem(KEY)})});const j=await r.json();if(j.qhash)localStorage.setItem(KEY,j.qhash);return j}catch(e){return{ok:false,error:String(e)}}}};
-})();
-</script><script>
+window.Quantum24QHash={async record(eventType,data={}){try{return await send({eventType,data})}catch(e){const q=queueGet();q.push({eventType,surface:'web',data});queuePut(q);return{ok:false,queued:true,error:String(e)}}},flush};
+window.addEventListener('online',flush);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')flush()});flush();
+})();</script><script>
 async function quantifyPage(){
   try{
     const data={url:location.href,path:location.pathname,title:document.title,mode:document.body.dataset.mode||null,locale:navigator.language||null,screen:{w:innerWidth,h:innerHeight,dpr:devicePixelRatio||1},touch:'ontouchstart'in window,online:navigator.onLine,visibility:document.visibilityState,time:new Date().toISOString()};
