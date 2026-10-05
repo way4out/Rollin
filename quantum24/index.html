@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f6f7f5"><meta name="description" content="Quantum24 — simple Base payments.">
-<title>Quantum24</title>
+<meta name="theme-color" content="#f6f7f5"><meta name="description" content="Quantum24 Gains — Render mirror of the Bankr Quantum24 Gains app."><link rel="canonical" href="https://quantum24-gains.onrender.com/">
+<title>Quantum24 Gains — Bankr Mirror</title>
 <style>
 :root{--bg:#f6f7f5;--surface:#fff;--text:#152019;--muted:#66716b;--line:#dfe5e1;--brand:#176b45;--brandSoft:#e7f3ec;--danger:#a33d3d;--radius:18px}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
@@ -32,9 +32,9 @@ details summary{font-weight:800;cursor:pointer}.settings{display:grid;grid-templ
 <div class="app">
 <header><div class="brand"><span class="mark"></span>Quantum24</div><div class="headerActions"><select id="lang" class="select" aria-label="Language"><option>English</option><option>Español</option><option>Français</option><option>Deutsch</option><option>Português</option><option>中文</option><option>日本語</option><option>한국어</option><option>العربية</option><option>हिन्दी</option></select><button id="wallet" onclick="connect()">Connect</button></div></header>
 
-<section class="hero"><div class="eyebrow">Base payments</div><h1>Pay. Find. Done.</h1><p class="lead" id="heroText">Simple payments, simple search, simple receipt checks. Nothing extra in your way.</p></section>
+<section class="hero"><div class="eyebrow">Bankr Quantum24 Gains · Render mirror</div><h1>Quantum24</h1><p class="lead" id="heroText">Live Render mirror of the Quantum24 Gains app at Bankr, with the same merchant identity and Base payment focus.</p><div class="notice" style="margin-top:18px"><strong>Source app:</strong> <a href="https://bankr.bot/u/0x13653b6b8bd4b274da565faf6fa894e3418a6d10/apps/quantum24-gains" target="_blank" rel="noopener">Open Quantum24 Gains on Bankr ↗</a><br><span>Render mirror · merchant 0x1365…6d10 · Base Mainnet</span></div></section>
 
-<section class="card" id="universe"><h2>Quantum modes</h2><p class="cardIntro">One interface, two depths. Keep payments simple or reveal more live context.</p><div class="choices"><button id="modeCalm" class="btn primary" onclick="setMode('calm')">Calm</button><button id="modeExplore" class="btn" onclick="setMode('explore')">Explore</button></div><div id="modeText" class="stateLine">Essentials only.</div></section>
+<section class="card" id="bankr-source"><h2>Quantum24 Gains</h2><p class="cardIntro">This Render deployment mirrors the Bankr Quantum24 Gains app while keeping payment verification on Base.</p><div class="choices"><button class="primary" onclick="window.open(&quot;https://bankr.bot/u/0x13653b6b8bd4b274da565faf6fa894e3418a6d10/apps/quantum24-gains&quot;,&quot;_blank&quot;)">Open Bankr App</button><button onclick="navigator.clipboard?.writeText(&quot;https://bankr.bot/u/0x13653b6b8bd4b274da565faf6fa894e3418a6d10/apps/quantum24-gains&quot;).then(()=>toast(&quot;Bankr app link copied.&quot;))">Copy Source Link</button></div></section><section class="card" id="universe"><h2>Quantum modes</h2><p class="cardIntro">One interface, two depths. Keep payments simple or reveal more live context.</p><div class="choices"><button id="modeCalm" class="btn primary" onclick="setMode('calm')">Calm</button><button id="modeExplore" class="btn" onclick="setMode('explore')">Explore</button></div><div id="modeText" class="stateLine">Essentials only.</div></section>
 <section class="card advancedOnly" id="advanced"><h2>Universal state</h2><p class="cardIntro">Search, payment, receipt and network state remain connected without changing the verified payment rails.</p><div class="stateLine">Base · USDC + ETH · verified on-chain</div></section>
 <section class="card" id="pay"><h2>Pay</h2><p class="cardIntro">Choose a payment method, then choose what you want.</p><div class="choices"><button id="usdc" class="primary" onclick="setToken('USDC')">USDC</button><button id="eth" onclick="setToken('ETH')">ETH</button></div><div id="products" class="products"><div class="notice">Loading…</div></div><div class="notice">Payments are verified on Base before they are marked paid.</div></section>
 
