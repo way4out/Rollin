@@ -1,1 +1,14 @@
-{"name":"quantum24-gains","version":"1.0.0","private":true,"description":"Quantum24 Gains production web/PWA","main":"server.js","scripts":{"start":"node server.js"},"dependencies":{"viem":"^2.21.54"}}
+{
+  "name": "quantum24-gains",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Quantum24 Gains production web/PWA",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "healthcheck": "node -e \"fetch('http://127.0.0.1:'+(process.env.PORT||10000)+'/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))\""
+  },
+  "dependencies": {
+    "viem": "^2.21.54"
+  }
+}
