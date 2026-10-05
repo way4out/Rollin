@@ -42,31 +42,216 @@ body{overscroll-behavior-y:contain;touch-action:manipulation}
 <footer class="muted small" style="padding:25px 0">Quantum24 v20 · Base · Merchant 0x1365…6d10 · No successful payment is claimed without on-chain verification.</footer>
 </main><nav class="mobile-bar" aria-label="Quick actions"><button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Pay</button><button onclick="focusSearch()">Search</button><button onclick="document.getElementById('receiptTx').scrollIntoView({behavior:'smooth'});document.getElementById('receiptTx').focus()">Check payment</button><button onclick="shareApp()">Share</button></nav><div id="toast"></div>
 <script>
-const MERCHANT='0x13653b6b8bd4b274da565faf6fa894e3418a6d10',BASE='0x2105',USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913';
-let account='',token='USDC',installPrompt=null,current=null,displayCurrency=localStorage.getItem('quanta-currency')||'USD';
-const $=id=>document.getElementById(id),money=n=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:displayCurrency,maximumFractionDigits:2}).format(Number(n))}catch{return '
-const show=m=>{$('toast').innerHTML=m;$('toast').style.display='block';clearTimeout(show.t);show.t=setTimeout(()=>{$('toast').style.display='none'},5000)};
-const I18N={en:{hero:'Pay, find products, and check receipts. Everything important is on this page.',search:'Search…',go:'GO',web:'Web',quanta:'Quanta'},es:{hero:'Un buscador simple para Quantum24, pagos, recibos y la web. Busca globalmente y toca un resultado.',search:'Buscar…',go:'IR',web:'Web',quanta:'Quanta'},fr:{hero:'Un seul champ pour Quantum24, paiements, reçus et le web. Recherchez partout puis touchez un résultat.',search:'Rechercher…',go:'GO',web:'Web',quanta:'Quanta'},de:{hero:'Ein einfaches Suchfeld für Quantum24, Zahlungen, Belege und das Web. Suchen und Ergebnis antippen.',search:'Suchen…',go:'LOS',web:'Web',quanta:'Quanta'},pt:{hero:'Uma busca simples para Quantum24, pagamentos, recibos e a web. Pesquise globalmente e toque no resultado.',search:'Pesquisar…',go:'IR',web:'Web',quanta:'Quanta'},zh:{hero:'一个简单搜索框：Quantum24、付款、收据和互联网。全球搜索，点击结果即可操作。',search:'搜索…',go:'搜索',web:'网页',quanta:'Quanta'},ja:{hero:'Quantum24、支払い、領収書、ウェブを1つの検索欄で。世界中を検索して結果をタップ。',search:'検索…',go:'検索',web:'Web',quanta:'Quanta'},ko:{hero:'Quantum24, 결제, 영수증, 웹을 하나의 검색창에서. 전 세계 검색 후 결과를 탭하세요.',search:'검색…',go:'검색',web:'웹',quanta:'Quanta'},ar:{hero:'مربع بحث واحد لـ Quantum24 والمدفوعات والإيصالات والويب. ابحث عالميًا واضغط على النتيجة.',search:'بحث…',go:'بحث',web:'الويب',quanta:'Quanta'},hi:{hero:'Quantum24, भुगतान, रसीद और वेब के लिए एक सरल खोज बॉक्स। दुनिया भर में खोजें और परिणाम टैप करें।',search:'खोजें…',go:'जाएं',web:'वेब',quanta:'Quanta'}};function applyLang(){const l=$('lang').value,v=I18N[l]||I18N.en;$('heroText').textContent=v.hero;$('quickSearch').placeholder=v.search;document.querySelector('#searchPanel .primary').textContent=v.go;const bs=document.querySelectorAll('#searchPanel .actions .btn');if(bs[0])bs[0].textContent=v.quanta;if(bs[1])bs[1].textContent=v.web;document.documentElement.lang=l;localStorage.setItem('quanta-lang',l)}function setCurrency(c){displayCurrency=c;localStorage.setItem('quanta-currency',c);load().catch(()=>{});show('Display currency: '+c)}function useMyLanguage(){const l=(navigator.language||'en').slice(0,2);$('lang').value=I18N[l]?l:'en';applyLang();}function setToken(t){token=t;$('usdc').className='btn '+(t==='USDC'?'primary':'');$('ethbtn').className='btn '+(t==='ETH'?'primary':'')}
-async function rpc(method,params=[]){if(!window.ethereum)throw Error('Open this page inside a compatible wallet.');return ethereum.request({method,params})}
-async function base(){const c=await rpc('eth_chainId');if(c.toLowerCase()!==BASE)await rpc('wallet_switchEthereumChain',[{chainId:BASE}])}
-async function connect(){try{await base();const a=await rpc('eth_requestAccounts');account=a[0];$('wallet').textContent=account.slice(0,6)+'…'+account.slice(-4);if(account.toLowerCase()===MERCHANT)$('ownerPanel').style.display='block';show('Wallet connected. No payment has been made.')}catch(e){show(e.message||'Wallet connection cancelled.')}}
-function erc20(to,u){return '0xa9059cbb'+to.slice(2).padStart(64,'0')+BigInt(u).toString(16).padStart(64,'0')}
-async function intent(product,customUsd){const r=await fetch('/api/intent',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({product,customUsd,token})});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'Checkout unavailable');return j}
-async function pay(product,customUsd){try{await base();if(!account)await connect();if(!account)throw Error('Wallet not connected');const q=await intent(product,customUsd);const tx=token==='USDC'?{from:account,to:USDC,data:erc20(MERCHANT,Math.round(q.amountUsd*1e6))}:{from:account,to:MERCHANT,value:q.ethWei};show('Confirm the exact '+money(q.amountUsd)+' '+token+' payment in your wallet.');const hash=await rpc('eth_sendTransaction',[tx]);current={hash,intentId:q.id,from:account,token};show('Sent. Waiting for Base confirmation…');for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,1000));const rc=await rpc('eth_getTransactionReceipt',[hash]);if(rc){if(rc.status!=='0x1')throw Error('Transaction reverted; no successful payment recorded.');const v=await fetch('/api/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({txHash:hash,intentId:q.id,token,from:account})}).then(r=>r.json());if(!v.ok||v.status!=='paid')throw Error('Transaction confirmed but exact payment could not be matched.');show('✓ Paid and verified on Base.');await receipt(hash);return}}show('Transaction is pending. Your funds were not marked paid until verification.')}catch(e){show(e.message||'Payment failed. No successful payment was recorded.')}}
-function setTextScale(delta){const current=Number(localStorage.getItem('quanta-text-scale')||1);const next=Math.min(1.35,Math.max(.85,current+delta*.1));localStorage.setItem('quanta-text-scale',String(next));document.documentElement.style.fontSize=(next*16)+'px';show('Text size updated.');}
-function toggleContrast(){document.body.classList.toggle('high-contrast');localStorage.setItem('quanta-contrast',document.body.classList.contains('high-contrast')?'1':'0');show(document.body.classList.contains('high-contrast')?'Higher contrast on.':'Higher contrast off.');}
-function toggleSimpleDisplay(){const on=document.body.classList.toggle('quantumized');localStorage.setItem('quantumized',on?'1':'0');if($('quantumizeState'))$('quantumizeState').textContent=on?'Green-on-black depth active':'Black-on-green depth active';if($('quantumizeBtn'))$('quantumizeBtn').textContent=on?'Restore adaptive display':'Simple display display';haptic('success')}function payCustom(){const a=Number($('amount').value);if(!Number.isFinite(a)||a<.01||a>10000000)return show('Enter $0.01–$10,000,000.');pay('',a)}
-function render(c){$('products').innerHTML=Object.entries(c.quantumProducts).map(([n,p])=>'<article class="product"><h3>'+n+'</h3><div class="price">'+money(p)+'</div><span class="muted">Base · '+token+'</span><button class="btn primary" onclick="pay('+JSON.stringify(n)+')">1-TAP PAY</button></article>').join('');$('tokens').innerHTML=c.bankrTokenMatrix.map(t=>'<span class="chip">'+t+'</span>').join('')}
-async function load(){const c=await fetch('/api/catalog').then(r=>r.json());render(c);live();setInterval(live,10000)}
-async function live(){try{const j=await fetch('/api/live').then(r=>r.json());$('status').textContent='LIVE';$('status').className='big ok';$('eth').textContent=j.ethUsd==null?'—':money(j.ethUsd);$('block').textContent=Number(j.blockNumber).toLocaleString();$('rpc').textContent=j.rpcLatencyMs+' ms';const lp=await fetch('/api/live-pricing').then(r=>r.json());$('priceUpdated').textContent='Prices live · '+new Date(lp.updatedAt).toLocaleTimeString();}catch(e){$('status').textContent='RETRYING';$('status').className='big bad';if($('priceUpdated'))$('priceUpdated').textContent='Reconnecting…'}}
-async function focusSearch(){document.getElementById('quickSearch').focus();}function quickSearch(){const q=$('quickSearch').value.trim();if(!q)return;await search(q);$('searchPanel').scrollIntoView({behavior:'smooth'});}function webSearch(){const q=$('quickSearch').value.trim();if(q)window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank','noopener');}function clearSearch(){$('quickSearch').value='';$('results').innerHTML='<div class="notice">Ready. Search again or <a href="/download/quantum-catalog.json" download>download the current Quantum catalog</a>.</div>';$('quickSearch').focus();}async function search(input){const q=(input||$('quickSearch').value).trim();if(!q)return;const j=await fetch('/api/search?q='+encodeURIComponent(q)).then(r=>r.json());$('results').innerHTML=(j.results||[]).map(x=>'<div class="product"><b>'+((x.product||x.token||'Result'))+'</b><div class="muted">'+(x.amountUsd?money(x.amountUsd):'')+'</div>'+(x.kind==='quantum'?'<button class="btn primary" onclick="pay('+JSON.stringify(x.product)+')">1-TAP PAY</button>':'')+'</div>').join('')|| (j.tx?'<div class="product"><b>Transaction found</b><div class="muted">'+(j.order&&j.ownership&&j.ownership.paidOnchain?'Paid on Base':'Onchain transaction')+'</div><button class="btn" onclick="receipt('+JSON.stringify(q)+')">View receipt</button></div>':'No matches.');}
-async function receipt(tx){tx=tx||$('receiptTx').value.trim();if(!tx)return;const j=await fetch('/api/receipt?tx='+encodeURIComponent(tx)).then(r=>r.json());$('receiptOut').textContent=JSON.stringify(j,null,2)}
-async function owner(){try{await base();const a=(await rpc('eth_requestAccounts'))[0];if(a.toLowerCase()!==MERCHANT)return show('Connect the merchant wallet to use owner controls.');const c=await fetch('/api/owner/challenge',{method:'POST'}).then(r=>r.json());const sig=await rpc('personal_sign',[c.message,a]);const v=await fetch('/api/owner/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:c.id,address:a,signature:sig})}).then(r=>r.json());if(!v.ok)throw Error(v.error);const p=await fetch('/api/owner/purchases?blocks=50000',{headers:{Authorization:'Bearer '+v.session}}).then(r=>r.json());$('ownerOut').textContent=JSON.stringify(p,null,2)}catch(e){$('ownerOut').textContent=e.message||'Owner verification failed.'}}
-async function shareApp(){try{if(navigator.share)await navigator.share({title:'Quantum24 v20',text:'Quantum24 on Base',url:location.href});else{await navigator.clipboard.writeText(location.href);show('Link copied.')}}catch(e){}}
-async function installApp(){if(installPrompt){installPrompt.prompt();installPrompt=null}else show('On iPhone: Share → Add to Home Screen.')}
+const MERCHANT='0x13653b6b8bd4b274da565faf6fa894e3418a6d10';
+const BASE='0x2105';
+const USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913';
+let account='',token='USDC',installPrompt=null,current=null;
+let displayCurrency=localStorage.getItem('quanta-currency')||'USD';
+let liveTimer=null;
+
+const $=id=>document.getElementById(id);
+const money=n=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:displayCurrency,maximumFractionDigits:2}).format(Number(n))}catch{return '$'+Number(n||0).toFixed(2)}};
+
+const I18N={
+ en:{hero:'Pay, find products, and check receipts. Everything important is on this page.',search:'Search…',go:'GO',web:'Web',quanta:'Quanta'},
+ es:{hero:'Un buscador simple para Quantum24, pagos, recibos y la web. Busca globalmente y toca un resultado.',search:'Buscar…',go:'IR',web:'Web',quanta:'Quanta'},
+ fr:{hero:'Un seul champ pour Quantum24, paiements, reçus et le web. Recherchez partout puis touchez un résultat.',search:'Rechercher…',go:'GO',web:'Web',quanta:'Quanta'},
+ de:{hero:'Ein einfaches Suchfeld für Quantum24, Zahlungen, Belege und das Web. Suchen und Ergebnis antippen.',search:'Suchen…',go:'LOS',web:'Web',quanta:'Quanta'},
+ pt:{hero:'Uma busca simples para Quantum24, pagamentos, recibos e a web. Pesquise globalmente e toque em um resultado.',search:'Pesquisar…',go:'IR',web:'Web',quanta:'Quanta'},
+ zh:{hero:'一个简单搜索框：Quantum24、付款、收据和互联网。全球搜索，点击结果即可操作。',search:'搜索…',go:'搜索',web:'网页',quanta:'Quanta'},
+ ja:{hero:'Quantum24、支払い、領収書、ウェブを1つの検索欄で。世界中を検索して結果をタップ。',search:'検索…',go:'検索',web:'Web',quanta:'Quanta'},
+ ko:{hero:'Quantum24, 결제, 영수증, 웹을 하나의 검색창에서. 전 세계를 검색하고 결과를 누르세요.',search:'검색…',go:'검색',web:'웹',quanta:'Quanta'},
+ ar:{hero:'مربع بحث واحد لـ Quantum24 والمدفوعات والإيصالات والويب. ابحث عالميًا واضغط على النتيجة.',search:'بحث…',go:'بحث',web:'الويب',quanta:'Quanta'},
+ hi:{hero:'Quantum24, भुगतान, रसीद और वेब के लिए एक सरल खोज बॉक्स। दुनिया भर में खोजें और परिणाम टैप करें.',search:'खोजें…',go:'जाएं',web:'वेब',quanta:'Quanta'}
+};
+
+function applyLang(){
+ const l=$('lang')?.value||'en',v=I18N[l]||I18N.en;
+ if($('heroText'))$('heroText').textContent=v.hero;
+ if($('quickSearch'))$('quickSearch').placeholder=v.search;
+ const primary=document.querySelector('#searchPanel .primary'); if(primary)primary.textContent=v.go;
+ const bs=document.querySelectorAll('#searchPanel .actions .btn'); if(bs[0])bs[0].textContent=v.quanta; if(bs[1])bs[1].textContent=v.web;
+ document.documentElement.lang=l; localStorage.setItem('quanta-lang',l);
+}
+function setCurrency(c){
+ displayCurrency=c; localStorage.setItem('quanta-currency',c);
+ refreshCatalog().catch(()=>{});
+ show('Display currency: '+c);
+}
+function useMyLanguage(){
+ const l=(navigator.language||'en').slice(0,2);
+ if($('lang'))$('lang').value=I18N[l]?l:'en';
+ applyLang();
+}
+function setToken(t){
+ token=t;
+ if($('usdc'))$('usdc').className='btn '+(t==='USDC'?'primary':'');
+ if($('ethbtn'))$('ethbtn').className='btn '+(t==='ETH'?'primary':'');
+ renderLastCatalog();
+}
+async function rpc(method,params=[]){
+ if(!window.ethereum)throw Error('Open this page in a compatible wallet.');
+ return window.ethereum.request({method,params});
+}
+async function base(){
+ const c=await rpc('eth_chainId');
+ if(c.toLowerCase()!==BASE)await rpc('wallet_switchEthereumChain',[{chainId:BASE}]);
+}
+async function connect(){
+ try{
+  await base();
+  const a=await rpc('eth_requestAccounts');
+  account=a[0]||'';
+  if($('wallet'))$('wallet').textContent=account?account.slice(0,6)+'…'+account.slice(-4):'Connect';
+  show('Wallet connected. No payment has been made.');
+ }catch(e){show(e.message||'Wallet connection cancelled.')}
+}
+function erc20(to,u){
+ return '0xa9059cbb'+to.slice(2).padStart(64,'0')+BigInt(u).toString(16).padStart(64,'0');
+}
+async function intent(product,customUsd){
+ const r=await fetch('/api/intent',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({product,customUsd,token})});
+ const j=await r.json(); if(!r.ok||!j.ok)throw Error(j.error||'Checkout unavailable'); return j;
+}
+async function pay(product,customUsd){
+ try{
+  await base();
+  if(!account)await connect();
+  if(!account)throw Error('Wallet not connected.');
+  const q=await intent(product,customUsd);
+  const tx=token==='USDC'
+   ?{from:account,to:USDC,data:erc20(MERCHANT,Math.round(q.amountUsd*1e6))}
+   :{from:account,to:MERCHANT,value:q.ethWei};
+  show('Confirm the exact '+money(q.amountUsd)+' '+token+' payment in your wallet.');
+  const hash=await rpc('eth_sendTransaction',[tx]);
+  current={hash,intentId:q.id,from:account,token};
+  show('Sent. Waiting for Base confirmation…');
+  for(let i=0;i<40;i++){
+   await new Promise(r=>setTimeout(r,1000));
+   const rc=await rpc('eth_getTransactionReceipt',[hash]);
+   if(rc){
+    if(rc.status!=='0x1')throw Error('Transaction reverted; no successful payment recorded.');
+    const v=await fetch('/api/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({txHash:hash,intentId:q.id,token,from:account})}).then(r=>r.json());
+    if(!v.ok||v.status!=='paid')throw Error('Transaction confirmed but exact payment could not be matched.');
+    show('✓ Payment verified on Base: '+money(v.amountUsd)+' '+v.token);
+    await receipt(hash); return;
+   }
+  }
+  show('Transaction is pending. Your funds were not marked paid until verification.');
+ }catch(e){show(e.message||'Payment failed. No successful payment was recorded.')}
+}
+function payCustom(){
+ const a=Number($('amount')?.value);
+ if(!Number.isFinite(a)||a<.01||a>10000000)return show('Enter $0.01–$10,000,000.');
+ pay('',a);
+}
+let lastCatalog=null;
+function render(c){
+ lastCatalog=c;
+ if($('products'))$('products').innerHTML=Object.entries(c.quantumProducts||{}).map(([n,p])=>'<article class="product"><h3>'+n+'</h3><div class="price">'+money(p)+'</div><span class="muted">Base · '+token+'</span><button class="btn primary" onclick="pay('+JSON.stringify(n)+')">1-TAP PAY</button></article>').join('');
+ if($('tokens'))$('tokens').innerHTML=(c.bankrTokenMatrix||[]).map(t=>'<span class="chip">'+t+'</span>').join('');
+}
+function renderLastCatalog(){if(lastCatalog)render(lastCatalog)}
+async function refreshCatalog(){
+ const c=await fetch('/api/catalog').then(r=>r.json()); render(c); return c;
+}
+async function load(){
+ await refreshCatalog().catch(()=>{if($('products'))$('products').innerHTML='<div class="notice">Catalog temporarily unavailable. Try again.</div>'});
+ await live();
+ if(!liveTimer)liveTimer=setInterval(live,10000);
+}
+async function live(){
+ try{
+  const j=await fetch('/api/live').then(r=>r.json());
+  if($('status')){$('status').textContent='LIVE';$('status').className='big ok'}
+  if($('eth'))$('eth').textContent=money(j.ethUsd);
+  if($('block'))$('block').textContent=Number(j.blockNumber).toLocaleString();
+  if($('rpc'))$('rpc').textContent=j.rpcLatencyMs+' ms';
+ }catch(e){if($('status')){$('status').textContent='RETRYING';$('status').className='big bad'}}
+}
+function focusSearch(){
+ $('quickSearch')?.focus();
+ $('searchPanel')?.scrollIntoView({behavior:'smooth',block:'center'});
+ if(typeof haptic==='function')haptic('tap');
+}
+async function quickSearch(){
+ const q=$('quickSearch')?.value.trim(); if(!q)return;
+ await search(q);
+ $('searchPanel')?.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function webSearch(){
+ const q=$('quickSearch')?.value.trim();
+ if(q)window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank','noopener');
+ else show('Type something to search the web.');
+}
+function clearSearch(){
+ if($('quickSearch'))$('quickSearch').value='';
+ if($('results'))$('results').innerHTML='';
+ $('quickSearch')?.focus();
+}
+async function search(input){
+ const q=(input||$('quickSearch')?.value||'').trim(); if(!q)return;
+ try{
+  const j=await fetch('/api/search?q='+encodeURIComponent(q)).then(r=>r.json());
+  if(j.type==='transaction'&&j.tx){
+   $('results').innerHTML='<div class="product"><b>Transaction result</b><div class="muted">'+(j.order?.status==='paid'?'Paid on Base':'On-chain transaction found')+'</div><a class="btn" target="_blank" rel="noopener" href="'+j.tx.explorer+'">Open transaction</a></div>';
+   return;
+  }
+  const rows=j.results||[];
+  $('results').innerHTML=rows.map(x=>{
+   const name=x.product||x.token||'Quantum result';
+   const payBtn=x.kind==='quantum'?'<button class="btn primary" onclick="pay('+JSON.stringify(x.product)+')">1-TAP PAY</button>':'';
+   const dl=x.downloadUrl?'<a class="btn" target="_blank" rel="noopener" href="'+x.downloadUrl+'">Download</a>':'';
+   return '<div class="product"><b>'+name+'</b><div class="muted">'+(x.amountUsd?money(x.amountUsd):x.points?x.points+' points':x.status||'Catalog entry')+'</div><div class="actions">'+payBtn+dl+'</div></div>';
+  }).join('')||'<div class="notice">No matches. Try another search.</div>';
+ }catch(e){$('results').innerHTML='<div class="notice">Search temporarily unavailable. Try again.</div>'}
+}
+async function receipt(tx){
+ tx=tx||$('receiptTx')?.value.trim(); if(!tx)return show('Paste a Base transaction hash.');
+ try{
+  const j=await fetch('/api/receipt?tx='+encodeURIComponent(tx)).then(r=>r.json());
+  $('receiptOut').textContent=JSON.stringify(j,null,2);
+ }catch(e){$('receiptOut').textContent='Receipt lookup failed.'}
+}
+async function owner(){
+ try{
+  await base();
+  const a=(await rpc('eth_requestAccounts'))[0];
+  if(a.toLowerCase()!==MERCHANT)return show('Connect the merchant wallet to use owner controls.');
+  const c=await fetch('/api/owner/challenge',{method:'POST'}).then(r=>r.json());
+  const sig=await rpc('personal_sign',[c.message,a]);
+  const v=await fetch('/api/owner/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:c.id,address:a,signature:sig})}).then(r=>r.json());
+  if(!v.ok)throw Error(v.error||'Owner verification failed.');
+  const p=await fetch('/api/owner/purchases?blocks=50000',{headers:{Authorization:'Bearer '+v.session}}).then(r=>r.json());
+  $('ownerOut').textContent=JSON.stringify(p,null,2);
+ }catch(e){$('ownerOut').textContent=e.message||'Owner verification failed.'}
+}
+function toggleSimpleDisplay(){
+ const on=document.body.classList.toggle('quantumized');
+ localStorage.setItem('quantumized',on?'1':'0');
+ if($('quantumizeState'))$('quantumizeState').textContent=on?'Comfort display on':'Simple display on';
+ if($('quantumizeBtn'))$('quantumizeBtn').textContent=on?'Use simple display':'Use comfort display';
+ if(typeof haptic==='function')haptic('success');
+}
+async function shareApp(){
+ try{
+  if(navigator.share)await navigator.share({title:'Quantum24 v20',text:'Quantum24 on Base',url:location.href});
+  else if(navigator.clipboard){await navigator.clipboard.writeText(location.href);show('Link copied.')}
+  else show('Copy this page address to share.');
+ }catch(e){}
+}
+async function installApp(){
+ if(installPrompt){installPrompt.prompt();installPrompt=null}
+ else show('On iPhone: Share → Add to Home Screen.');
+}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
-$('quickSearch').addEventListener('keydown',e=>{if(e.key==='Enter')quickSearch()});$('lang').value=localStorage.getItem('quanta-lang')||((navigator.language||'en').slice(0,2));if(!I18N[$('lang').value])$('lang').value='en';$('lang').addEventListener('change',applyLang);applyLang();$('quickSearch').addEventListener('keydown',e=>{if(e.key==='Enter')quickSearch()});$('amount').addEventListener('keydown',e=>{if(e.key==='Enter')payCustom()});load();
+document.addEventListener('DOMContentLoaded',()=>{
+ if($('lang')){$('lang').value=localStorage.getItem('quanta-lang')||((navigator.language||'en').slice(0,2));if(!I18N[$('lang').value])$('lang').value='en';$('lang').addEventListener('change',applyLang);applyLang()}
+ if($('quickSearch'))$('quickSearch').addEventListener('keydown',e=>{if(e.key==='Enter')quickSearch()});
+ if($('amount'))$('amount').addEventListener('keydown',e=>{if(e.key==='Enter')payCustom()});
+ load();
+});
 </script><script id="quantum-layer-runtime">
 let haptics=localStorage.getItem('quanta-haptics')||'auto';
 function haptic(kind='tap'){
