@@ -120,7 +120,9 @@ if(p==='/api/infrastructure/adapters'&&req.method==='GET')return json(res,200,{o
 if(p==='/api/infrastructure/telemetry/validate'&&req.method==='POST'){let x;try{x=await body(req)}catch(e){return json(res,400,{ok:false,error:'invalid_json'})}return json(res,200,telemetryValidate(x));}
 if(p==='/api/infrastructure/settlement/status'&&req.method==='GET')return json(res,200,{ok:true,...settlementAdapterStatus()});
 if(p==='/api/infrastructure/security/status'&&req.method==='GET')return json(res,200,{ok:true,...securityHealth()});
-if(p==='/api/infrastructure/release/status'&&req.method==='GET')return json(res,200,{ok:true,...releaseAudit()});\nif(p==='/api/infrastructure/upgrades'&&req.method==='GET')return json(res,200,upgradeMatrix());\nif(p==='/health'&&req.method==='GET')return json(res,200,{ok:true,service:'quantum24-gains',version:VERSION,status:'healthy',releasePass:'5/5'});
+if(p==='/api/infrastructure/release/status'&&req.method==='GET')return json(res,200,{ok:true,...releaseAudit()});
+if(p==='/api/infrastructure/upgrades'&&req.method==='GET')return json(res,200,upgradeMatrix());
+if(p==='/health'&&req.method==='GET')return json(res,200,{ok:true,service:'quantum24-gains',version:VERSION,status:'healthy',releasePass:'5/5'});
 if(p==='/api/infrastructure/settlement/telemetry'&&req.method==='POST'){let x;try{x=await body(req)}catch(e){return json(res,400,{ok:false,error:'invalid_json'})}return json(res,200,validateSettlementTelemetry(x));}
 if(p==='/api/infrastructure/baseline'&&req.method==='GET')return json(res,200,{ok:true,...infrastructureBaseline()});
 if(p==='/api/public-status'&&req.method==='GET')return json(res,200,{ok:true,service:'quantum24-gains',version:VERSION,publicFlows:{clicks:true,qhash:true,energyAccounting:true,payments:true,media:true,telecom:true},energy:{mode:'metered',physicalGenerationRequired:true,gridConnected:false,positiveExportMeansMeasuredGenerationExceedsLoad:true},persistence:{qhash:'Supabase-backed when configured',eternal:false},userScope:'public'});
