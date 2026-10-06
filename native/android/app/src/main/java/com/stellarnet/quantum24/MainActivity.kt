@@ -7,7 +7,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothProfile
+import android.bluetooth.BluetoothProfile\nimport android.bluetooth.le.ScanFilter\nimport android.bluetooth.le.ScanSettings\nimport java.util.UUID
 import android.content.pm.PackageManager
 import android.hardware.usb.UsbManager
 import android.nfc.NfcAdapter
@@ -25,7 +25,7 @@ class MainActivity : Activity() {
  private val endpoint="https://quantum24-gains.onrender.com/api/device-integration/report"
  private var scanner: android.bluetooth.le.BluetoothLeScanner? = null
  private var gatt: BluetoothGatt? = null
- private var deviceId: String? = null
+ private var deviceId: String? = null\n private val serviceUuid=UUID.fromString("7B1A0001-8E8A-4B2B-9D24-243300000024")\n private val telemetryUuid=UUID.fromString("7B1A0002-8E8A-4B2B-9D24-243300000024")\n private val commandUuid=UUID.fromString("7B1A0003-8E8A-4B2B-9D24-243300000024")\n private val ackUuid=UUID.fromString("7B1A0004-8E8A-4B2B-9D24-243300000024")
 
  override fun onCreate(savedInstanceState: Bundle?) {
   super.onCreate(savedInstanceState)
@@ -64,7 +64,7 @@ class MainActivity : Activity() {
    }
    override fun onScanFailed(errorCode:Int) { report("OFFLINE", mapOf("connection" to false,"scanError" to errorCode)) }
   }
-  scanner?.startScan(callback)
+  val filter=ScanFilter.Builder().setServiceUuid(android.os.ParcelUuid(serviceUuid)).setDeviceName("Quantum24 Reference").build()\n  scanner?.startScan(listOf(filter),ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build(),callback)
  }
 
  private fun connect(device:BluetoothDevice,rssi:Int) {
@@ -92,7 +92,7 @@ class MainActivity : Activity() {
    if(readable!=null) g.readCharacteristic(readable)
   }
 
-  override fun onCharacteristicRead(g:BluetoothGatt,c:BluetoothGattCharacteristic,value:ByteArray,status:Int) {
+  override fun onCharacteristicChanged(g:BluetoothGatt,c:BluetoothGattCharacteristic,value:ByteArray) {\n   if(c.uuid==ackUuid){ val json=runCatching{JSONObject(String(value))}.getOrNull(); if(json?.optBoolean("ok")==true && json.optString("op")=="ping") report("ACTION_VERIFIED",mapOf("connection" to true,"action" to true,"actionName" to "ping","ackVerified" to true,"byteCount" to value.size)) }\n  }\n\n  override fun onCharacteristicRead(g:BluetoothGatt,c:BluetoothGattCharacteristic,value:ByteArray,status:Int) {
    if(status==BluetoothGatt.GATT_SUCCESS && value.isNotEmpty()) {
     report("TELEMETRY_VERIFIED", mapOf(
      "connection" to true,"telemetry" to true,
