@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "name": "Quantum24 Universal Integration Matrix",
+  "policy": {
+    "verifiedOnly": true,
+    "physicalActuationFailClosed": true,
+    "rfTransmitDefault": "disabled",
+    "secretsExcluded": true
+  },
+  "platforms": {
+    "web": {
+      "capabilities": [
+        "secure-context",
+        "media",
+        "bluetooth",
+        "usb",
+        "serial",
+        "hid",
+        "nfc",
+        "share",
+        "payments",
+        "fullscreen"
+      ]
+    },
+    "ios": {
+      "nativeFrameworks": [
+        "AccessorySetupKit",
+        "CoreBluetooth",
+        "Network",
+        "DeviceDiscoveryUI"
+      ],
+      "requiresRealDevice": true
+    },
+    "android": {
+      "nativeFrameworks": [
+        "Bluetooth",
+        "USB Host/Accessory",
+        "NFC",
+        "Media"
+      ],
+      "requiresRealDevice": true
+    }
+  },
+  "providers": {
+    "energy": [
+      "Enphase",
+      "Tesla",
+      "Shelly",
+      "Modbus",
+      "Utility",
+      "ISO",
+      "Hardware Gateway"
+    ],
+    "communications": [
+      "Twilio"
+    ],
+    "payments": [
+      "Base Mainnet",
+      "USDC",
+      "ETH"
+    ]
+  },
+  "evidenceStates": [
+    "verified",
+    "available",
+    "auth_required",
+    "offline",
+    "unsupported",
+    "evidence_required"
+  ]
+}
