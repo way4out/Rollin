@@ -408,6 +408,7 @@ function q24CellularInterop(){return{
 };}
 if(p==='/api/radio/status'&&req.method==='GET')return json(res,200,q24RadioStatus());
 if(p==='/api/telcom/pricing'&&req.method==='GET')return json(res,200,q24TelcomPricing());
+if(p==='/api/radio-tv/expansion'&&req.method==='GET')return json(res,200,q24RadioTvExpansion());
 if(p==='/api/telcom/cellular'&&req.method==='GET')return json(res,200,q24CellularInterop());
 
 // Q24 TELCOM UNIFIED v1 — text/call/video orchestration with QHash threads; provider execution remains credential/evidence gated.
@@ -487,3 +488,6 @@ process.once('SIGINT',()=>shutdown('SIGINT'));
 process.on('uncaughtException',e=>{console.error('Quantum24 uncaughtException',e);shutdown('uncaughtException')});
 process.on('unhandledRejection',e=>{console.error('Quantum24 unhandledRejection',e);shutdown('unhandledRejection')});
 server.listen(PORT,'0.0.0.0',()=>console.log('Quantum24 '+VERSION+' listening on '+PORT));
+// Q24 RADIO/TV UNIVERSAL EXPANSION v2
+const Q24_RADIO_TV_EXPANSION={version:'v2',domains:['AM','FM','Digital Radio','TV','SatCom+','Telcom++'],paths:['push','pull','resonate','hold','dual','hybrid'],qhash:true,providerGated:true,physicalTransmission:false,truth:'Catalog/control-plane expansion only; broadcast, satellite and carrier transmission require authorized providers, spectrum and hardware.'};
+function q24RadioTvExpansion(){return{ok:true,...Q24_RADIO_TV_EXPANSION,formats:{am:true,fm:true,digital:true,tv:true},operations:{scan:true,search:true,load:true,play:true,pause:true,push:true,pull:true,resonate:true,hold:true,dual:true,hybrid:true,qhash:true,share:true,recover:true},energy:{optimization:true,measuredGenerationRequired:true,profitOptimization:true},staking:{tokenLayers:25,execution:'authorization-and-wallet-gated',guaranteedReturns:false},generatedAt:new Date().toISOString()};}
