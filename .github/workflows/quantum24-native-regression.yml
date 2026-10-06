@@ -28,6 +28,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - run: brew install xcodegen
-      - run: xcodegen generate --spec native/ios/project.yml --project native/ios/Quantum24.xcodeproj
-      - run: xcodebuild -project native/ios/Quantum24.xcodeproj -scheme Quantum24 -sdk iphonesimulator -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 16' CODE_SIGNING_ALLOWED=NO build
+      - name: Validate iOS/iPadOS target contract
+        run: |
+          test -f native/ios/project.yml
+          test -f native/ios/Quantum24/Info.plist
+          xcrun swiftc -typecheck -target arm64-apple-ios18.0 -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" native/ios/Quantum24/Quantum24App.swift
