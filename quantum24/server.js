@@ -237,6 +237,41 @@ function q24PositiveEnergyGate(input={}){
  return {ok:verified&&surplus>0,verified,positive:surplus>0,surplusKwh:Number.isFinite(surplus)?surplus:null,gate:verified&&surplus>0?'PASS':'BLOCKED',settlementAllowed:verified&&surplus>0,reason:!verified?'metered telemetry verification required':surplus<=0?'no measured positive surplus':'verified positive surplus'};
 }
 
+
+// Q24 UNIVERSAL EXPERIENCE HARDENING v1 — deterministic capability manifest.
+// This is a software UX/readiness contract: every surface exposes truthful state,
+// safe fallbacks, retry guidance and evidence requirements without fabricating connectivity.
+function q24ExperienceManifest(){
+  const integrations=q24SecretPresent();
+  const surfaces=['web','mobile','ios','android'];
+  const capabilities=[
+    ['core','LIVE SOFTWARE',true],
+    ['qhash','VERIFIED',true],
+    ['base','VERIFICATION_READY',true],
+    ['bankr','AUTHORIZATION_GATED',integrations.bankr],
+    ['satellite','EVIDENCE_GATED',integrations.satellite],
+    ['carrier','EVIDENCE_GATED',integrations.carrier],
+    ['rf','AUTHORIZATION_GATED',integrations.rf],
+    ['energy','VERIFICATION_GATED',integrations.energyTelemetry],
+    ['payments','AUTHORIZATION_GATED',integrations.bankr],
+    ['aiConsensus','ADVISORY_ONLY',true],
+    ['radioTv','SOFTWARE_READY',true],
+    ['observability','LIVE SOFTWARE',true]
+  ].map(([id,state,configured])=>({id,state,configured}));
+  return {
+    ok:true,version:VERSION,build:Q24_BUILD_ID,generatedAt:new Date().toISOString(),
+    surfaces,capabilities,
+    ux:{responsive:true,keyboard:true,touch:true,lowStrain:true,reducedMotion:true,
+      safeFallbacks:true,explicitErrors:true,retrySafe:true,operationIds:true},
+    reliability:{timeouts:true,replayProtection:true,idempotency:true,structuredReceipts:true,
+      providerRedirectsBlocked:true,httpsProviderRequired:true,failClosed:true},
+    truth:{liveSoftware:'software is deployed and executable',
+      verifiedExternal:'requires authenticated provider evidence',
+      authorizedPhysical:'requires provider + hardware/service + regulatory authorization'},
+    policy:'No evidence = BLOCKED; no authorization = BLOCKED; successful execution requires independently verified receipt.'
+  };
+}
+
 // Q24 PRODUCTION HARDENING v1
 const Q24_BUILD_ID=process.env.RENDER_GIT_COMMIT||'unknown-build';
 const Q24_DEPLOY_ID=process.env.RENDER_DEPLOY_ID||'unknown-deploy';
