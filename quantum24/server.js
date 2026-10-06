@@ -314,6 +314,29 @@ if(p==='/api/connectivity/status'&&req.method==='GET'){
  return json(res,200,{ok:true,satcom:{connected:false,configured:starlinkConfigured,message:starlinkConfigured?'Starlink provider credentials configured; live terminal/service verification requires an authorized Starlink account/API.':'Starlink API authorization required (Authorized Reseller, Enterprise or larger Business Customer).'},comms:{configured:twilioConfigured,message:twilioConfigured?'Twilio Voice/Messaging/Video adapter configured.':'Set Twilio Account SID, API key/secret and verified From number to enable calls/text/video.'},hologram:{providerConfigured:!!(process.env.HOLOGRAM_PROVIDER_URL&&process.env.HOLOGRAM_PROVIDER_TOKEN),message:'Browser display capability is checked client-side; physical hologram hardware requires an authorized provider adapter.'},rf:{enabled:false,message:'RF transmission is permanently disabled in this software surface.'},checkedAt:new Date().toISOString()});
 }
 if(p==='/api/connectivity/hologram'&&req.method==='GET')return json(res,200,{ok:true,providerConfigured:!!(process.env.HOLOGRAM_PROVIDER_URL&&process.env.HOLOGRAM_PROVIDER_TOKEN),displayHardwareGate:true,physicalTransmission:false});
+
+if(p==='/api/comms/sms'&&req.method==='POST'){
+ try{
+  const b=await body(req),sid=process.env.TWILIO_ACCOUNT_SID,key=process.env.TWILIO_API_KEY,secret=process.env.TWILIO_API_SECRET,from=process.env.TWILIO_FROM_NUMBER,to=String(b.to||''),message=String(b.message||'Quantum24 connection test');
+  if(!sid||!key||!secret||!from)return json(res,503,{ok:false,error:'twilio_credentials_required'});
+  if(!/^\\+?[1-9]\\d{7,14}$/.test(to.replace(/[\\s()-]/g,'')))return json(res,400,{ok:false,error:'invalid_destination'});
+  const auth=Buffer.from(key+':'+secret).toString('base64');
+  const rr=await fetch('https://api.twilio.com/2010-04-01/Accounts/'+sid+'/Messages.json',{method:'POST',headers:{Authorization:'Basic '+auth,'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({To:to,From:from,Body:message.slice(0,1600)})});
+  const j=await rr.json();if(!rr.ok)return json(res,502,{ok:false,error:'twilio_sms_failed',provider:j});
+  return json(res,201,{ok:true,sid:j.sid,status:j.status,to,provider:'Twilio Messaging'});
+ }catch(e){return json(res,502,{ok:false,error:'twilio_sms_unavailable',message:e.message})}
+}
+if(p==='/api/comms/call'&&req.method==='POST'){
+ try{
+  const b=await body(req),sid=process.env.TWILIO_ACCOUNT_SID,key=process.env.TWILIO_API_KEY,secret=process.env.TWILIO_API_SECRET,from=process.env.TWILIO_FROM_NUMBER,to=String(b.to||'');
+  if(!sid||!key||!secret||!from)return json(res,503,{ok:false,error:'twilio_credentials_required'});
+  if(!/^\\+?[1-9]\\d{7,14}$/.test(to.replace(/[\\s()-]/g,'')))return json(res,400,{ok:false,error:'invalid_destination'});
+  const auth=Buffer.from(key+':'+secret).toString('base64'),twiml='<Response><Say>Quantum twenty four connection test. Your call connection is working.</Say></Response>';
+  const rr=await fetch('https://api.twilio.com/2010-04-01/Accounts/'+sid+'/Calls.json',{method:'POST',headers:{Authorization:'Basic '+auth,'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({To:to,From:from,Twiml:twiml})});
+  const j=await rr.json();if(!rr.ok)return json(res,502,{ok:false,error:'twilio_call_failed',provider:j});
+  return json(res,201,{ok:true,sid:j.sid,status:j.status,to,provider:'Twilio Voice'});
+ }catch(e){return json(res,502,{ok:false,error:'twilio_call_unavailable',message:e.message})}
+}
 if(p==='/api/comms/video/room'&&req.method==='POST'){
  try{
   const b=await body(req),sid=process.env.TWILIO_ACCOUNT_SID,key=process.env.TWILIO_API_KEY,secret=process.env.TWILIO_API_SECRET;
