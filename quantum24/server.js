@@ -1,4 +1,29 @@
 const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto');
+// Q24 UNIVERSAL INTEGRATION CERTIFICATION v1
+const Q24_INTEGRATION_CAPABILITIES = [
+  {id:"web",label:"Web/PWA",class:"software",evidence:"runtime"},
+  {id:"ios_native",label:"Apple native",class:"native",evidence:"device"},
+  {id:"android_native",label:"Android native",class:"native",evidence:"device"},
+  {id:"bluetooth",label:"Bluetooth",class:"hardware",evidence:"device"},
+  {id:"usb",label:"USB/accessory",class:"hardware",evidence:"device"},
+  {id:"energy_provider",label:"Energy provider",class:"energy",evidence:"telemetry"},
+  {id:"payment_rail",label:"Payment rail",class:"financial",evidence:"transaction"},
+  {id:"radio_rx",label:"Radio receive",class:"media",evidence:"stream"},
+  {id:"radio_tx",label:"RF transmit",class:"regulated",evidence:"authorized_hardware"},
+  {id:"external_hardware",label:"External hardware",class:"hardware",evidence:"telemetry"},
+  {id:"communications",label:"Calling/Text/Video",class:"communications",evidence:"provider"},
+  {id:"satcom",label:"SatCom+",class:"communications",evidence:"provider"}
+];
+function q24IntegrationCertification(){
+  return {
+    version:1, generatedAt:new Date().toISOString(),
+    principle:"No capability is certified operational without matching runtime evidence.",
+    capabilities:Q24_INTEGRATION_CAPABILITIES.map(x=>({...x,status:"evidence_required"})),
+    states:["verified","available","auth_required","offline","unsupported","evidence_required"],
+    secretsExcluded:true, physicalActuationFailClosed:true, rfTransmitDefault:"disabled"
+  };
+}
+
 const {recoverMessageAddress}=require('viem');
 const PORT=process.env.PORT||10000,ROOT=__dirname;
 const BASE_RPC_URLS=(process.env.BASE_RPC_URLS||process.env.BASE_RPC_URL||'https://mainnet.base.org,https://base-mainnet.g.alchemy.com/public').split(',').map(x=>x.trim()).filter(Boolean);
