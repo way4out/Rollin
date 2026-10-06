@@ -5,7 +5,7 @@ const BASE_RPC_URLS=(process.env.BASE_RPC_URLS||process.env.BASE_RPC_URL||'https
 const MERCHANT=(process.env.QUANTUM_MERCHANT||'0x13653b6b8bd4b274da565faf6fa894e3418a6d10').toLowerCase();
 const USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'.toLowerCase();
 const TRANSFER_TOPIC='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a7f5c5a4d1';
-const VERSION='v41';
+const VERSION='v42';
 const products={'Quantum24 Nano':0.24,'Quantum24 Micro':1,'Quantum24 Starter':5,'Quantum24 Basic':10,'Quantum24 Mini':12,'Quantum24 Core':19.24,'Quantum24 Genesis':24,'Quantum24 Plus':49,'Quantum24 Priority':99,'Quantum24 Pro':249,'Quantum24 Business':499,'Quantum24 Enterprise':999,'Quantum24 Scale':2499,'Quantum24 Quantum':9999,'Quantum24 Apex':24000,'Quantum24 Ultra':99999,'Quantum24 Titan':249999,'Quantum24 Infinity':999999};
 const aiPoints={'AI Nano':{points:1,usd:.01},'AI Micro':{points:10,usd:.10},'AI Starter':{points:24,usd:.24},'AI Basic':{points:100,usd:1},'AI Pro':{points:1000,usd:10},'AI Quantum':{points:2400,usd:24},'AI Priority':{points:9900,usd:99},'AI Enterprise':{points:99900,usd:999}};
 const bankrReferencePricing={'quantum-lite':.10,'quantum-shield':.25,'quantum-timeline':.40,'quantum-premium':1.50,'quantum-batch':2.50,'quantum-contract':5};
@@ -64,6 +64,9 @@ function schumannProfileStatus(req){
   const locale=String((req.headers&&req.headers['accept-language'])||'en').split(',')[0].toLowerCase();
   const tz=String((req.headers&&req.headers['x-time-zone'])||'UTC');
   return{ok:true,version:VERSION,profile:{locale,timeZone:tz},referenceHz:7.83,mode:'reference',measured:false,qhash:'SHA-256',updatedAt:new Date().toISOString(),truth:'7.83Hz is a reference unless a verified physical sensor supplies measurement.'};
+}
+function capabilityInfrastructure(){
+  return{ok:true,version:VERSION,pass:1,physicalEnergy:{supported:'provider/hardware integration',required:['meter','inverter/generator','interconnection','tariff','settlement'],softwareCreatesEnergy:false},data:{mode:'best-effort live',timestamped:true,providerFreshness:true,zeroDelayImpossible:true},profit:{mode:'realized-settlement-only',guaranteed:false,required:['verified revenue','costs','settlement']},staking:{mode:'verified-contract-only',unverifiedExecutionBlocked:true},buys:{mode:'verified-payment-only',unverifiedExecutionBlocked:true},qhash:{algorithm:'SHA-256',provenance:true},nextPass:'connect durable providers, meters, contracts and receipts where credentials/authorizations exist',truth:'Infrastructure can support real integrations; it cannot make unsupported claims true.'};
 }
 function quantumUserOps(req){
   const locale=String((req.headers&&req.headers['accept-language'])||'en').split(',')[0].toLowerCase();
@@ -203,6 +206,7 @@ if(p==='/api/verify'&&req.method==='POST')return json(res,200,await verify(await
 if(p==='/api/order'&&req.method==='GET'){const tx=String(u.searchParams.get('tx')||'').toLowerCase();return json(res,200,{ok:true,order:orders.get(tx)||null})}
 if(p==='/api/receipt'&&req.method==='GET'){const tx=String(u.searchParams.get('tx')||'').toLowerCase();if(!/^0x[a-f0-9]{64}$/.test(tx))return json(res,400,{ok:false,error:'invalid_tx_hash'});return json(res,200,{ok:true,receipt:orders.get(tx)||null,onchain:await txLookup(tx)})}
 if(p==='/api/search'&&req.method==='GET'){const q=String(u.searchParams.get('q')||'').trim().toLowerCase();if(/^0x[a-f0-9]{64}$/.test(q)){const tx=await txLookup(q);const order=orders.get(q)||null;return json(res,200,{ok:true,type:'transaction',tx,order,ownership:order?{ownerWallet:order.from,merchantWallet:MERCHANT,paidOnchain:order.status==='paid',chain:'Base Mainnet'}:{onchainObserved:!!tx}});}const download='/download/quantum-catalog.json';const results=[...Object.entries(products).filter(([n,v])=>n.toLowerCase().includes(q)||String(v).includes(q)).map(([product,amountUsd])=>({kind:'quantum',product,amountUsd,action:'pay',paymentRail:'USDC_or_ETH',downloadUrl:download})),...Object.entries(aiPoints).filter(([n,x])=>n.toLowerCase().includes(q)||String(x.points).includes(q)).map(([product,x])=>({kind:'ai',product,amountUsd:x.usd,points:x.points,downloadUrl:download})),...bankrTokenMatrix.filter(x=>x.includes(q)).map(token=>({kind:'bankr-token',token,status:'app-defined; live payment route not independently verified',downloadUrl:download}))];return json(res,200,{ok:true,type:'quantum_search',query:q,downloadUrl:download,results})}
+if(p==='/api/capability-infrastructure'&&req.method==='GET')return json(res,200,capabilityInfrastructure());
 if(p==='/api/user/ops'&&req.method==='GET')return json(res,200,quantumUserOps(req));
 if(p==='/api/schumann/profile'&&req.method==='GET')return json(res,200,schumannProfileStatus(req));
 if(p==='/api/live-values'&&req.method==='GET')return json(res,200,liveValueStatus());
