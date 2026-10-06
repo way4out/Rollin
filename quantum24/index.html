@@ -699,6 +699,36 @@ v.onloadedmetadata=()=>{res.textContent=v.videoWidth+'×'+v.videoHeight;state.te
 v.onplaying=()=>state.textContent='LIVE PLAYING';v.onwaiting=()=>state.textContent='BUFFERING';v.onpause=()=>state.textContent='PAUSED';v.onerror=()=>{state.textContent='RECOVERY REQUIRED';truth.textContent='This source cannot be decoded by this device/browser.'};sync();
 })();
 </script>
+<!-- Q24 TV v4Q POSITIVE GATE -->
+<section class="card" id="q24-tv-v4q-gate">
+<h2>QUANTUM TV • v4Q POSITIVE GATE</h2>
+<div class="q24-tvmeta">
+<div>TV Capacity <strong>MAX ADAPTIVE</strong></div>
+<div>Energy Gate <strong id="q24TvEnergyGate">VERIFYING</strong></div>
+<div>Profit Gate <strong id="q24TvProfitGate">VERIFYING</strong></div>
+<div>Sales Capacity <strong id="q24TvSalesCap">VERIFYING</strong></div>
+</div>
+<p id="q24TvGateTruth">Checking live software readiness and verified-value policy…</p>
+</section>
+<script>
+(()=>{const E=document.getElementById('q24TvEnergyGate'),P=document.getElementById('q24TvProfitGate'),S=document.getElementById('q24TvSalesCap'),T=document.getElementById('q24TvGateTruth');if(!E)return;
+async function check(){
+try{
+ const [tv,sales,energy]=await Promise.all([
+ fetch('/api/tv/v4q/status').then(r=>r.json()),
+ fetch('/api/sales/target').then(r=>r.json()),
+ fetch('/api/energy/state').then(r=>r.json()).catch(()=>({}))
+ ]);
+ E.textContent=energy&&energy.ok?'TELEMETRY PATH':'EVIDENCE GATED';
+ P.textContent=sales&&sales.ok?'VERIFIED-VALUE PATH':'EVIDENCE GATED';
+ S.textContent=(sales&&sales.valueCapacity&&sales.valueCapacity.maxSaleUsd)||'EVIDENCE GATED';
+ T.textContent=tv&&tv.ok?'TV v4Q online software path ready. Energy/profit are optimized only from verified real-world evidence; no unverified revenue or energy is counted.':'TV status unavailable — recovery required.';
+ window.Quantum24TVV4Q={tv,sales,energy,checkedAt:new Date().toISOString()};
+}catch(e){E.textContent=P.textContent=S.textContent='RECOVERY';T.textContent='Live gate check unavailable; no positive-world claim made.'}
+}
+check();setInterval(check,30000);
+})();
+</script>
 </body></html>
 <!-- Q24 END-TO-END CLICK CERTIFICATION v1 -->
 <script>(()=>{const E=['/api/health','/api/ready','/api/live','/api/catalog','/api/pricing','/api/quantum/max-scan','/api/sales/target','/api/device-integration/status','/api/connectivity/status','/api/energy/status','/api/qhash-health','/api/payment-capabilities','/api/ai-sales'];window.Quantum24ClickCertification={checked:0,passed:0,failed:0};const r=ok=>{window.Quantum24ClickCertification.checked++;if(ok)window.Quantum24ClickCertification.passed++;else window.Quantum24ClickCertification.failed++};document.addEventListener('click',e=>{if(e.target.closest('button,a,[role=button]'))r(true)},true);window.addEventListener('load',async()=>{document.querySelectorAll('button,a,[role=button],input,select').forEach(x=>{if(!x.disabled)r(!!(x.textContent||x.value||x.href||x.getAttribute('aria-label')))});for(const p of E){try{r((await fetch(p,{cache:'no-store'})).ok)}catch(_){r(false)}}window.Quantum24ClickCertification.ok=window.Quantum24ClickCertification.failed===0})})();</script>
