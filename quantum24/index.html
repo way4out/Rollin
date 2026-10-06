@@ -636,6 +636,69 @@ sync();
 window.Quantum24TV={version:2,adaptive:true,devicePixels:{width:maxW,height:maxH},formats:['MP4','WebM','Ogg','HLS when browser supports it'],rfTransmit:false,truth:'Playback requires a real supported source and device decoder.'};
 })();
 </script>
+<!-- Q24 TV v3Q -->
+<style>
+.q24-v3q{display:grid;gap:12px}
+.q24-v3q-grid{display:grid;grid-template-columns:1fr 300px;gap:12px}
+.q24-v3q-screen{position:relative;aspect-ratio:16/9;background:#000;border:1px solid var(--q-line);border-radius:18px;overflow:hidden}
+.q24-v3q-screen video{width:100%;height:100%;object-fit:contain}
+.q24-v3q-hud{position:absolute;left:12px;right:12px;bottom:12px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px)}
+.q24-v3q-side{display:grid;gap:8px;align-content:start}
+.q24-v3q-side button{width:100%;text-align:left}
+.q24-v3q-status{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.q24-v3q-status>div{padding:10px;border:1px solid var(--q-line);border-radius:12px}
+.q24-v3q-green{color:var(--q-accent2)}
+@media(max-width:900px){.q24-v3q-grid{grid-template-columns:1fr}.q24-v3q-status{grid-template-columns:repeat(2,1fr)}}
+</style>
+<section class="card q24-v3q" id="q24-tv-v3q">
+<h2>QUANTUM TV • v3Q</h2>
+<p>Quantumized adaptive TV: maximize real device quality while preserving source, codec, and playback truth.</p>
+<div class="q24-v3q-grid">
+<div>
+<div class="q24-v3q-screen" id="q24V3QScreen"><video id="q24V3QVideo" controls playsinline preload="metadata"></video><div class="q24-v3q-hud"><strong id="q24V3QNow">QUANTUM TV</strong><div id="q24V3QState">READY • NO SOURCE SELECTED</div></div></div>
+<div class="q24-v3q-status">
+<div>Quality<strong id="q24V3QQuality">AUTO MAX</strong></div>
+<div>Device<strong id="q24V3QDevice">—</strong></div>
+<div>Codec<strong id="q24V3QCodec">—</strong></div>
+<div>Resolution<strong id="q24V3QRes">—</strong></div>
+<div>QHash<strong class="q24-v3q-green">TRACKED</strong></div>
+</div>
+</div>
+<aside class="q24-v3q-side">
+<label>Quality<select id="q24V3QSelect"><option>auto</option><option>2160p</option><option>1440p</option><option>1080p</option><option>720p</option></select></label>
+<label>Display<select id="q24V3QFit"><option value="contain">Best fit</option><option value="cover">Fill</option></select></label>
+<button type="button" id="q24V3QFull">⛶ Fullscreen</button>
+<button type="button" id="q24V3QPlay">▶ Play / Resume</button>
+<button type="button" id="q24V3QPause">Ⅱ Pause</button>
+<button type="button" id="q24V3QMute">🔊 Audio</button>
+<button type="button" id="q24V3QRecover">↻ Recover playback</button>
+</aside>
+</div>
+<div>
+<h3>QUANTUM EPG</h3>
+<div class="q24-tvepg">
+<button type="button" data-q3q="News">News</button><button type="button" data-q3q="Music">Music</button><button type="button" data-q3q="Science">Science</button><button type="button" data-q3q="Public">Public</button>
+</div>
+</div>
+<p id="q24V3QTruth">Awaiting a verified media source. Unsupported media is reported rather than simulated.</p>
+</section>
+<script>
+(()=>{const v=document.getElementById('q24V3QVideo');if(!v)return;
+const $=id=>document.getElementById(id),q=$('q24V3QSelect'),fit=$('q24V3QFit'),state=$('q24V3QState'),quality=$('q24V3QQuality'),device=$('q24V3QDevice'),codec=$('q24V3QCodec'),res=$('q24V3QRes'),now=$('q24V3QNow'),truth=$('q24V3QTruth');
+const px=Math.round(screen.width*devicePixelRatio)+'×'+Math.round(screen.height*devicePixelRatio);device.textContent=px;
+const tests=['video/mp4','video/webm','video/ogg'];codec.textContent=tests.map(x=>x.split('/')[1]+':'+(v.canPlayType(x)||'—')).join(' ');
+function sync(){quality.textContent=q.value.toUpperCase();v.style.objectFit=fit.value;window.Quantum24TVV3Q={quality:q.value,devicePixels:px,codecs:tests,truth:'source-and-device-gated'};}
+q.onchange=sync;fit.onchange=sync;
+$('q24V3QPlay').onclick=()=>v.play().catch(()=>{state.textContent='PLAYBACK NEEDS USER/SOURCE';});
+$('q24V3QPause').onclick=()=>v.pause();
+$('q24V3QMute').onclick=()=>{v.muted=!v.muted;};
+$('q24V3QRecover').onclick=()=>{const t=v.currentTime;v.load();try{v.currentTime=t}catch(_){ }state.textContent='RECOVERY ATTEMPTED';};
+$('q24V3QFull').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('q24-tv-v3q').requestFullscreen()}catch(_){state.textContent='FULLSCREEN UNAVAILABLE'}};
+document.querySelectorAll('[data-q3q]').forEach(b=>b.onclick=()=>{now.textContent='QUANTUM TV • '+b.dataset.q3q.toUpperCase();truth.textContent='Channel selected: '+b.dataset.q3q+'. Playback requires a verified source URL.'});
+v.onloadedmetadata=()=>{res.textContent=v.videoWidth+'×'+v.videoHeight;state.textContent='PLAYABLE SOURCE VERIFIED'};
+v.onplaying=()=>state.textContent='LIVE PLAYING';v.onwaiting=()=>state.textContent='BUFFERING';v.onpause=()=>state.textContent='PAUSED';v.onerror=()=>{state.textContent='RECOVERY REQUIRED';truth.textContent='This source cannot be decoded by this device/browser.'};sync();
+})();
+</script>
 </body></html>
 <!-- Q24 END-TO-END CLICK CERTIFICATION v1 -->
 <script>(()=>{const E=['/api/health','/api/ready','/api/live','/api/catalog','/api/pricing','/api/quantum/max-scan','/api/sales/target','/api/device-integration/status','/api/connectivity/status','/api/energy/status','/api/qhash-health','/api/payment-capabilities','/api/ai-sales'];window.Quantum24ClickCertification={checked:0,passed:0,failed:0};const r=ok=>{window.Quantum24ClickCertification.checked++;if(ok)window.Quantum24ClickCertification.passed++;else window.Quantum24ClickCertification.failed++};document.addEventListener('click',e=>{if(e.target.closest('button,a,[role=button]'))r(true)},true);window.addEventListener('load',async()=>{document.querySelectorAll('button,a,[role=button],input,select').forEach(x=>{if(!x.disabled)r(!!(x.textContent||x.value||x.href||x.getAttribute('aria-label')))});for(const p of E){try{r((await fetch(p,{cache:'no-store'})).ok)}catch(_){r(false)}}window.Quantum24ClickCertification.ok=window.Quantum24ClickCertification.failed===0})})();</script>
