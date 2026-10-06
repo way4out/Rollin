@@ -83,13 +83,13 @@ final class IntegrationReporter: NSObject, ObservableObject, CBCentralManagerDel
         guard let accessory = pendingAccessory,
               let identifier = accessory.bluetoothIdentifier,
               central.state == .poweredOn else { return }
-        pendingAccessory = nil
         guard deviceId != nil else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
                 self?.connectAuthorizedAccessory()
             }
             return
         }
+        pendingAccessory = nil
         let matches = central.retrievePeripherals(withIdentifiers: [identifier])
         guard let p = matches.first else {
             report(state: "OFFLINE", evidence: [
