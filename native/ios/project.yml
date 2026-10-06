@@ -6,8 +6,10 @@ targets:
     type: application
     platform: iOS
     deploymentTarget: "18.0"
-    sources: [Quantum24]
-    info: Quantum24/Info.plist
+    sources:
+      - path: Quantum24
+    info:
+      path: Quantum24/Info.plist
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.stellarnet.quantum24
       SWIFT_VERSION: "5.0"
