@@ -29,6 +29,11 @@ final class IntegrationReporter: NSObject, ObservableObject, CBCentralManagerDel
     private var peripheral: CBPeripheral?
     private var pendingAccessory: ASAccessory?
     private let endpoint = URL(string: "https://quantum24-gains.onrender.com/api/device-integration/report")!
+    private let serviceUUID = CBUUID(string: "7B5A0001-7F24-4C24-9B24-000000000024")
+    private let telemetryUUID = CBUUID(string: "7B5A0002-7F24-4C24-9B24-000000000024")
+    private let commandUUID = CBUUID(string: "7B5A0003-7F24-4C24-9B24-000000000024")
+    private let ackUUID = CBUUID(string: "7B5A0004-7F24-4C24-9B24-000000000024")
+    private var commandId: String?
     @Published var deviceId: String?
 
     override init() {
@@ -162,7 +167,7 @@ final class IntegrationReporter: NSObject, ObservableObject, CBCentralManagerDel
             return
         }
         let services = peripheral.services ?? []
-        for service in services { peripheral.discoverCharacteristics(nil, for: service) }
+        for service in services { peripheral.discoverCharacteristics([telemetryUUID, commandUUID, ackUUID], for: service) }
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
