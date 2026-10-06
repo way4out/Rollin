@@ -1,0 +1,14 @@
+name: Quantum24
+options:
+  bundleIdPrefix: com.stellarnet
+targets:
+  Quantum24:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources: [Quantum24]
+    info: Quantum24/Info.plist
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.stellarnet.quantum24
+      SWIFT_VERSION: "5.0"
+      TARGETED_DEVICE_FAMILY: "1,2"
