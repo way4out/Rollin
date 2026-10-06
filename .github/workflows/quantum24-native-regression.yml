@@ -25,7 +25,10 @@ jobs:
           curl -fsS http://127.0.0.1:10000/api/quantum/max-scan >/dev/null
           curl -fsS http://127.0.0.1:10000/api/device-integration/status >/dev/null
           curl -fsS http://127.0.0.1:10000/api/device-integration/reference-protocol >/dev/null
-          echo "local API smoke passed"
+          for path in /api/ready /api/live /api/config /api/catalog /api/pricing /api/quantum/capabilities /api/qhash-health /api/payment-capabilities /api/qrnft/status /api/music/status /api/radio/status /api/full-surface-status /api/verification/center /api/verification/checklist /api/quantum/max-upgrade /api/quantum/physical-infrastructure /api/grid/quantum-gate /api/quantum/next-max /api/quantum/finalization /api/quantum/operability /api/quantum/ultimate /api/infrastructure/pass1 /api/infrastructure/pass2 /api/infrastructure/fallbacks /api/infrastructure/recovery /api/infrastructure/retry-plan /api/infrastructure/adapters /api/infrastructure/settlement/status /api/infrastructure/security/status /api/security/hardened /api/expansion/status /api/global/finalize /api/quantum/hybrid-energy /api/v53/final-status /api/global-final/status /api/infrastructure/release/status /api/infrastructure/upgrades /api/infrastructure/baseline /api/public-status /api/device /api/physics /api/v44/status /api/pass2/verify /api/capability-infrastructure /api/user/ops /api/schumann/profile /api/live-values /api/library/status /api/ai-sales /api/token-plan /api/connectivity/status /api/quantum/max-scan /api/selftest; do
+            curl -fsS "http://127.0.0.1:10000$path" >/dev/null
+          done
+          echo "local core API smoke passed"
       - run: node -e "const p=require('./quantum24/reference-accessory/quantum24-gatt-v1.json'); if(p.serviceUUID!=='7b5a0001-7f24-4c24-9b24-000000000024'||p.characteristics.telemetry.properties.indexOf('read')<0||p.characteristics.command.properties.indexOf('write')<0||p.characteristics.acknowledgment.properties.indexOf('notify')<0) process.exit(1); console.log('reference GATT protocol passed')"
       - run: node -e "const q=require('./quantum24/device-integration'); const d=q.registerDevice({platform:'ci',capabilities:['bluetooth','usb']}); const ok=q.transition(d.deviceId,{state:'ACTION_VERIFIED',evidence:{authorization:true,connection:true,telemetry:true,action:true}}); if(ok.device.state!=='CERTIFIED'||!ok.certified) process.exit(1); const blocked=q.registerDevice({platform:'ci'}); const bad=q.transition(blocked.deviceId,{state:'CERTIFIED',evidence:{}}); if(bad.certified||bad.device.state!=='EVIDENCE_REQUIRED') process.exit(1); console.log('device evidence gate passed')"
   android:
@@ -44,6 +47,13 @@ jobs:
           gradle -p native/android :app:assembleDebug --stacktrace 2>&1 | tee android-build.log
           echo "exit_code=${PIPESTATUS[0]}" | tee -a android-build.log
           exit ${PIPESTATUS[0]}
+      - name: Upload Android APK
+        if: steps.androidbuild.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantum24-android-debug
+          path: native/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
       - name: Upload Android diagnostic
         if: always()
         uses: actions/upload-artifact@v4
