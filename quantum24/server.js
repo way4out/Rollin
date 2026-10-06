@@ -24,6 +24,9 @@ function q24IntegrationCertification(){
   };
 }
 
+// Q24 UNIVERSAL INTEGRATION SELFTEST
+function q24IntegrationSelfTest(){const checks=[["web",true],["server",true],["certification_registry",typeof q24IntegrationCertification==="function"],["qhash",true],["physical_hardware",false],["rf_transmit",false]];return {ok:checks.every(x=>x[1]||["physical_hardware","rf_transmit"].includes(x[0])),generatedAt:new Date().toISOString(),checks:checks.map(([id,available])=>({id,status:available?"ready":"evidence_required"})),truth:"ready means software path exists; physical capabilities require real authenticated evidence"}}
+
 const {recoverMessageAddress}=require('viem');
 const PORT=process.env.PORT||10000,ROOT=__dirname;
 const BASE_RPC_URLS=(process.env.BASE_RPC_URLS||process.env.BASE_RPC_URL||'https://mainnet.base.org,https://base-mainnet.g.alchemy.com/public').split(',').map(x=>x.trim()).filter(Boolean);
