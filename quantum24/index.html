@@ -251,6 +251,24 @@ window.q24Tune=function(){
 window.q24Stop=function(){const a=$r('q24Audio');a.pause();a.removeAttribute('src');a.load();$r('q24RadioState').textContent='Radio stopped.';window.Quantum24QHash?.record('radio_stopped',{})};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',q24LoadStations);else q24LoadStations();
 })();
+</script><style id="q24-physical-console-css">
+.q24-physical{background:linear-gradient(145deg,#171d25,#090d12);border:1px solid #46515f;border-radius:22px;padding:18px;box-shadow:inset 0 1px 0 #ffffff12,0 16px 40px #0008;color:#eef4fb}
+.q24-physical-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.q24-physical-brand{font-weight:900;letter-spacing:.08em;text-transform:uppercase}.q24-led{width:9px;height:9px;border-radius:50%;background:#66ff9a;box-shadow:0 0 12px #66ff9a;display:inline-block}
+.q24-hardware{display:grid;grid-template-columns:1.4fr .9fr;gap:14px}.q24-face{border:1px solid #3a4654;border-radius:16px;background:#0b1016;padding:14px}.q24-display{min-height:112px;border-radius:10px;background:radial-gradient(circle at 50% 45%,#18344a,#05080d 72%);border:1px solid #526173;display:grid;place-items:center;text-align:center;box-shadow:inset 0 0 35px #4ac8ff18}.q24-display strong{font-size:clamp(24px,6vw,42px);letter-spacing:.06em}.q24-speaker{margin-top:13px;display:grid;grid-template-columns:repeat(12,1fr);gap:5px}.q24-speaker i{height:5px;border-radius:5px;background:#56616f}.q24-dials{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.q24-knob{border:1px solid #4b5765;border-radius:14px;padding:10px;text-align:center;background:#121922}.q24-knob button{width:100%;border-radius:50%;min-height:72px;font-weight:900}.q24-physical .q24-status{font-size:12px;color:#aeb9c6;margin-top:10px}.q24-band{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.q24-band button{min-height:42px}.q24-interop{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.q24-interop div{padding:9px;border:1px solid #3a4654;border-radius:10px;font-size:12px}.q24-physical .q24-safe{color:#9be7b7}.q24-physical .q24-gate{color:#ffd98a}@media(max-width:620px){.q24-hardware{grid-template-columns:1fr}.q24-band,.q24-interop{grid-template-columns:repeat(2,1fr)}}
+</style>
+<script id="q24-physical-console">
+(function(){
+ const radio=document.getElementById('radio'); if(!radio||document.getElementById('q24-physical-copy'))return;
+ const el=document.createElement('div'); el.id='q24-physical-copy'; el.className='q24-physical';
+ el.innerHTML='<div class="q24-physical-head"><span class="q24-physical-brand">Quantum24 Base Radio / TV</span><span><i class="q24-led"></i> INTEROP READY</span></div>'+
+ '<div class="q24-hardware"><div class="q24-face"><div class="q24-display"><div><div id="q24-physical-mode">WEB RADIO</div><strong id="q24-physical-freq">440 Hz</strong><div class="q24-status">Physical-console visual model · browser playback / provider APIs</div></div></div><div class="q24-speaker">'+Array.from({length:48},()=>'<i></i>').join('')+'</div></div>'+
+ '<div class="q24-dials"><div class="q24-knob"><div>MODE</div><button type="button" onclick="q24PhysicalMode(\'radio\')">RADIO</button></div><div class="q24-knob"><div>TUNE</div><button type="button" onclick="q24Freq(440)">440</button></div><div class="q24-knob"><div>LOW REF</div><button type="button" onclick="q24Freq(7.83)">7.83</button></div><div class="q24-knob"><div>TEST</div><button type="button" onclick="q24Freq(1000)">1 kHz</button></div></div></div>'+
+ '<div class="q24-band"><button type="button" onclick="openMedia(\'radio\')">AM/FM</button><button type="button" onclick="q24Tune()">WEB RADIO</button><button type="button" onclick="openMedia(\'tv\')">TV + EPG</button><button type="button" onclick="q24Theater()">⛶ THEATER</button></div>'+
+ '<div class="q24-interop"><div class="q24-safe">Audio: browser/provider</div><div class="q24-safe">TV: public sources</div><div class="q24-gate">SatCom+: hardware/provider gate</div><div class="q24-gate">Calls/text/video: device/provider gate</div><div class="q24-gate">Hologram: display-hardware gate</div><div class="q24-gate">RF transmit: not enabled</div></div>';
+ radio.appendChild(el);
+ window.q24PhysicalMode=function(mode){document.getElementById('q24-physical-mode').textContent=mode==='tv'?'TV / EPG':'WEB RADIO';window.Quantum24QHash?.record('physical_console_mode',{mode})};
+ const old=q24Freq; window.q24Freq=function(f){old(f);const e=document.getElementById('q24-physical-freq');if(e)e.textContent=f===1000?'1 kHz':String(f)+' Hz'};
+})();
 </script></body></html>+j.capabilities.qrnft.priceUsd+' / '+j.capabilities.qrnft.cap+' cap';
   const q=el('quantumStatus');if(q)q.textContent=text;
   window.Quantum24QHash?.record('unified_gate_status',{tokenCount:j.tokens.length,qrnft:j.capabilities.qrnft,energyx:j.capabilities.energyx,staking:j.capabilities.staking});
