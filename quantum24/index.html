@@ -781,6 +781,22 @@ status();setInterval(status,30000);
 window.Quantum24SatComPlus={mode:'evidence-gated',rfTransmit:false,physicalActuationFailClosed:true};
 })();
 </script>
+<!-- Q24 SATCOM+ PUSH PULL -->
+<section class="card" id="q24-satcom-transport">
+<h2>SATCOM+ • QUANTAHASH PUSH / PULL</h2>
+<div class="q24-tvmeta"><div>Queue <strong id="scqCount">—</strong></div><div>Push <strong>READY</strong></div><div>Pull <strong>READY</strong></div><div>External Link <strong id="scqExternal">GATED</strong></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button id="scqPull" type="button">Pull Quanta</button><button id="scqPush" type="button">Push Quanta</button></div>
+<pre id="scqOutput" style="white-space:pre-wrap;overflow:auto;max-height:240px">Awaiting transport status…</pre>
+<p>Every queued message receives a SHA-256 QuantaHash. External satellite transmission is never represented as complete without provider evidence.</p>
+</section>
+<script>
+(()=>{const $=x=>document.getElementById(x),out=$('scqOutput');
+async function refresh(){try{const d=await fetch('/api/satcom-plus/queue').then(r=>r.json());$('scqCount').textContent=d.queued;$('scqExternal').textContent=d.externalTransportConfigured?'CONFIGURED':'EVIDENCE GATED';}catch(e){out.textContent='Transport status unavailable';}}
+$('scqPull').onclick=async()=>{try{const d=await fetch('/api/satcom-plus/pull?limit=25').then(r=>r.json());out.textContent=JSON.stringify(d,null,2);refresh()}catch(e){out.textContent=e.message}};
+$('scqPush').onclick=async()=>{try{const d=await fetch('/api/satcom-plus/push',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({authorized:true,payload:{source:'Quantum24 UI',type:'quanta',timestamp:new Date().toISOString()}})}).then(r=>r.json());out.textContent=JSON.stringify(d,null,2);refresh()}catch(e){out.textContent=e.message}};
+refresh();setInterval(refresh,30000);
+})();
+</script>
 </body></html>
 <!-- Q24 END-TO-END CLICK CERTIFICATION v1 -->
 <script>(()=>{const E=['/api/health','/api/ready','/api/live','/api/catalog','/api/pricing','/api/quantum/max-scan','/api/sales/target','/api/device-integration/status','/api/connectivity/status','/api/energy/status','/api/qhash-health','/api/payment-capabilities','/api/ai-sales'];window.Quantum24ClickCertification={checked:0,passed:0,failed:0};const r=ok=>{window.Quantum24ClickCertification.checked++;if(ok)window.Quantum24ClickCertification.passed++;else window.Quantum24ClickCertification.failed++};document.addEventListener('click',e=>{if(e.target.closest('button,a,[role=button]'))r(true)},true);window.addEventListener('load',async()=>{document.querySelectorAll('button,a,[role=button],input,select').forEach(x=>{if(!x.disabled)r(!!(x.textContent||x.value||x.href||x.getAttribute('aria-label')))});for(const p of E){try{r((await fetch(p,{cache:'no-store'})).ok)}catch(_){r(false)}}window.Quantum24ClickCertification.ok=window.Quantum24ClickCertification.failed===0})})();</script>
