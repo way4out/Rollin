@@ -60,7 +60,14 @@ details summary{padding:8px 0}.advancedOnly{display:none!important}
 <div class="q24-theater-tools"><button onclick="q24Theater()">⛶ Full-screen Theater</button><button onclick="q24TheaterSource('movies')">Movies</button><button onclick="q24TheaterSource('music')">Artist Music</button></div>
 <div class="q24-theater-tools"><button onclick="q24TheaterSource('satcom')">SatCom+</button><button onclick="go('comms')">Calls / Text / Video</button><button onclick="q24HologramGate()">Hologram Gate</button></div>
 <div class="q24-freq-row"><button onclick="q24Freq(7.83)">7.83 Hz</button><button onclick="q24Freq(440)">440 Hz</button><button onclick="q24Freq(1000)">1 kHz</button></div>
-<div id="q24FreqState" class="notice">Frequency color gate: visual/DSP reference only; no licensed RF transmission.</div>
+<div id="q24FreqState" class="notice">Frequency color gate: visual/DSP reference only; no licensed RF transmission.</div><div id="q24-radio-console" class="notice" style="margin-top:12px">
+<strong>Base Radio Console</strong><br>
+<select id="q24Station" aria-label="Radio station"><option value="">Loading public stations…</option></select>
+<button class="primary" type="button" onclick="q24Tune()">Tune / Play</button>
+<button type="button" onclick="q24Stop()">Stop</button>
+<div id="q24RadioState" style="margin-top:8px">Public web-radio mode · browser audio · no RF transmission.</div>
+<audio id="q24Audio" controls preload="none" style="width:100%;margin-top:8px"></audio>
+</div>
 <div id="mediaState" class="notice">Open a directory, then select a published live stream. Endpoints are opened unchanged.</div>
 <div class="q24-livebar"><span class="q24-statuspill">24-token registry: loaded</span><span class="q24-statuspill">QHash: click coverage ON</span></div></section>
 <section class="card" id="comms"><h2>Com · Intercom · Digital · AI</h2><p class="cardIntro">Device-native calling/texting plus a video-room launcher. Carrier and spectrum access remain dependent on the device, provider, and applicable licensing.</p><div class="amount"><input id="phone" type="tel" placeholder="+1 555 555 5555"><button class="primary" onclick="deviceCall()">Call</button></div><div class="choices"><button onclick="deviceText()">Text</button><button onclick="videoRoom()">Video chat</button></div><div class="notice" id="commsState">5G/8G and “all frequencies” are treated as requested design targets, not falsely advertised hardware capabilities.</div></section>
@@ -222,7 +229,29 @@ unifiedGate();setInterval(unifiedGate,30000);
  nav.querySelectorAll('button').forEach((b,i)=>{b.addEventListener('click',()=>show(['home','pay','radio','energy'][i]));});
  show('home');
 })();
-</script><script src="/qhash-vnext.js" defer></script><style id="q24-qhash-vnext-css">#q24-qhash-vnext{margin-top:16px}.q24-qhash-row{display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid rgba(127,127,127,.2)}.q24-qhash-row span{text-transform:capitalize}.q24-qhash-row small{opacity:.72}@media(max-width:520px){.q24-qhash-row{grid-template-columns:1fr}.q24-qhash-row small{font-size:12px}}</style><script>(function(){window.q24EnergyGains=function(){const g=Math.max(0,Number(document.getElementById('eg24Gen').value)||0),l=Math.max(0,Number(document.getElementById('eg24Load').value)||0),r=Math.max(0,Number(document.getElementById('eg24Rate').value)||0),h=Math.max(.01,Number(document.getElementById('eg24Hours').value)||1),gen=g*h,load=l*h,exp=Math.max(0,gen-load),imp=Math.max(0,load-gen),value=exp*r;const out={mode:'measured',generationKwh:gen,loadKwh:load,exportKwh:exp,importKwh:imp,exportValueUsd:Number(value.toFixed(6)),profitStatus:'estimate until verified settlement',timestamp:new Date().toISOString()};document.getElementById('eg24Out').textContent=JSON.stringify(out,null,2);document.getElementById('eg24Layers').textContent=Array.from({length:25},(_,i)=>'Layer '+(i+1)+': '+(exp>0?'export opportunity':'load/import opportunity')).join('\n');fetch('/api/qhash',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({event:'energy-gains',data:out})}).catch(()=>{});};})();</script></body></html>+j.capabilities.qrnft.priceUsd+' / '+j.capabilities.qrnft.cap+' cap';
+</script><script src="/qhash-vnext.js" defer></script><style id="q24-qhash-vnext-css">#q24-qhash-vnext{margin-top:16px}.q24-qhash-row{display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid rgba(127,127,127,.2)}.q24-qhash-row span{text-transform:capitalize}.q24-qhash-row small{opacity:.72}@media(max-width:520px){.q24-qhash-row{grid-template-columns:1fr}.q24-qhash-row small{font-size:12px}}</style><script>(function(){window.q24EnergyGains=function(){const g=Math.max(0,Number(document.getElementById('eg24Gen').value)||0),l=Math.max(0,Number(document.getElementById('eg24Load').value)||0),r=Math.max(0,Number(document.getElementById('eg24Rate').value)||0),h=Math.max(.01,Number(document.getElementById('eg24Hours').value)||1),gen=g*h,load=l*h,exp=Math.max(0,gen-load),imp=Math.max(0,load-gen),value=exp*r;const out={mode:'measured',generationKwh:gen,loadKwh:load,exportKwh:exp,importKwh:imp,exportValueUsd:Number(value.toFixed(6)),profitStatus:'estimate until verified settlement',timestamp:new Date().toISOString()};document.getElementById('eg24Out').textContent=JSON.stringify(out,null,2);document.getElementById('eg24Layers').textContent=Array.from({length:25},(_,i)=>'Layer '+(i+1)+': '+(exp>0?'export opportunity':'load/import opportunity')).join('\n');fetch('/api/qhash',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({event:'energy-gains',data:out})}).catch(()=>{});};})();</script><script id="q24-real-radio">
+(function(){
+const $r=id=>document.getElementById(id);
+window.q24RadioStations=[];
+async function q24LoadStations(){
+ const sel=$r('q24Station'); if(!sel)return;
+ try{
+  const r=await fetch('https://de1.api.radio-browser.info/json/stations/bycountrycodeexact/US?hidebroken=true&order=clickcount&reverse=true&limit=20',{cache:'no-store'});
+  if(!r.ok)throw new Error('station API '+r.status);
+  const a=await r.json(); window.q24RadioStations=a;
+  sel.innerHTML='<option value="">Select a live public web-radio station</option>'+a.map((s,i)=>'<option value="'+i+'">'+String(s.name||'Unnamed').replace(/[<>&"]/g,'')+(s.codec?' · '+s.codec:'')+'</option>').join('');
+  $r('q24RadioState').textContent='Live public station directory connected · '+a.length+' stations loaded.';
+ }catch(e){sel.innerHTML='<option value="">Directory unavailable — retry</option>';$r('q24RadioState').textContent='Public radio directory unavailable; retry when online.'}
+}
+window.q24Tune=function(){
+ const s=window.q24RadioStations[Number($r('q24Station').value)];
+ if(!s||!s.url_resolved){$r('q24RadioState').textContent='Choose a station first.';return}
+ const a=$r('q24Audio'); a.src=s.url_resolved; a.play().then(()=>{$r('q24RadioState').textContent='Playing: '+s.name+' · source: '+s.url_resolved;window.Quantum24QHash?.record('radio_tuned',{station:s.stationuuid,name:s.name,codec:s.codec})}).catch(()=>{$r('q24RadioState').textContent='Stream selected; press Play if the browser requires user interaction.'})
+};
+window.q24Stop=function(){const a=$r('q24Audio');a.pause();a.removeAttribute('src');a.load();$r('q24RadioState').textContent='Radio stopped.';window.Quantum24QHash?.record('radio_stopped',{})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',q24LoadStations);else q24LoadStations();
+})();
+</script></body></html>+j.capabilities.qrnft.priceUsd+' / '+j.capabilities.qrnft.cap+' cap';
   const q=el('quantumStatus');if(q)q.textContent=text;
   window.Quantum24QHash?.record('unified_gate_status',{tokenCount:j.tokens.length,qrnft:j.capabilities.qrnft,energyx:j.capabilities.energyx,staking:j.capabilities.staking});
  }catch(e){const q=el('quantumStatus');if(q)q.textContent='Unified gate retrying…'}
