@@ -758,6 +758,29 @@ document.querySelectorAll('[data-q5]').forEach(b=>b.onclick=()=>{now.textContent
 sync();
 })();
 </script>
+<!-- Q24 SATCOM+ COMMAND -->
+<section class="card" id="q24-satcom-plus">
+<h2>SATCOM+ • COMMAND & VERIFICATION</h2>
+<div class="q24-tvmeta">
+<div>Software <strong id="scSoft">READY</strong></div><div>Provider <strong id="scProvider">EVIDENCE REQUIRED</strong></div>
+<div>Link <strong id="scLink">OFFLINE</strong></div><div>RF TX <strong>DISABLED</strong></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+<button type="button" id="scDiscover">Discover</button><button type="button" id="scAuthorize">Authorize</button><button type="button" id="scVerify">Verify Link</button><button type="button" id="scRecover">Recover</button>
+</div>
+<p id="scTruth">SatCom+ software paths are live-ready; no satellite connection is claimed without authenticated provider/device telemetry.</p>
+</section>
+<script>
+(()=>{const $=x=>document.getElementById(x),truth=$('scTruth'),prov=$('scProvider'),link=$('scLink');
+async function status(){try{const r=await fetch('/api/satcom-plus/status');const d=await r.json();prov.textContent=d.hardwareConnectionVerified?'VERIFIED':'EVIDENCE REQUIRED';link.textContent=d.hardwareConnectionVerified?'CONNECTED':'OFFLINE';return d}catch(e){prov.textContent='RECOVERY';link.textContent='RECOVERY';}}
+$('scDiscover').onclick=async()=>{truth.textContent='Provider/device discovery requested; awaiting evidence.';await status()};
+$('scAuthorize').onclick=async()=>{truth.textContent='Authorization gate ready; credentials/provider approval required.';await status()};
+$('scVerify').onclick=async()=>{truth.textContent='Link verification requested; only verified telemetry can advance the state.';await status()};
+$('scRecover').onclick=async()=>{truth.textContent='Recovery path active; retrying status.';await status()};
+status();setInterval(status,30000);
+window.Quantum24SatComPlus={mode:'evidence-gated',rfTransmit:false,physicalActuationFailClosed:true};
+})();
+</script>
 </body></html>
 <!-- Q24 END-TO-END CLICK CERTIFICATION v1 -->
 <script>(()=>{const E=['/api/health','/api/ready','/api/live','/api/catalog','/api/pricing','/api/quantum/max-scan','/api/sales/target','/api/device-integration/status','/api/connectivity/status','/api/energy/status','/api/qhash-health','/api/payment-capabilities','/api/ai-sales'];window.Quantum24ClickCertification={checked:0,passed:0,failed:0};const r=ok=>{window.Quantum24ClickCertification.checked++;if(ok)window.Quantum24ClickCertification.passed++;else window.Quantum24ClickCertification.failed++};document.addEventListener('click',e=>{if(e.target.closest('button,a,[role=button]'))r(true)},true);window.addEventListener('load',async()=>{document.querySelectorAll('button,a,[role=button],input,select').forEach(x=>{if(!x.disabled)r(!!(x.textContent||x.value||x.href||x.getAttribute('aria-label')))});for(const p of E){try{r((await fetch(p,{cache:'no-store'})).ok)}catch(_){r(false)}}window.Quantum24ClickCertification.ok=window.Quantum24ClickCertification.failed===0})})();</script>
