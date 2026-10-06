@@ -76,6 +76,11 @@ function quantumize(value,parent=''){
   for(const k of keys)fields[k]=quantumize(value[k],parent+'/'+k);
   return {type:'object',fields,qhash:qhash(parent+'|'+JSON.stringify(keys.map(k=>[k,fields[k].qhash])))};
 }
+
+// Q24 SATCOM+ PUSH/PULL v2 — signed/hashable message transport; external satellite transport remains provider-evidence gated.
+const satcomQueue=[];
+function q24SatcomMessage(direction,payload={}){const safe={direction:String(direction),payload,timestamp:new Date().toISOString(),network:'satcom+',transport:'evidence-gated'};safe.qhash=qhash(JSON.stringify(safe));satcomQueue.push(safe);if(satcomQueue.length>500)satcomQueue.shift();return safe;}
+function q24SatcomQueueStatus(){return{ok:true,queued:satcomQueue.length,latest:satcomQueue.at(-1)||null,pushReady:true,pullReady:true,externalTransportConfigured:Boolean(process.env.SATCOM_PROVIDER_URL&&process.env.SATCOM_API_KEY),rfTransmit:false,truth:'Push/pull queue and QuantaHash integrity are software-ready; external satellite transmission requires an authorized configured provider.'};}
 // Q24 TV v4Q STATUS — device-aware rendering plus evidence-gated energy/profit policy.
 
 // Q24 SATCOM+ FULL BUILDOUT v1 — capability/evidence-gated, no fabricated satellite connectivity.
@@ -421,6 +426,9 @@ if(p==='/api/comms/video/room'&&req.method==='POST'){
   return json(res,201,{ok:true,room:{name:room.unique_name||roomName,sid:room.sid,status:room.status},token:unsigned+'.'+sig,expiresAt:new Date((now+3600)*1000).toISOString(),provider:'Twilio Video'});
  }catch(e){return json(res,502,{ok:false,error:'twilio_video_unavailable',message:e.message})}
 }
+if(p==='/api/satcom-plus/queue'&&req.method==='GET')return json(res,200,q24SatcomQueueStatus());
+if(p==='/api/satcom-plus/pull'&&req.method==='GET'){const limit=Math.min(100,Math.max(1,Number(u.searchParams.get('limit')||25)));return json(res,200,{ok:true,messages:satcomQueue.slice(-limit),qhash:qhash(JSON.stringify(satcomQueue.slice(-limit))),transport:'evidence-gated'});}
+if(p==='/api/satcom-plus/push'&&req.method==='POST'){try{const b=await body(req);if(!b||b.authorized!==true)return json(res,403,{ok:false,error:'explicit_authorization_required'});const m=q24SatcomMessage('push',b.payload||{});return json(res,200,{ok:true,message:m,externalTransport:'not_sent_without_configured_provider'});}catch(e){return json(res,400,{ok:false,error:e.message})}}
 if(p==='/api/satcom-plus/status'&&req.method==='GET')return json(res,200,q24SatcomPlusStatus());
 if(p==='/api/tv/v4q/status'&&req.method==='GET')return json(res,200,q24TvV4QStatus());
 if(p==='/api/quantum/max-scan'&&req.method==='GET')return json(res,200,quantumMaxScan());
