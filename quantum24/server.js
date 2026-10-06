@@ -249,6 +249,7 @@ if(p==='/api/infrastructure/security/status'&&req.method==='GET')return json(res
 if(p==='/api/security/hardened'&&req.method==='GET')return json(res,200,hardenedSecurityStatus());
 if(p==='/api/expansion/status'&&req.method==='GET')return json(res,200,expansionStatus());
 if(p==='/api/global/finalize'&&req.method==='GET')return json(res,200,globalFinalizeStatus());
+if(p==='/api/quantum/hybrid-energy'&&req.method==='GET')return json(res,200,hybridEnergyStatus());
 if(p==='/api/global-final/status'&&req.method==='GET')return json(res,200,globalFinalStatus());
 if(p==='/api/infrastructure/release/status'&&req.method==='GET')return json(res,200,{ok:true,...releaseAudit()});
 if(p==='/api/infrastructure/upgrades'&&req.method==='GET')return json(res,200,upgradeMatrix());
