@@ -79,6 +79,20 @@ async function recordQHashEvent(b){const internal=Boolean(b.internal),ip=String(
 if(p==='/api/qhash-health'&&req.method==='GET')return json(res,200,{ok:true,configured:!!(process.env.SUPABASE_URL&&process.env.SUPABASE_PUBLISHABLE_KEY),algorithm:'SHA-256',persistentTable:'quantum24_qhash_events',integrityTrigger:true,onchainLinkage:'verified payment events include Base transaction hash',quantification:'/api/qhash-data',coverage:'interaction/payment/data events',externalSdk:'/qhash-sdk.js',eternalStorage:'not claimed; persistence plus owner export/backup architecture'});
 if(p==='/api/qhash-event'&&req.method==='POST'){if(req.method!=='POST')return json(res,405,{ok:false,error:'method_not_allowed'});const b=await body(req);b.ip=String(req.headers['x-forwarded-for']||req.socket.remoteAddress||'unknown').split(',')[0].trim();return json(res,200,await recordQHashEvent(b))}
 if(p==='/api/payment-capabilities'&&req.method==='GET')return json(res,200,{ok:true,network:'Base',merchant:MERCHANT,verifiedRails:['USDC','ETH'],bankr:'compatible integration; exact supported assets must be configured and verified',allPaymentsRule:'only confirmed on-chain payments are credited',refundRule:'reverted or unverifiable payments are not credited',energyRule:'revenue/export credit requires measured meter data and applicable tariff',qhash:true});
+const INFRASTRUCTURE_BASELINE={
+  version:'pass-1/5',status:'software-baseline-ready',generatedAt:()=>new Date().toISOString(),
+  qhash:{algorithm:'SHA-256',ingest:'active',replayProtection:'planned-pass-4'},
+  musicData:{mode:'rights-aware-catalog-and-user-data',infinite:false,capacity:'bounded-by-storage/providers',offlineCache:'PWA-limited'},
+  schumann:{mode:'physical-sensor-adapter',frequencyReferenceHz:7.83,liveMeasurement:false,sourceRequired:true},
+  rfSatellite:{receive:'provider/device dependent',transmit:'hardware-and-authorization required',softwareGateway:true},
+  energy:{mode:'metered-grid-settlement',generationHardwareRequired:true,meterRequired:true,interconnectionRequired:true,profitGuarantee:false,scale:'capacity-planned-not-installed'},
+  grid:{exportSettlement:'utility/ISO tariff required',revenueStatus:'projected-until-metered-settlement'},
+  staking:{mode:'multi-asset orchestration',verifiedPoolsRequired:true,guaranteedYield:false},
+  tokens:{registryCount:25,execution:'verified-rail-or-provider required'},
+  passPlan:{current:1,total:5,next:['physical adapter contracts + telemetry schema','verified energy settlement and sensor adapters','transaction/staking execution verification','security/load/mobile edge-case audit','release audit and deployment verification']}
+};
+function infrastructureBaseline(){const x={...INFRASTRUCTURE_BASELINE,generatedAt:INFRASTRUCTURE_BASELINE.generatedAt(),capacityStatement:'Designed for horizontal/provider-backed expansion; no claim of infinite storage, infinite energy, guaranteed profit, or guaranteed uptime.'};return {...x,qhash:qhash(JSON.stringify(x))}}
+\nif(p==='/api/infrastructure/baseline'&&req.method==='GET')return json(res,200,{ok:true,...infrastructureBaseline()});
 if(p==='/api/public-status'&&req.method==='GET')return json(res,200,{ok:true,service:'quantum24-gains',version:VERSION,publicFlows:{clicks:true,qhash:true,energyAccounting:true,payments:true,media:true,telecom:true},energy:{mode:'metered',physicalGenerationRequired:true,gridConnected:false,positiveExportMeansMeasuredGenerationExceedsLoad:true},persistence:{qhash:'Supabase-backed when configured',eternal:false},userScope:'public'});
 if(p==='/api/action'&&req.method==='POST'){try{const b=await body(req);b.ip=String(req.headers['x-forwarded-for']||req.socket.remoteAddress||'unknown').split(',')[0].trim();b.eventType=String(b.eventType||'action');return json(res,200,await recordQHashEvent(b))}catch(e){return json(res,400,{ok:false,error:'action_rejected'})}}
 if(p==='/api/energy/state'&&req.method==='GET')return json(res,200,energyState());
