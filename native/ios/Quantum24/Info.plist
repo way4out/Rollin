@@ -9,7 +9,7 @@
 <key>NSBluetoothAlwaysUsageDescription</key><string>Quantum24 uses Bluetooth to discover and communicate with authorized accessories.</string>
 <key>NSCameraUsageDescription</key><string>Quantum24 uses the camera when a connected workflow requires it.</string>
 <key>NSAccessorySetupKitSupports</key><array><string>Bluetooth</string><string>WiFi</string></array>
-<key>NSAccessorySetupBluetoothNames</key><array><string>Quantum24</string></array>
+<key>NSAccessorySetupBluetoothNames</key><array><string>Quantum24 Reference</string></array>
 <key>NSAccessorySetupBluetoothServices</key><array><string>FD6F</string></array>
 <key>NSAccessorySetupBluetoothServices</key><array></array>
 <key>UIRequiresFullScreen</key><false/>
