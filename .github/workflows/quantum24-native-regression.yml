@@ -29,7 +29,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate iOS/iPadOS target contract
+        id: ioscheck
+        continue-on-error: true
         run: |
+          set +e
           test -f native/ios/project.yml
           test -f native/ios/Quantum24/Info.plist
-          xcrun swiftc -typecheck -target arm64-apple-ios18.0 -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" native/ios/Quantum24/Quantum24App.swift
+          xcrun swiftc -typecheck -target arm64-apple-ios18.0 -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" native/ios/Quantum24/Quantum24App.swift 2>&1 | tee ios-typecheck.log
+          echo "exit_code=${PIPESTATUS[0]}" | tee -a ios-typecheck.log
+          exit ${PIPESTATUS[0]}
+      - name: Upload iOS diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: q24-ios-diagnostic
+          path: ios-typecheck.log
+          if-no-files-found: warn
+      - name: Enforce iOS validation
+        if: steps.ioscheck.outcome == 'failure'
+        run: exit 1
