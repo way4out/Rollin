@@ -4,6 +4,7 @@ import WebKit
 import Combine
 import AccessorySetupKit
 import CoreBluetooth
+import CryptoKit
 
 @main
 struct Quantum24App: App {
@@ -83,6 +84,12 @@ final class IntegrationReporter: NSObject, ObservableObject, CBCentralManagerDel
               let identifier = accessory.bluetoothIdentifier,
               central.state == .poweredOn else { return }
         pendingAccessory = nil
+        guard deviceId != nil else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+                self?.connectAuthorizedAccessory()
+            }
+            return
+        }
         let matches = central.retrievePeripherals(withIdentifiers: [identifier])
         guard let p = matches.first else {
             report(state: "OFFLINE", evidence: [
@@ -182,11 +189,7 @@ final class IntegrationReporter: NSObject, ObservableObject, CBCentralManagerDel
 
 private extension String {
     func sha256() -> String {
-        var hash = [UInt8](repeating: 0, count: 32)
-        var data = Array(utf8)
-        _ = data.withUnsafeBytes { _ in }
-        // Deterministic identifier is not used for trust; the server's QHash remains authoritative.
-        return String(data.utf8.prefix(64))
+        SHA256.hash(data: Data(utf8)).map { String(format: "%02x", $0) }.joined()
     }
 }
 
