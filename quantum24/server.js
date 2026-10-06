@@ -76,6 +76,9 @@ function quantumize(value,parent=''){
   for(const k of keys)fields[k]=quantumize(value[k],parent+'/'+k);
   return {type:'object',fields,qhash:qhash(parent+'|'+JSON.stringify(keys.map(k=>[k,fields[k].qhash])))};
 }
+// Q24 TV v4Q STATUS — device-aware rendering plus evidence-gated energy/profit policy.
+function q24TvV4QStatus(){return{ok:true,version:'v4Q',service:'quantum24-gains',qualityModes:['auto','2160p','1440p','1080p','720p'],formats:['MP4','WebM','Ogg','HLS-when-supported'],deviceAware:true,adaptiveMaxStable:true,energyProfitGate:{mode:'verified-positive-path',energy:'maximize verified net energy value',profit:'maximize verified net realized value',unverifiedRevenueCounted:false,physicalEnergyCreatedBySoftware:false,doubleCounting:'blocked'},capacity:{maxSaleUsd:Q24_VALUE_CAPACITY.maxSaleUsd,maxQuoteUsd:Q24_VALUE_CAPACITY.maxQuoteUsd,precision:Q24_VALUE_CAPACITY.precision},truth:'TV rendering is software-ready; actual media, energy, payment and physical-world outcomes require verified external evidence.'};}
+
 function qhashBytes(buf){return crypto.createHash('sha256').update(buf).digest('hex')}
 function energyVector({generationKw=0,loadKw=0,importKw=0,exportKw=0,pricePerKwh=0}={}){
   const g=Math.max(0,Number(generationKw)||0), l=Math.max(0,Number(loadKw)||0), imp=Math.max(0,Number(importKw)||0), exp=Math.max(0,Number(exportKw)||0), p=Math.max(0,Number(pricePerKwh)||0);
@@ -415,7 +418,9 @@ if(p==='/api/comms/video/room'&&req.method==='POST'){
   return json(res,201,{ok:true,room:{name:room.unique_name||roomName,sid:room.sid,status:room.status},token:unsigned+'.'+sig,expiresAt:new Date((now+3600)*1000).toISOString(),provider:'Twilio Video'});
  }catch(e){return json(res,502,{ok:false,error:'twilio_video_unavailable',message:e.message})}
 }
+if(p==='/api/tv/v4q/status'&&req.method==='GET')return json(res,200,q24TvV4QStatus());
 if(p==='/api/quantum/max-scan'&&req.method==='GET')return json(res,200,quantumMaxScan());
+if(p==='/api/sales/target'&&req.method==='GET')return json(res,200,q24SalesTargetStatus());
 if(p==='/api/health'&&req.method==='GET')return json(res,200,{ok:true,service:'quantum24',version:VERSION,chain:'base',payments:['USDC','ETH'],uptime:'continuous'});
 if(p==='/api/owner/challenge'&&req.method==='POST')return json(res,200,{ok:true,...challenge()});
 if(p==='/api/owner/verify'&&req.method==='POST')return json(res,200,await ownerVerify(await body(req)));
