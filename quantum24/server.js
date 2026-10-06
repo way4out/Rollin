@@ -91,7 +91,11 @@ const INFRASTRUCTURE_BASELINE={
   tokens:{registryCount:25,execution:'verified-rail-or-provider required'},
   passPlan:{current:1,total:5,next:['physical adapter contracts + telemetry schema','verified energy settlement and sensor adapters','transaction/staking execution verification','security/load/mobile edge-case audit','release audit and deployment verification']}
 };
+function adapterHealth(){return {pass:'2/5',energy:'meter-required',schumann:'sensor-required',rf:'hardware-authorized',satellite:'provider-required',gridSettlement:'meter-tariff-required',staking:'verified-pool-required',failClosed:true,noGuaranteedProfit:true,noUnverifiedExecution:true};}
+function telemetryValidate(x){const ok=!!(x&&x.sourceId&&x.timestamp&&x.unit&&x.quality);return {ok,accepted:ok,quality:x&&x.quality||null,qhash:ok?qhash(JSON.stringify(x)):null};}
 function infrastructureBaseline(){const x={...INFRASTRUCTURE_BASELINE,generatedAt:INFRASTRUCTURE_BASELINE.generatedAt(),capacityStatement:'Designed for horizontal/provider-backed expansion; no claim of infinite storage, infinite energy, guaranteed profit, or guaranteed uptime.'};return {...x,qhash:qhash(JSON.stringify(x))}}
+if(p==='/api/infrastructure/adapters'&&req.method==='GET')return json(res,200,{ok:true,...adapterHealth()});
+if(p==='/api/infrastructure/telemetry/validate'&&req.method==='POST'){let x;try{x=await body(req)}catch(e){return json(res,400,{ok:false,error:'invalid_json'})}return json(res,200,telemetryValidate(x));}
 if(p==='/api/infrastructure/baseline'&&req.method==='GET')return json(res,200,{ok:true,...infrastructureBaseline()});
 if(p==='/api/public-status'&&req.method==='GET')return json(res,200,{ok:true,service:'quantum24-gains',version:VERSION,publicFlows:{clicks:true,qhash:true,energyAccounting:true,payments:true,media:true,telecom:true},energy:{mode:'metered',physicalGenerationRequired:true,gridConnected:false,positiveExportMeansMeasuredGenerationExceedsLoad:true},persistence:{qhash:'Supabase-backed when configured',eternal:false},userScope:'public'});
 if(p==='/api/action'&&req.method==='POST'){try{const b=await body(req);b.ip=String(req.headers['x-forwarded-for']||req.socket.remoteAddress||'unknown').split(',')[0].trim();b.eventType=String(b.eventType||'action');return json(res,200,await recordQHashEvent(b))}catch(e){return json(res,400,{ok:false,error:'action_rejected'})}}
