@@ -172,4 +172,20 @@ function q24HologramGate(){window.Quantum24QHash?.record('hologram_gate',{mode:'
 function q24Freq(f){const n={7.83:'Schumann reference',440:'audio reference',1000:'test reference'};const label=f?(n[f]||String(f)+' Hz'):'Auto color gate';const el=$('q24FreqState');if(el)el.textContent=label+' · visual/DSP reference only · no licensed RF transmission';window.Quantum24QHash?.record('frequency_color_gate',{frequencyHz:f||null,label})}
 function q24Palette(mode){const root=document.documentElement;if(mode==='night'){root.style.setProperty('--qbg','#070b10');root.style.setProperty('--qs','#101722');root.style.setProperty('--qt','#edf3fa')}else{root.style.setProperty('--qbg','#0b0f17');root.style.setProperty('--qs','#121a25');root.style.setProperty('--qt','#f5f8ff')}localStorage.setItem('q24-palette-mode',mode);window.Quantum24QHash?.record('palette_changed',{mode})}
 (function(){const a=['sqt','nqrx','hir','oeql','node','upgrade','rollin','aeth','aiuse','auto','zai','balloon','tree','one','haha','two','caffeine','aiu4','telp','blzet','flaw','wo','emrld','rev'];const w=$('q24TokenGrid');if(w)w.innerHTML=a.map((x,i)=>'<div class="product q24-chip" style="--chip:hsl('+((i*15)%360)+' 80% 65%)"><div><div class="productName">'+x+'</div><div class="productMeta">Registry · QHash · staking position-ready · payment verification required</div></div><span class="productMeta">Registry</span></div>').join('');const p=$('q24-palette');if(p){const shades=['#ff8fa3','#ffc477','#fff29a','#a8f0a8','#78e6ff','#a9a0ff','#f29bdc','#d5c4ff','#8fe3c1','#cbd5e1','#f5b7d6','#9dc7ff'];p.innerHTML=shades.map((x,i)=>'<button class="q24-swatch" aria-label="Spectrum shade '+(i+1)+'" style="background:'+x+'" onclick="q24Shade('+JSON.stringify(x)+')"></button>').join('')}q24Palette(localStorage.getItem('q24-palette-mode')||'default')})()
-function q24Shade(hex){document.documentElement.style.setProperty('--qf',hex);window.Quantum24QHash?.record('palette_shade_selected',{hex})}</script></body></html>
+function q24Shade(hex){document.documentElement.style.setProperty('--qf',hex);window.Quantum24QHash?.record('palette_shade_selected',{hex})}</script><script id="q24-unified-gate">
+(async function(){
+const el=id=>document.getElementById(id);
+async function unifiedGate(){
+ try{
+  const j=await fetch('/api/unified/status',{cache:'no-store'}).then(r=>r.json());
+  const text='Unified Quantum Gate · '+j.tokens.length+' token registry · QHash '+j.qhash.algorithm+' · Payments '+j.capabilities.payments.verifiedRails.join('/')+' · Energyx configured · QRNFT </html>+j.capabilities.qrnft.priceUsd+' / '+j.capabilities.qrnft.cap+' cap';
+  const q=el('quantumStatus');if(q)q.textContent=text;
+  window.Quantum24QHash?.record('unified_gate_status',{tokenCount:j.tokens.length,qrnft:j.capabilities.qrnft,energyx:j.capabilities.energyx,staking:j.capabilities.staking});
+ }catch(e){const q=el('quantumStatus');if(q)q.textContent='Unified gate retrying…'}
+}
+window.q24UnifiedQuote=async function(kind){
+ try{const j=await fetch('/api/unified/quote',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({kind})}).then(r=>r.json());window.Quantum24QHash?.record('unified_capability_check',{kind,executable:j.executable,reason:j.reason,qhash:j.qhash});return j}catch(e){return{ok:false,error:'unified_gate_unavailable'}}
+};
+unifiedGate();setInterval(unifiedGate,30000);
+})();
+</script></body></html>
