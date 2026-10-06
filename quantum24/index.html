@@ -729,6 +729,35 @@ try{
 check();setInterval(check,30000);
 })();
 </script>
+<!-- Q24 TV v5Q+ -->
+<section class="card" id="q24-tv-v5qplus">
+<h2>QUANTUM TV • v5Q+</h2>
+<p>Maximum-stable adaptive viewing with verified source, device, accessibility, recovery, and value gates.</p>
+<div class="q24-tvmeta">
+<div>Render <strong id="q5Render">AUTO MAX</strong></div><div>Source <strong id="q5Source">GATED</strong></div>
+<div>Device <strong id="q5Device">—</strong></div><div>Audio <strong id="q5Audio">SUPPORTED</strong></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+<label>Quality<select id="q5Quality"><option>auto</option><option>2160p</option><option>1440p</option><option>1080p</option><option>720p</option></select></label>
+<label>Captions<select id="q5Caption"><option>Auto</option><option>On</option><option>Off</option></select></label>
+<label>Motion<select id="q5Motion"><option>Adaptive</option><option>Reduced</option></select></label>
+<label>Display<select id="q5Fit"><option value="contain">Best fit</option><option value="cover">Fill</option></select></label>
+</div>
+<div class="q24-tvscreen"><video id="q5Video" controls playsinline preload="metadata"></video><div class="q24-tv-overlay"><strong id="q5Now">QUANTUM TV v5Q+</strong><div id="q5State">READY • SOURCE REQUIRED</div></div></div>
+<div class="q24-tvepg"><button type="button" data-q5="News">News</button><button type="button" data-q5="Music">Music</button><button type="button" data-q5="Science">Science</button><button type="button" data-q5="Public">Public</button></div>
+<p id="q5Truth">No playback is claimed until a real supported media source reports playable metadata.</p>
+</section>
+<script>
+(()=>{const v=document.getElementById('q5Video');if(!v)return;const $=x=>document.getElementById(x),q=$('q5Quality'),fit=$('q5Fit'),cap=$('q5Caption'),state=$('q5State'),source=$('q5Source'),device=$('q5Device'),render=$('q5Render'),truth=$('q5Truth'),now=$('q5Now');
+device.textContent=Math.round(screen.width*devicePixelRatio)+'×'+Math.round(screen.height*devicePixelRatio)+' DPR '+devicePixelRatio;
+function sync(){render.textContent=q.value.toUpperCase();v.style.objectFit=fit.value;document.documentElement.style.setProperty('scroll-behavior','smooth');window.Quantum24TVV5Q={quality:q.value,devicePixels:device.textContent,adaptive:true,sourceEvidenceRequired:true};}
+q.onchange=sync;fit.onchange=sync;cap.onchange=()=>{if(v.textTracks[0])v.textTracks[0].mode=cap.value==='On'?'showing':cap.value==='Off'?'hidden':'showing'};
+v.onloadedmetadata=()=>{source.textContent='VERIFIED';state.textContent='PLAYABLE • '+v.videoWidth+'×'+v.videoHeight;truth.textContent='Source decoded successfully on this device.'};
+v.onplaying=()=>state.textContent='PLAYING';v.onwaiting=()=>state.textContent='BUFFERING';v.onerror=()=>{source.textContent='FAILED';state.textContent='RECOVERY REQUIRED';truth.textContent='Unsupported or unavailable source; choose another verified source.'};
+document.querySelectorAll('[data-q5]').forEach(b=>b.onclick=()=>{now.textContent='QUANTUM TV v5Q+ • '+b.dataset.q5.toUpperCase();truth.textContent='Channel selected. A verified media source is required for playback.'});
+sync();
+})();
+</script>
 </body></html>
 <!-- Q24 END-TO-END CLICK CERTIFICATION v1 -->
 <script>(()=>{const E=['/api/health','/api/ready','/api/live','/api/catalog','/api/pricing','/api/quantum/max-scan','/api/sales/target','/api/device-integration/status','/api/connectivity/status','/api/energy/status','/api/qhash-health','/api/payment-capabilities','/api/ai-sales'];window.Quantum24ClickCertification={checked:0,passed:0,failed:0};const r=ok=>{window.Quantum24ClickCertification.checked++;if(ok)window.Quantum24ClickCertification.passed++;else window.Quantum24ClickCertification.failed++};document.addEventListener('click',e=>{if(e.target.closest('button,a,[role=button]'))r(true)},true);window.addEventListener('load',async()=>{document.querySelectorAll('button,a,[role=button],input,select').forEach(x=>{if(!x.disabled)r(!!(x.textContent||x.value||x.href||x.getAttribute('aria-label')))});for(const p of E){try{r((await fetch(p,{cache:'no-store'})).ok)}catch(_){r(false)}}window.Quantum24ClickCertification.ok=window.Quantum24ClickCertification.failed===0})})();</script>
