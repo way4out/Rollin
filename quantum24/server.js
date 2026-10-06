@@ -404,6 +404,7 @@ function q24CellularInterop(){return{
   safety:{rfTransmitDisabled:true,emergencyCallingHandledByNativeCarrier:true},
   truth:'Software is standards-ready; live carrier/RCS/VoLTE/VoNR delivery requires a provisioned compatible device, carrier service, or authorized provider.'
 };}
+if(p==='/api/telcom/pricing'&&req.method==='GET')return json(res,200,q24TelcomPricing());
 if(p==='/api/telcom/cellular'&&req.method==='GET')return json(res,200,q24CellularInterop());
 
 // Q24 TELCOM UNIFIED v1 — text/call/video orchestration with QHash threads; provider execution remains credential/evidence gated.
