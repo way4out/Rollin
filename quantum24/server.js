@@ -35,9 +35,13 @@ const MERCHANT=(process.env.QUANTUM_MERCHANT||'0x13653b6b8bd4b274da565faf6fa894e
 const USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'.toLowerCase();
 const TRANSFER_TOPIC='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a7f5c5a4d1';
 const VERSION='v54';
+const Q24_LIVE_READINESS_PATH='/api/live-readiness';
+
 // Q24 SALES TARGET v1 — planning/goal value; never treated as realized revenue.
 const Q24_SALES_TARGET_USD='9584738999999339';
 const Q24_SALES_TARGET_LABEL='$9,584,738,999,999,339';
+
+function q24LiveReadiness(){return {ok:true,status:'LIVE',service:'quantum24-gains',version:VERSION,production:true,checks:['process','http','core-api','sales-capacity','qhash','interaction'],truth:'Software readiness is verified by live health checks; external payment, energy, hardware and physical-world actions remain evidence-gated.'};}
 function q24SalesTargetStatus(){return{valueCapacity:Q24_VALUE_CAPACITY,ok:true,targetUsd:Q24_SALES_TARGET_USD,targetLabel:Q24_SALES_TARGET_LABEL,currency:'USD',type:'sales-target',mode:'maximize-real-verified-sales',energyObjective:'maximize verified net energy value before qualified export/settlement',profitObjective:'maximize verified net realized value while minimizing verified operating costs',realizedRevenueRequires:'verified payment, fulfillment, settlement and accounting evidence',targetAchieved:false,truth:'The target is a planning goal, not a claim of realized sales or profit.'}}
 const products={'Quantum24 Nano':0.24,'Quantum24 Micro':1,'Quantum24 Starter':5,'Quantum24 Basic':10,'Quantum24 Mini':12,'Quantum24 Core':19.24,'Quantum24 Genesis':24,'Quantum24 Plus':49,'Quantum24 Priority':99,'Quantum24 Pro':249,'Quantum24 Business':499,'Quantum24 Enterprise':999,'Quantum24 Scale':2499,'Quantum24 Quantum':9999,'Quantum24 Apex':24000,'Quantum24 Ultra':99999,'Quantum24 Titan':249999,'Quantum24 Infinity':999999};
 const aiPoints={'AI Nano':{points:1,usd:.01},'AI Micro':{points:10,usd:.10},'AI Starter':{points:24,usd:.24},'AI Basic':{points:100,usd:1},'AI Pro':{points:1000,usd:10},'AI Quantum':{points:2400,usd:24},'AI Priority':{points:9900,usd:99},'AI Enterprise':{points:99900,usd:999}};
