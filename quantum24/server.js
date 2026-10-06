@@ -5,7 +5,7 @@ const BASE_RPC_URLS=(process.env.BASE_RPC_URLS||process.env.BASE_RPC_URL||'https
 const MERCHANT=(process.env.QUANTUM_MERCHANT||'0x13653b6b8bd4b274da565faf6fa894e3418a6d10').toLowerCase();
 const USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'.toLowerCase();
 const TRANSFER_TOPIC='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a7f5c5a4d1';
-const VERSION='v45';
+const VERSION='v46';
 const products={'Quantum24 Nano':0.24,'Quantum24 Micro':1,'Quantum24 Starter':5,'Quantum24 Basic':10,'Quantum24 Mini':12,'Quantum24 Core':19.24,'Quantum24 Genesis':24,'Quantum24 Plus':49,'Quantum24 Priority':99,'Quantum24 Pro':249,'Quantum24 Business':499,'Quantum24 Enterprise':999,'Quantum24 Scale':2499,'Quantum24 Quantum':9999,'Quantum24 Apex':24000,'Quantum24 Ultra':99999,'Quantum24 Titan':249999,'Quantum24 Infinity':999999};
 const aiPoints={'AI Nano':{points:1,usd:.01},'AI Micro':{points:10,usd:.10},'AI Starter':{points:24,usd:.24},'AI Basic':{points:100,usd:1},'AI Pro':{points:1000,usd:10},'AI Quantum':{points:2400,usd:24},'AI Priority':{points:9900,usd:99},'AI Enterprise':{points:99900,usd:999}};
 const bankrReferencePricing={'quantum-lite':.10,'quantum-shield':.25,'quantum-timeline':.40,'quantum-premium':1.50,'quantum-batch':2.50,'quantum-contract':5};
@@ -191,6 +191,13 @@ function verificationCenter(input={}){
     capacity:{horizontalScaling:'provider/plan dependent',queueSafe:'bounded processing',storage:'durable provider required for persistence',hardware:'external device/provider required'},
     next:'submit real provider/device/chain evidence to the matching verifier; never mark evidence verified by configuration alone.'};
 }
+
+function qrnftStatus(){return{ok:true,version:VERSION,product:'QRNFT',priceUsd:11,cap:96000,network:'Base Mainnet',chainId:8453,flow:['create','customize','preview','price','authorize','pay','verify','issue'],qhash:'SHA-256',paymentRails:['USDC','ETH'],minting:{mode:'fail-closed',requires:['verified chain receipt','contract','tokenId','owner'],status:'provider/chain execution required'},ownership:'never claimed until verified chain receipt',idempotency:'intent-bound'}}
+function musicStatus(){return{ok:true,version:VERSION,surface:'music',providers:{catalog:'MusicBrainz',archive:'Internet Archive where rights permit'},search:true,artistOriginalIntake:true,qhash:'SHA-256',rights:'license/provider evidence required',playback:'provider-dependent',downloads:'only when provider permits',ownership:'not inferred from metadata',truth:'catalog metadata does not itself grant recording or composition rights'}}
+function radioStatus(){return{ok:true,version:VERSION,surface:'QuantumRadio',providers:{amfm:'Radio Browser',tv:'IPTV-org',movies:'Internet Archive',music:'MusicBrainz',satcom:'Groundstation.space',video:'Jitsi'},communications:{call:'device tel scheme',text:'device sms scheme',video:'provider-backed room'},dsp:{referenceHz:7.83,audioHz:[7.83,440,1000],rfTransmit:false},hardware:{rf:true,satellite:true,nir:true,laser:true,hologram:true,physicalDeviceRequired:true},qhash:'SHA-256',truth:'browser software provides provider directories and device launchers; physical RF/satellite/NIR/laser/hologram transmission requires authorized hardware/providers'}}
+async function musicSearch(q,limit=10){const query=String(q||'').trim();if(!query)return{ok:false,error:'query_required'};const n=Math.min(25,Math.max(1,Number(limit)||10));const url='https://musicbrainz.org/ws/2/recording/?query='+encodeURIComponent(query)+'&fmt=json&limit='+n;const z=await fetch(url,{headers:{'User-Agent':'Quantum24/46 (quantum24-gains)'}});if(!z.ok)throw Error('music_provider_http_'+z.status);const j=await z.json();const recordings=(j.recordings||[]).map(x=>({id:x.id,title:x.title,artist:(x['artist-credit']||[]).map(a=>a.name||a.artist?.name).filter(Boolean).join(', '),lengthMs:x.length||null,score:x.score||null,source:'MusicBrainz'}));return{ok:true,query,provider:'MusicBrainz',count:recordings.length,recordings,rights:'metadata discovery only; playback/download requires provider and rights authorization',qhash:qhash(JSON.stringify(recordings))}}
+function qrnftPrepare(input={}){const b=input||{},name=String(b.name||'Quantum24 QRNFT').slice(0,120),description=String(b.description||'').slice(0,1000),owner=String(b.owner||'').toLowerCase(),contract=String(b.contract||'').toLowerCase(),chainId=Number(b.chainId||8453),priceUsd=Number(b.priceUsd||11);if(!Number.isFinite(priceUsd)||priceUsd<0.01||priceUsd>MAX)return{ok:false,error:'invalid_price'};if(owner&&!/^0x[a-f0-9]{40}$/.test(owner))return{ok:false,error:'invalid_owner'};const intent={id:'QRNFT-'+crypto.randomBytes(12).toString('hex'),name,description,owner:owner||null,contract:contract||null,chainId,priceUsd,createdAt:new Date().toISOString(),status:'preview_only'};intent.qhash=qhash(JSON.stringify(canonicalValue(intent)));return{ok:true,intent,gate:{authorized:false,paid:false,receiptVerified:false,minted:false},next:['authorize','create payment intent','verify exact receipt','execute provider/chain mint','verify tokenId+owner','issue receipt'],truth:'This endpoint prepares a real QRNFT issuance request but does not claim a mint until a chain/provider receipt is verified.'}}
+
 function verificationChecklist(){
   return {ok:true,version:VERSION,productionGate:true,
     rfSatelliteTelecom:'authorization + device/provider attestation',
@@ -203,6 +210,12 @@ function verificationChecklist(){
     failClosed:true};
 }
 
+if(p==='/api/qrnft/status'&&req.method==='GET')return json(res,200,qrnftStatus());
+if(p==='/api/qrnft/prepare'&&req.method==='POST'){try{return json(res,201,qrnftPrepare(await body(req)))}catch(e){return json(res,400,{ok:false,error:'qrnft_prepare_failed'})}}
+if(p==='/api/music/status'&&req.method==='GET')return json(res,200,musicStatus());
+if(p==='/api/music/search'&&req.method==='GET'){try{return json(res,200,await musicSearch(u.searchParams.get('q'),u.searchParams.get('limit')))}catch(e){return json(res,502,{ok:false,error:e.message||'music_provider_unavailable'})}}
+if(p==='/api/radio/status'&&req.method==='GET')return json(res,200,radioStatus());
+if(p==='/api/full-surface-status'&&req.method==='GET')return json(res,200,{ok:true,version:VERSION,quantum24:v44SurfaceStatus(req),qrnft:qrnftStatus(),music:musicStatus(),radio:radioStatus()});
 if(p==='/api/verification/center'&&req.method==='GET')return json(res,200,verificationCenter());
 if(p==='/api/verification/center'&&req.method==='POST'){try{return json(res,200,verificationCenter(await body(req)))}catch(e){return json(res,400,{ok:false,error:'invalid_verification_evidence'})}}
 if(p==='/api/verification/checklist'&&req.method==='GET')return json(res,200,verificationChecklist());
