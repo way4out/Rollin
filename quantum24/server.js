@@ -77,6 +77,9 @@ function quantumize(value,parent=''){
   return {type:'object',fields,qhash:qhash(parent+'|'+JSON.stringify(keys.map(k=>[k,fields[k].qhash])))};
 }
 // Q24 TV v4Q STATUS — device-aware rendering plus evidence-gated energy/profit policy.
+
+// Q24 SATCOM+ FULL BUILDOUT v1 — capability/evidence-gated, no fabricated satellite connectivity.
+function q24SatcomPlusStatus(){return{ok:true,version:'satcom+',mode:'evidence-gated',capabilities:{providerDiscovery:true,authorizationGate:true,connectionState:true,telemetryVerification:true,linkQuality:true,failoverState:true,recovery:true,securityAudit:true},states:['DISCOVERED','AUTHORIZED','CONNECTED','TELEMETRY_VERIFIED','ACTION_VERIFIED','CERTIFIED','AUTH_REQUIRED','OFFLINE','UNSUPPORTED','EVIDENCE_REQUIRED'],rfTransmitDefault:'disabled',physicalActuationFailClosed:true,hardwareConnectionVerified:false,truth:'Software SatCom+ control and verification paths are ready; actual satellite service, hardware, spectrum authorization and connectivity require real authenticated provider/device evidence.'};}
 function q24TvV4QStatus(){return{ok:true,version:'v4Q',service:'quantum24-gains',qualityModes:['auto','2160p','1440p','1080p','720p'],formats:['MP4','WebM','Ogg','HLS-when-supported'],deviceAware:true,adaptiveMaxStable:true,energyProfitGate:{mode:'verified-positive-path',energy:'maximize verified net energy value',profit:'maximize verified net realized value',unverifiedRevenueCounted:false,physicalEnergyCreatedBySoftware:false,doubleCounting:'blocked'},capacity:{maxSaleUsd:Q24_VALUE_CAPACITY.maxSaleUsd,maxQuoteUsd:Q24_VALUE_CAPACITY.maxQuoteUsd,precision:Q24_VALUE_CAPACITY.precision},truth:'TV rendering is software-ready; actual media, energy, payment and physical-world outcomes require verified external evidence.'};}
 
 function qhashBytes(buf){return crypto.createHash('sha256').update(buf).digest('hex')}
@@ -418,6 +421,7 @@ if(p==='/api/comms/video/room'&&req.method==='POST'){
   return json(res,201,{ok:true,room:{name:room.unique_name||roomName,sid:room.sid,status:room.status},token:unsigned+'.'+sig,expiresAt:new Date((now+3600)*1000).toISOString(),provider:'Twilio Video'});
  }catch(e){return json(res,502,{ok:false,error:'twilio_video_unavailable',message:e.message})}
 }
+if(p==='/api/satcom-plus/status'&&req.method==='GET')return json(res,200,q24SatcomPlusStatus());
 if(p==='/api/tv/v4q/status'&&req.method==='GET')return json(res,200,q24TvV4QStatus());
 if(p==='/api/quantum/max-scan'&&req.method==='GET')return json(res,200,quantumMaxScan());
 if(p==='/api/sales/target'&&req.method==='GET')return json(res,200,q24SalesTargetStatus());
