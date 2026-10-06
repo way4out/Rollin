@@ -92,7 +92,7 @@ const INFRASTRUCTURE_BASELINE={
   passPlan:{current:1,total:5,next:['physical adapter contracts + telemetry schema','verified energy settlement and sensor adapters','transaction/staking execution verification','security/load/mobile edge-case audit','release audit and deployment verification']}
 };
 function infrastructureBaseline(){const x={...INFRASTRUCTURE_BASELINE,generatedAt:INFRASTRUCTURE_BASELINE.generatedAt(),capacityStatement:'Designed for horizontal/provider-backed expansion; no claim of infinite storage, infinite energy, guaranteed profit, or guaranteed uptime.'};return {...x,qhash:qhash(JSON.stringify(x))}}
-\nif(p==='/api/infrastructure/baseline'&&req.method==='GET')return json(res,200,{ok:true,...infrastructureBaseline()});
+if(p==='/api/infrastructure/baseline'&&req.method==='GET')return json(res,200,{ok:true,...infrastructureBaseline()});
 if(p==='/api/public-status'&&req.method==='GET')return json(res,200,{ok:true,service:'quantum24-gains',version:VERSION,publicFlows:{clicks:true,qhash:true,energyAccounting:true,payments:true,media:true,telecom:true},energy:{mode:'metered',physicalGenerationRequired:true,gridConnected:false,positiveExportMeansMeasuredGenerationExceedsLoad:true},persistence:{qhash:'Supabase-backed when configured',eternal:false},userScope:'public'});
 if(p==='/api/action'&&req.method==='POST'){try{const b=await body(req);b.ip=String(req.headers['x-forwarded-for']||req.socket.remoteAddress||'unknown').split(',')[0].trim();b.eventType=String(b.eventType||'action');return json(res,200,await recordQHashEvent(b))}catch(e){return json(res,400,{ok:false,error:'action_rejected'})}}
 if(p==='/api/energy/state'&&req.method==='GET')return json(res,200,energyState());
