@@ -5,7 +5,7 @@ const BASE_RPC_URLS=(process.env.BASE_RPC_URLS||process.env.BASE_RPC_URL||'https
 const MERCHANT=(process.env.QUANTUM_MERCHANT||'0x13653b6b8bd4b274da565faf6fa894e3418a6d10').toLowerCase();
 const USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'.toLowerCase();
 const TRANSFER_TOPIC='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a7f5c5a4d1';
-const VERSION='v44';
+const VERSION='v45';
 const products={'Quantum24 Nano':0.24,'Quantum24 Micro':1,'Quantum24 Starter':5,'Quantum24 Basic':10,'Quantum24 Mini':12,'Quantum24 Core':19.24,'Quantum24 Genesis':24,'Quantum24 Plus':49,'Quantum24 Priority':99,'Quantum24 Pro':249,'Quantum24 Business':499,'Quantum24 Enterprise':999,'Quantum24 Scale':2499,'Quantum24 Quantum':9999,'Quantum24 Apex':24000,'Quantum24 Ultra':99999,'Quantum24 Titan':249999,'Quantum24 Infinity':999999};
 const aiPoints={'AI Nano':{points:1,usd:.01},'AI Micro':{points:10,usd:.10},'AI Starter':{points:24,usd:.24},'AI Basic':{points:100,usd:1},'AI Pro':{points:1000,usd:10},'AI Quantum':{points:2400,usd:24},'AI Priority':{points:9900,usd:99},'AI Enterprise':{points:99900,usd:999}};
 const bankrReferencePricing={'quantum-lite':.10,'quantum-shield':.25,'quantum-timeline':.40,'quantum-premium':1.50,'quantum-batch':2.50,'quantum-contract':5};
@@ -169,6 +169,43 @@ function infrastructurePass1(){return{ok:true,pass:'1/3',name:'legal-infrastruct
 function retryPlan(){return{ok:true,policy:'bounded-retry',maxAttempts:3,backoffSeconds:[1,3,5],retryable:['provider_timeout','provider_unavailable','rate_limited','temporary_network_error'],nonRetryable:['invalid_input','unauthorized','forbidden','invalid_receipt','settlement_rejected'],onExhausted:'safe-local-fallback-with-stale-label'}}
 function infrastructureRecovery(){return{ok:true,version:VERSION,mode:'safe-fail-open-where-non-authoritative',policy:{availability:'continue on safe local/static/reference fallbacks',authority:'never infer payment, ownership, settlement, staking, minting, physical transmission, or authentication success'},recoveryTargets:{ui:{enabled:true,fallback:'render recovery data and retry controls'},catalog:{enabled:true,fallback:'local server catalog'},search:{enabled:true,fallback:'local catalog search'},radio:{enabled:true,fallback:'provider directory/cached metadata'},physics:{enabled:true,fallback:'reference calculations only'},qhash:{enabled:true,fallback:'local SHA-256 with persistence retry'},energy:{enabled:true,fallback:'metered-input model only'},telemetry:{enabled:true,fallback:'validate/hash locally; queue semantics only'},payments:{enabled:true,fallback:'quote/receipt preparation only; settlement remains exact-chain-verified'},staking:{enabled:true,fallback:'adapter status/preview only'},qrnft:{enabled:true,fallback:'preview/customize/price flow only'},rfSatcom:{enabled:true,fallback:'directory/device-provider launcher only'}},healthSignals:{staleData:true,providerOutageVisible:true,retryableFailures:true,blankScreenRecovery:true},nextActions:['retry transient provider calls with bounded backoff','use local/static data when authoritative provider data is unavailable','label stale/unverified state at every boundary','keep security and settlement fail-closed']}}
 function infrastructureBaseline(){const x={...INFRASTRUCTURE_BASELINE,generatedAt:INFRASTRUCTURE_BASELINE.generatedAt(),capacityStatement:'Designed for horizontal/provider-backed expansion; no claim of infinite storage, infinite energy, guaranteed profit, or guaranteed uptime.'};return {...x,qhash:qhash(JSON.stringify(x))}}
+function verificationCenter(input={}){
+  const b=input||{}, now=new Date().toISOString();
+  const checks={
+    rfSatelliteTelecom:{required:['deviceId','provider','authorization','capabilityAttestation'],status:'ready_for_real_attestation'},
+    hologram:{required:['deviceId','provider','displayCapabilityAttestation'],status:'ready_for_real_attestation'},
+    energy:{required:['meterId','meterReadings','tariff','interconnection','settlement'],status:'ready_for_real_settlement'},
+    staking:{required:['chainId','pool','contract','provider','executionReceipt'],status:'ready_for_real_receipt'},
+    multiverse:{required:['dataset','source','timestamp','method','independentEvidence'],status:'research-data-verifiable-only'},
+    retrocausal:{required:['dataset','source','timestamp','method','independentEvidence'],status:'research-data-verifiable-only'}
+  };
+  const supplied=Object.keys(checks).reduce((o,k)=>{
+    const x=b[k];
+    o[k]={...checks[k],supplied:Boolean(x&&typeof x==='object'&&Object.keys(x).length),verified:false};
+    return o;
+  },{});
+  return {ok:true,version:VERSION,generatedAt:now,mode:'evidence-gated-verification',checks:supplied,
+    rule:'Only cryptographically or provider-verifiable evidence can change verified:false to verified:true; software never self-attests physical hardware, financial settlement, staking execution, or multiverse/retrocausal claims.',
+    infrastructure:{failClosed:true,idempotency:true,qhash:'SHA-256',audit:true,replayProtection:true,leastPrivilege:true,providerAttestation:true},
+    inHouse:{adapters:true,evidenceSchemas:true,validation:true,receiptBinding:true,settlementModel:true,hardwareCapabilityModel:true, researchEvidenceModel:true},
+    capacity:{horizontalScaling:'provider/plan dependent',queueSafe:'bounded processing',storage:'durable provider required for persistence',hardware:'external device/provider required'},
+    next:'submit real provider/device/chain evidence to the matching verifier; never mark evidence verified by configuration alone.'};
+}
+function verificationChecklist(){
+  return {ok:true,version:VERSION,productionGate:true,
+    rfSatelliteTelecom:'authorization + device/provider attestation',
+    hologram:'device/display provider attestation',
+    energy:'revenue-grade meter + tariff + interconnection + signed settlement',
+    staking:'verified contract/pool + user authorization + execution receipt',
+    multiverse:'independent dataset/source/method evidence only; no physical-access claim',
+    retrocausal:'independent reproducible evidence only; no causal reversal claim',
+    qhash:'SHA-256 every authoritative evidence envelope',
+    failClosed:true};
+}
+
+if(p==='/api/verification/center'&&req.method==='GET')return json(res,200,verificationCenter());
+if(p==='/api/verification/center'&&req.method==='POST'){try{return json(res,200,verificationCenter(await body(req)))}catch(e){return json(res,400,{ok:false,error:'invalid_verification_evidence'})}}
+if(p==='/api/verification/checklist'&&req.method==='GET')return json(res,200,verificationChecklist());
 if(p==='/api/quantum/max-upgrade'&&req.method==='GET')return json(res,200,quantumMaxUpgrade());
 if(p==='/api/quantum/physical-infrastructure'&&req.method==='GET')return json(res,200,quantumPhysicalInfrastructure());
 if(p==='/api/grid/quantum-gate'&&req.method==='GET')return json(res,200,gridQuantumGate());
