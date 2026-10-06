@@ -14,6 +14,7 @@ jobs:
         with: {node-version: 22}
       - run: node --check quantum24/server.js
       - run: node --check quantum24/device-integration.js
+      - run: node -e "const p=require('./quantum24/reference-accessory/quantum24-gatt-v1.json'); if(p.serviceUUID!=='7b5a0001-7f24-4c24-9b24-000000000024'||p.characteristics.telemetry.properties.indexOf('read')<0||p.characteristics.command.properties.indexOf('write')<0||p.characteristics.acknowledgment.properties.indexOf('notify')<0) process.exit(1); console.log('reference GATT protocol passed')"
       - run: node -e "const q=require('./quantum24/device-integration'); const d=q.registerDevice({platform:'ci',capabilities:['bluetooth','usb']}); if(q.transition(d.deviceId,{state:'CERTIFIED',evidence:{authorization:true,connection:true,telemetry:true,action:true}}).device.state!=='CERTIFIED') process.exit(1); if(q.transition(d.deviceId,{state:'CERTIFIED',evidence:{}}).certified) process.exit(1); console.log('device evidence gate passed')"
   android:
     runs-on: ubuntu-latest
