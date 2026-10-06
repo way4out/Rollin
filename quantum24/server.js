@@ -85,7 +85,7 @@ function q24ValueFormat(){return{ok:true,notation:'amplified positives^E',capaci
 // Q24 SATCOM+ PUSH/PULL v2 — signed/hashable message transport; external satellite transport remains provider-evidence gated.
 const satcomQueue=[];
 function q24SatcomMessage(direction,payload={}){const safe={direction:String(direction),payload,timestamp:new Date().toISOString(),network:'satcom+',transport:'evidence-gated'};safe.qhash=qhash(JSON.stringify(safe));satcomQueue.push(safe);if(satcomQueue.length>500)satcomQueue.shift();return safe;}
-function q24SatcomQueueStatus(){return{ok:true,queued:satcomQueue.length,latest:satcomQueue.at(-1)||null,pushReady:true,pullReady:true,externalTransportConfigured:Boolean(process.env.SATCOM_PROVIDER_URL&&process.env.SATCOM_API_KEY),rfTransmit:false,truth:'Push/pull queue and QuantaHash integrity are software-ready; external satellite transmission requires an authorized configured provider.'};}
+function q24SatcomQueueStatus(){return{ok:true,queued:satcomQueue.length,latest:satcomQueue.at(-1)||null,pushReady:true,pullReady:true,externalTransportConfigured:Boolean(process.env.SATCOM_PROVIDER_URL&&process.env.SATCOM_API_KEY),rfTransmit:false,quantumVersion:'v4/v5Q+',truth:'Push/pull queue and QuantaHash integrity are software-ready; external satellite transmission requires an authorized configured provider.'};}
 // Q24 TV v4Q STATUS — device-aware rendering plus evidence-gated energy/profit policy.
 
 // Q24 SATCOM+ FULL BUILDOUT v2 — capability/evidence-gated, no fabricated satellite connectivity.
