@@ -77,6 +77,11 @@ function quantumize(value,parent=''){
   return {type:'object',fields,qhash:qhash(parent+'|'+JSON.stringify(keys.map(k=>[k,fields[k].qhash])))};
 }
 
+
+// Q24 VALUE FORMAT v1 — high-capacity decimal-string accounting, 25-token matrix, on-chain evidence.
+const Q24_TOKEN_25=bankrTokenMatrix;
+const Q24_COST_PROFILE={currency:'USD',render:'free-compatible; paid production recommended',cheapestRenderPath:'static/free web + current free service while validating demand',paidEntryMonthly:6,alwaysOnRecommendedMonthly:25,bandwidthNote:'usage-dependent',onchainNetwork:'Base Mainnet',onchainRail:['USDC','ETH'],stakeClaim:{mode:'evidence-gated',claimUsd:'0',realized:false}};
+function q24ValueFormat(){return{ok:true,notation:'amplified positives^E',capacity:Q24_VALUE_CAPACITY,objective:'maximize verified positive net value',energy:{mode:'verified-net-value',doubleCounting:'blocked',unverifiedExcluded:true},profit:{mode:'verified-realized-value',guarantee:false},costs:Q24_COST_PROFILE,tokens:Q24_TOKEN_25.map((symbol,i)=>({index:i+1,symbol,rail:'Base-compatible registry',qhashRequired:true})),onchain:{network:'Base Mainnet',chainId:8453,merchant:MERCHANT,rails:['USDC','ETH'],verification:'transaction evidence required'},stakeClaim:{...Q24_COST_PROFILE.stakeClaim,formula:'stake claim = verified principal + verified realized rewards - verified costs; never estimated as realized'},truth:'Capacity is accounting/quote capacity, not realized wealth, profit, energy, token appreciation, or staking yield.'};}
 // Q24 SATCOM+ PUSH/PULL v2 — signed/hashable message transport; external satellite transport remains provider-evidence gated.
 const satcomQueue=[];
 function q24SatcomMessage(direction,payload={}){const safe={direction:String(direction),payload,timestamp:new Date().toISOString(),network:'satcom+',transport:'evidence-gated'};safe.qhash=qhash(JSON.stringify(safe));satcomQueue.push(safe);if(satcomQueue.length>500)satcomQueue.shift();return safe;}
@@ -426,6 +431,7 @@ if(p==='/api/comms/video/room'&&req.method==='POST'){
   return json(res,201,{ok:true,room:{name:room.unique_name||roomName,sid:room.sid,status:room.status},token:unsigned+'.'+sig,expiresAt:new Date((now+3600)*1000).toISOString(),provider:'Twilio Video'});
  }catch(e){return json(res,502,{ok:false,error:'twilio_video_unavailable',message:e.message})}
 }
+if(p==='/api/value-format'&&req.method==='GET')return json(res,200,q24ValueFormat());
 if(p==='/api/satcom-plus/queue'&&req.method==='GET')return json(res,200,q24SatcomQueueStatus());
 if(p==='/api/satcom-plus/pull'&&req.method==='GET'){const limit=Math.min(100,Math.max(1,Number(u.searchParams.get('limit')||25)));return json(res,200,{ok:true,messages:satcomQueue.slice(-limit),qhash:qhash(JSON.stringify(satcomQueue.slice(-limit))),transport:'evidence-gated'});}
 if(p==='/api/satcom-plus/push'&&req.method==='POST'){try{const b=await body(req);if(!b||b.authorized!==true)return json(res,403,{ok:false,error:'explicit_authorization_required'});const m=q24SatcomMessage('push',b.payload||{});return json(res,200,{ok:true,message:m,externalTransport:'not_sent_without_configured_provider'});}catch(e){return json(res,400,{ok:false,error:e.message})}}
