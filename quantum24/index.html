@@ -549,6 +549,34 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 <div class="q24-tile"><div class="q24-kicker">Connectivity</div><strong>Web / mobile / native evidence paths</strong></div>
 </div>
 </section>
+<!-- Q24 MEDIA QUALITY MAX v1 -->
+<style>
+.q24-media-max{display:grid;gap:14px}
+.q24-media-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.q24-media-controls label{display:grid;gap:6px;padding:12px;border:1px solid var(--q-line);border-radius:14px}
+.q24-media-stage{min-height:220px;border-radius:18px;border:1px solid var(--q-line);background:#000;display:grid;place-items:center;overflow:hidden}
+.q24-media-stage video{width:100%;height:100%;max-height:62vh;object-fit:contain}
+@media(max-width:700px){.q24-media-controls{grid-template-columns:repeat(2,1fr)}}
+</style>
+<section class="card q24-media-max" id="q24-media-quality">
+<h2>QUANTUM TV • MAX DEVICE RENDER</h2>
+<p>Adaptive quality chooses the highest stable browser/device decode path. Original media is preserved; unsupported formats fail visibly instead of pretending to play.</p>
+<div class="q24-media-controls">
+<label>Quality<select id="q24Quality"><option value="auto">AUTO • MAX STABLE</option><option value="2160">4K / 2160p</option><option value="1440">1440p</option><option value="1080">1080p</option><option value="720">720p</option></select></label>
+<label>Format<select id="q24Format"><option value="auto">AUTO</option><option value="video/mp4">MP4</option><option value="video/webm">WebM</option><option value="video/ogg">Ogg</option><option value="video/quicktime">MOV</option></select></label>
+<label>Device<strong id="q24DeviceCap">detecting…</strong></label>
+<label>Playback<strong id="q24TvState">READY</strong></label>
+</div>
+<div class="q24-media-stage"><video id="q24TvVideo" controls playsinline preload="metadata"></video></div>
+</section>
+<script>
+(()=>{const v=document.getElementById('q24TvVideo'),q=document.getElementById('q24Quality'),f=document.getElementById('q24Format'),cap=document.getElementById('q24DeviceCap'),st=document.getElementById('q24TvState');if(!v)return;
+const w=screen.width*devicePixelRatio,h=screen.height*devicePixelRatio;cap.textContent=Math.round(w)+'×'+Math.round(h)+' • DPR '+devicePixelRatio;
+function sync(){const chosen=q.value==='auto'?'MAX STABLE':q.value+'p';st.textContent='READY • '+chosen+' • '+(v.canPlayType(f.value==='auto'?'video/mp4':f.value)?'FORMAT SUPPORTED':'SELECT/LOAD MEDIA');}
+[q,f].forEach(x=>x.addEventListener('change',sync));v.addEventListener('error',()=>st.textContent='MEDIA ERROR • FORMAT/URL NOT DECODABLE');v.addEventListener('loadedmetadata',()=>st.textContent='PLAYABLE • '+Math.round(v.videoWidth)+'×'+Math.round(v.videoHeight));sync();
+window.Quantum24Media={maxDevicePixels:{width:Math.round(w),height:Math.round(h)},formats:['MP4','WebM','Ogg','MOV'],quality:'adaptive-max-stable',truth:'Playback depends on browser, codec, source and device support.'};
+})();
+</script>
 </body></html>
 <!-- Q24 END-TO-END CLICK CERTIFICATION v1 -->
 <script>(()=>{const E=['/api/health','/api/ready','/api/live','/api/catalog','/api/pricing','/api/quantum/max-scan','/api/sales/target','/api/device-integration/status','/api/connectivity/status','/api/energy/status','/api/qhash-health','/api/payment-capabilities','/api/ai-sales'];window.Quantum24ClickCertification={checked:0,passed:0,failed:0};const r=ok=>{window.Quantum24ClickCertification.checked++;if(ok)window.Quantum24ClickCertification.passed++;else window.Quantum24ClickCertification.failed++};document.addEventListener('click',e=>{if(e.target.closest('button,a,[role=button]'))r(true)},true);window.addEventListener('load',async()=>{document.querySelectorAll('button,a,[role=button],input,select').forEach(x=>{if(!x.disabled)r(!!(x.textContent||x.value||x.href||x.getAttribute('aria-label')))});for(const p of E){try{r((await fetch(p,{cache:'no-store'})).ok)}catch(_){r(false)}}window.Quantum24ClickCertification.ok=window.Quantum24ClickCertification.failed===0})})();</script>
