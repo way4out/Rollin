@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleDisplayName</key><string>Quantum24</string>
+<key>CFBundleIdentifier</key><string>com.stellarnet.quantum24</string>
+<key>CFBundleName</key><string>Quantum24</string>
+<key>CFBundleShortVersionString</key><string>1.0</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>NSBluetoothAlwaysUsageDescription</key><string>Quantum24 uses Bluetooth to discover and communicate with authorized accessories.</string>
+<key>NSCameraUsageDescription</key><string>Quantum24 uses the camera when a connected workflow requires it.</string>
+<key>NSAccessorySetupKitSupports</key><array><string>Bluetooth</string><string>WiFi</string></array>
+<key>NSAccessorySetupBluetoothNames</key><array><string>Quantum24</string></array>
+<key>NSAccessorySetupBluetoothServices</key><array></array>
+<key>UIRequiresFullScreen</key><false/>
+<key>UIApplicationSupportsIndirectInputEvents</key><true/>
+</dict></plist>
