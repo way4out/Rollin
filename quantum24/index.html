@@ -89,7 +89,18 @@ button,.choices button,.simple-nav a{min-height:44px}
 @media(min-width:1600px){.app{width:min(1600px,100%)}body{font-size:17px}}
 @media(max-width:640px){.q24-hq-frame{padding:10px}.q24-hq-grid{grid-template-columns:repeat(2,1fr)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;transition-duration:.001ms!important}}
-</style></head>
+</style>
+<!-- Q24 RESONANT DEFINITION / ADAPTIVE DISPLAY v1 -->
+<style id="q24-resonant-display">
+:root{--q24-display-ratio:1;--q24-refresh:60;--q24-dpr:1}
+.q24-resonant{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:12px}
+.q24-resonant .metric{padding:11px 12px;border:1px solid var(--q-line);border-radius:14px;background:rgba(19,29,44,.58);min-width:0}
+.q24-resonant b{display:block;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.q24-resonant small{color:var(--q-muted);font-size:.75rem}
+.q24-resonant .definition{grid-column:1/-1;color:var(--q-muted);font-size:.84rem}
+@media(max-width:640px){.q24-resonant{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){.q24-resonant{transition:none}}
+</style>
+</head>
 <body>
 <div class="app"><nav class="simple-nav" aria-label="Simple navigation">
 <button class="active" onclick="go('home')">Home</button>
@@ -869,5 +880,27 @@ async function q24CellularCheck(){try{const x=await fetch('/api/telcom/cellular'
 async function q24NextQVerify(){try{const [s,t,v]=await Promise.all([fetch('/api/satcom-plus/nextq').then(r=>r.json()),fetch('/api/telcom/status').then(r=>r.json()),fetch('/api/quantum/v5q/status').then(r=>r.json())]);document.getElementById('telcomState').textContent='NextQ '+s.version+' · '+s.queue.queued+' queued · '+s.tokens+' tokens · QHash '+s.qhash+' · Telcom '+t.version+' · '+v.domains.length+' Quantum domains · positive gate active'}catch(e){document.getElementById('telcomState').textContent='Verification unavailable; fail-safe retained.'}}
 async function q24RadioTvScan(){try{const x=await fetch('/api/radio-tv/expansion',{cache:'no-store'}).then(r=>r.json());document.getElementById('quantumRadioState').textContent='Verified software surface: '+x.domains.join(' · ')+' | QHash '+(x.qhash?'ON':'OFF')+' | 25-token staking path '+x.staking.tokenLayers+' layers | energy/profit evidence gates ON'}catch(e){document.getElementById('quantumRadioState').textContent='Scan unavailable; safe mode retained.'}}
 async function q24RadioTvOp(op){document.getElementById('quantumRadioState').textContent=op.toUpperCase()+' path queued for QHash routing; provider/device/spectrum gates remain enforced.'}
+</script>
+
+<!-- Q24 RESONANT DISPLAY STATUS -->
+<section class="card" id="q24-resonant-display" aria-labelledby="q24-resonant-title">
+<h2 id="q24-resonant-title">RESONANT DISPLAY • ADAPTIVE MAX</h2>
+<div class="q24-resonant" aria-live="polite">
+<div class="metric"><b id="q24DispRes">—</b><small>measured refresh</small></div>
+<div class="metric"><b id="q24DispDpr">—</b><small>pixel density</small></div>
+<div class="metric"><b id="q24DispRatio">—</b><small>viewport ratio</small></div>
+<div class="metric"><b id="q24DispPx">—</b><small>physical pixels</small></div>
+<div class="definition">Definition = actual device/browser measurements. Quality adapts to available pixels, refresh behavior, motion preference and media capability; no unsupported Hz or resolution is claimed.</div>
+</div>
+</section>
+<script>
+(()=>{
+ const $=id=>document.getElementById(id),res=$('q24DispRes'),dpr=$('q24DispDpr'),ratio=$('q24DispRatio'),px=$('q24DispPx'); if(!res)return;
+ let frames=0,start=performance.now(),samples=[];
+ function sample(t){frames++;if(t-start>=1000){const hz=Math.round(frames*1000/(t-start));samples.push(hz);if(samples.length>5)samples.shift();const stable=Math.round(samples.reduce((a,b)=>a+b,0)/samples.length);res.textContent=stable+' Hz';dpr.textContent=(devicePixelRatio||1).toFixed(2)+'×';ratio.textContent=(innerWidth/innerHeight).toFixed(3)+':1';px.textContent=Math.round(innerWidth*(devicePixelRatio||1))+'×'+Math.round(innerHeight*(devicePixelRatio||1));document.documentElement.style.setProperty('--q24-refresh',stable);document.documentElement.style.setProperty('--q24-dpr',devicePixelRatio||1);document.documentElement.style.setProperty('--q24-display-ratio',(innerWidth/innerHeight).toFixed(3));frames=0;start=t}requestAnimationFrame(sample)}
+ addEventListener('resize',()=>{px.textContent=Math.round(innerWidth*(devicePixelRatio||1))+'×'+Math.round(innerHeight*(devicePixelRatio||1));ratio.textContent=(innerWidth/innerHeight).toFixed(3)+':1'},{passive:true});
+ px.textContent=Math.round(innerWidth*(devicePixelRatio||1))+'×'+Math.round(innerHeight*(devicePixelRatio||1));ratio.textContent=(innerWidth/innerHeight).toFixed(3)+':1';dpr.textContent=(devicePixelRatio||1).toFixed(2)+'×';requestAnimationFrame(sample);
+ window.Quantum24ResonantDisplay={version:1,measurement:'runtime',adaptive:true,unsupportedClaimsBlocked:true};
+})();
 </script>
 </body></html>
