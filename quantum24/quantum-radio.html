@@ -91,4 +91,4 @@ function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&l
 $('stationSearch').addEventListener('input',filterStations);$('tvSearch').addEventListener('input',filterChannels);$('audio').addEventListener('play',()=>{lamp('PLAYING');$('meter')?.style});$('audio').addEventListener('error',()=>lamp('STREAM ERROR'));$('tv').addEventListener('error',()=>{$('tvMeta').textContent='Stream could not be played by this browser/source.';lamp('TV ERROR')});
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(b&&!b.dataset.qhashBound){b.dataset.qhashBound='1';q('ui_click',{label:(b.innerText||b.getAttribute('aria-label')||'button').slice(0,80)})}});
 renderTokens();loadStations();loadChannels();energyStatus();radioMode('radio');
-</script></body></html>
+</script><script src="/quantum-radio-upgrade.js"></script></body></html>
