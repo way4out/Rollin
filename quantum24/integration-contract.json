@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "name": "Quantum24 Shared Device Integration Contract",
+  "states": ["DISCOVERED","AUTHORIZED","CONNECTED","TELEMETRY_VERIFIED","ACTION_VERIFIED","CERTIFIED"],
+  "failureStates": ["AUTH_REQUIRED","OFFLINE","UNSUPPORTED","EVIDENCE_REQUIRED"],
+  "device": ["deviceId","platform","model","appVersion","capabilities","state","connectionState","lastSeenAt","evidence","qhash"],
+  "providerLifecycle": ["discover","authenticate","health-check","read","transact/control","verify","receipt"],
+  "certificationRule": "No CERTIFIED state without authorization, connection, verified telemetry, and verified action evidence.",
+  "rf": {"receive": "platform/hardware dependent", "transmit": "disabled until authorized transmitter, configuration, and compliance evidence"},
+  "truthPolicy": {"secretsExcluded": true, "physicalActuationFailClosed": true, "noFabricatedTransactions": true}
+}
