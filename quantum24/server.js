@@ -538,7 +538,6 @@ function q24CellularInterop(){return{
   safety:{rfTransmitDisabled:true,emergencyCallingHandledByNativeCarrier:true},
   truth:'Software is standards-ready; live carrier/RCS/VoLTE/VoNR delivery requires a provisioned compatible device, carrier service, or authorized provider.'
 };}
-if(p==='/api/radio/status'&&req.method==='GET')return json(res,200,q24RadioStatus());
 if(p==='/api/telcom/pricing'&&req.method==='GET')return json(res,200,q24TelcomPricing());
 if(p==='/api/radio-tv/expansion'&&req.method==='GET')return json(res,200,q24RadioTvExpansion());
 if(p==='/api/telcom/cellular'&&req.method==='GET')return json(res,200,q24CellularInterop());
@@ -694,7 +693,6 @@ if(p==='/api/satcom-plus/status'&&req.method==='GET')return json(res,200,q24Satc
 if(p==='/api/satcom-plus/providers'&&req.method==='GET'){return json(res,200,{ok:true,providers:q24SatcomPlusStatus().providers,policy:'verified-first / best-available',rfTransmit:false,qhash:qhash(JSON.stringify(q24SatcomPlusStatus().providers))});}
 if(p==='/api/satcom-plus/route'&&req.method==='POST'){try{const b=await body(req);const priority=['critical','high','normal','low'].includes(b.priority)?b.priority:'normal';const s=q24SatcomPlusStatus();const available=s.providers.filter(x=>x.configured);const selected=available[0]||null;const m=q24SatcomMessage('route',{priority,selected:selected?selected.id:null,payload:b.payload||{}});return json(res,200,{ok:true,mode:selected?'provider-ready':'store-and-forward',selectedProvider:selected,queuedMessage:m,delivery:selected?'requires provider/device verification':'queued'});}catch(e){return json(res,400,{ok:false,error:'invalid_route_request'})}}
 if(p==='/api/tv/v4q/status'&&req.method==='GET')return json(res,200,q24TvV4QStatus());
-if(p==='/api/radio-tv/expansion'&&req.method==='GET')return json(res,200,q24RadioTvExpansion());
 if(p==='/api/quantumize'&&req.method==='GET')return json(res,200,q24Quantumize());
 if(p==='/api/quantum/max-scan'&&req.method==='GET')return json(res,200,quantumMaxScan());
 if(p==='/api/sales/target'&&req.method==='GET')return json(res,200,q24SalesTargetStatus());
