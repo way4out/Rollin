@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "name": "Quantum24 Reference Accessory",
+  "advertisedName": "Quantum24 Reference",
+  "protocol": "BLE GATT",
+  "serviceUUID": "7b5a0001-7f24-4c24-9b24-000000000024",
+  "characteristics": {
+    "telemetry": {
+      "uuid": "7b5a0002-7f24-4c24-9b24-000000000024",
+      "properties": [
+        "read",
+        "notify"
+      ],
+      "format": "UTF-8 JSON",
+      "schema": {
+        "batteryPct": "number 0..100",
+        "temperatureC": "number",
+        "deviceStatus": "string",
+        "firmware": "string",
+        "counter": "integer"
+      }
+    },
+    "command": {
+      "uuid": "7b5a0003-7f24-4c24-9b24-000000000024",
+      "properties": [
+        "write"
+      ],
+      "format": "UTF-8 JSON",
+      "schema": {
+        "id": "string",
+        "command": "PING"
+      }
+    },
+    "acknowledgment": {
+      "uuid": "7b5a0004-7f24-4c24-9b24-000000000024",
+      "properties": [
+        "read",
+        "notify"
+      ],
+      "format": "UTF-8 JSON",
+      "schema": {
+        "id": "string",
+        "command": "PING",
+        "status": "ACK",
+        "counter": "integer"
+      }
+    }
+  },
+  "discovery": {
+    "nameSubstring": "Quantum24 Reference",
+    "companyIdentifier": null,
+    "serviceUUID": "7b5a0001-7f24-4c24-9b24-000000000024"
+  },
+  "authentication": "OS-level accessory authorization plus application-level optional challenge; no secrets in telemetry",
+  "stateFlow": [
+    "DISCOVERED",
+    "AUTHORIZED",
+    "CONNECTED",
+    "TELEMETRY_VERIFIED",
+    "ACTION_VERIFIED",
+    "CERTIFIED"
+  ],
+  "harmlessAction": "PING -> ACK",
+  "truth": "Reference protocol for a real test accessory; it does not represent existing production Quantum24 hardware until a physical device implements it."
+}
