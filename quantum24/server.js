@@ -394,6 +394,18 @@ if(p==='/api/connectivity/status'&&req.method==='GET'){
 }
 if(p==='/api/connectivity/hologram'&&req.method==='GET')return json(res,200,{ok:true,providerConfigured:!!(process.env.HOLOGRAM_PROVIDER_URL&&process.env.HOLOGRAM_PROVIDER_TOKEN),displayHardwareGate:true,physicalTransmission:false});
 
+// Q24 CELLULAR/RCS INTEROP v1 — standards-aligned capability gate for current 4G/5G packet-switched systems.
+// RCS/IMS availability is carrier/device provisioned; the app never pretends to have carrier access without evidence.
+function q24CellularInterop(){return{
+  ok:true,version:'Cellular/RCS Interop v1',transportPreference:['RCS/IMS when provisioned','SMS fallback','WebRTC/Twilio Video for app video','VoLTE/VoNR/PSTN via authorized carrier/provider'],
+  standards:{imsVoice:'VoLTE/VoNR',messaging:'RCS/SMSoIP',video:'RCS video/WebRTC or app WebRTC',webRtc:true},
+  capabilities:{text:true,voice:true,video:true,groupVideo:true,mediaFallback:true},
+  providerEvidence:{carrierProvisioned:false,twilioConfigured:!!(process.env.TWILIO_ACCOUNT_SID&&process.env.TWILIO_API_KEY&&process.env.TWILIO_API_SECRET),rfHardware:false},
+  safety:{rfTransmitDisabled:true,emergencyCallingHandledByNativeCarrier:true},
+  truth:'Software is standards-ready; live carrier/RCS/VoLTE/VoNR delivery requires a provisioned compatible device, carrier service, or authorized provider.'
+};}
+if(p==='/api/telcom/cellular'&&req.method==='GET')return json(res,200,q24CellularInterop());
+
 // Q24 TELCOM UNIFIED v1 — text/call/video orchestration with QHash threads; provider execution remains credential/evidence gated.
 const q24TelcomThreads=new Map();
 function q24TelcomThread(id='default'){if(!q24TelcomThreads.has(id))q24TelcomThreads.set(id,{id,messages:[],createdAt:new Date().toISOString()});return q24TelcomThreads.get(id);}
