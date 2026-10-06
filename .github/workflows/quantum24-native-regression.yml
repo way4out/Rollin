@@ -23,7 +23,24 @@ jobs:
         with: {distribution: temurin, java-version: '17'}
       - uses: gradle/actions/setup-gradle@v4
         with: {gradle-version: '8.10.2'}
-      - run: gradle -p native/android :app:assembleDebug
+      - name: Build Android native target
+        id: androidbuild
+        continue-on-error: true
+        run: |
+          set +e
+          gradle -p native/android :app:assembleDebug --stacktrace 2>&1 | tee android-build.log
+          echo "exit_code=${PIPESTATUS[0]}" | tee -a android-build.log
+          exit ${PIPESTATUS[0]}
+      - name: Upload Android diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: q24-android-diagnostic
+          path: android-build.log
+          if-no-files-found: warn
+      - name: Enforce Android build
+        if: steps.androidbuild.outcome == 'failure'
+        run: exit 1
   ios:
     runs-on: macos-latest
     steps:
