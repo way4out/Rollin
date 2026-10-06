@@ -181,6 +181,62 @@ function quantumFinalization(){return{ok:true,version:'v35',status:'max-upgrade-
 function quantumOperability(){return{ok:true,version:'v36',status:'maximum-user-operability',surfaces:['web','mobile','PWA','app'],ux:{principles:['one-tap primary actions','plain-language labels','large touch targets','responsive layouts','accessible contrast','reduced-motion support','consistent navigation','visible loading/error/success states','keyboard and screen-reader support'],theme:'adaptive high-contrast color system with light/dark modes'},data:{files:true,downloads:true,library:true,quantumCatalog:true,qhash:true,events:true,metadata:true,providerReceipts:true,localRecovery:true},media:{tv:'global provider/catalog dependent',radio:['AM','FM','digital','web streams'],music:'rights/provider dependent',satcom:'provider/device dependent'},communications:{text:'device/carrier/provider dependent',calls:'device/carrier/provider dependent',video:'provider/device dependent',telecom:'provider/carrier dependent'},nftqr:{create:true,customize:true,preview:true,price:true,authorize:true,pay:true,verify:true,issue:'verified provider/chain required',qhash:true,share:true,manage:true},quantumScope:{hashes:'all user-visible and authoritative app events',datasets:'all supplied/indexed datasets',multiverse:'only verifiable supplied/provider data; no unsupported access claim',dimensions:'indexed data representations only'},reliability:{noBlankScreen:true,retry:true,staleDataLabeled:true,idempotency:true,replayProtection:true,failClosed:['payments','settlement','staking','NFT mint','RF transmit','satcom transmit','grid control','authentication'],failSafe:['catalog','search','media metadata','calculations','local QHash','UI recovery']},anythingMissed:['global search','favorites/recent history','settings/export/import','offline queue','notifications/status center','help/recovery','privacy controls','audit trail','capability badges'],truthBoundary:'Unavailable physical providers remain clearly marked rather than simulated as live.'}}
 function quantumUltimate(){return{ok:true,version:'v37',status:'ultimate-release-gate',checks:{routes:'declared and syntax-validated',qhash:'canonical SHA-256',payments:'exact verified Base receipt required',energy:'metered positive-surplus only',tokens:25,bankr:'catalog/provider integration gate',users:'web/mobile/PWA/app',recovery:'no-blank-screen'},operations:{quantumData:true,files:true,downloads:true,library:true,search:true,media:true,radio:true,tv:true,communications:true,nftqr:true,audit:true},positiveEnergy:{definition:'measured generation exceeds measured load/import',onchainSettlement:'verified receipt required',profit:'realized only'},alwaysMode:{continuousUpgrade:'software architecture remains upgradeable',infiniteClaims:false},truthBoundary:'Physical providers, hardware, chain transactions, broadcasts and external datasets must be independently available and verified.'}}
 
+
+// Q24 INTEGRATION SEALED v1 — real-provider adapters, fail-closed financial execution, Base-first.
+// Secrets are environment-only; never returned, logged, hashed, or embedded in QHash payloads.
+const Q24_BASE_CHAIN_ID=8453;
+const Q24_INTEGRATION_POLICY={
+  baseFirst:true,
+  physicalActuation:'fail-closed',
+  staking:'pre-authorized-provider-policy + exact transaction evidence',
+  maxAutomationUsd:Number(process.env.BANKR_MAX_AUTOMATION_USD||'0'),
+  automationEnabled:process.env.BANKR_AUTOMATION_ENABLED==='true',
+  bankrConfigured:Boolean(process.env.BANKR_API_KEY),
+  rfConfigured:Boolean(process.env.RF_PROVIDER_URL&&process.env.RF_PROVIDER_TOKEN),
+  satelliteConfigured:Boolean(process.env.SATCOM_PROVIDER_URL&&process.env.SATCOM_API_KEY),
+  carrierConfigured:Boolean(process.env.CARRIER_PROVIDER_URL&&process.env.CARRIER_PROVIDER_TOKEN),
+  energyTelemetryConfigured:Boolean(process.env.ENERGY_GATE_URL&&process.env.ENERGY_GATE_HMAC_SECRET)
+};
+function q24SecretPresent(){return{bankr:Q24_INTEGRATION_POLICY.bankrConfigured,rf:Q24_INTEGRATION_POLICY.rfConfigured,satellite:Q24_INTEGRATION_POLICY.satelliteConfigured,carrier:Q24_INTEGRATION_POLICY.carrierConfigured,energyTelemetry:Q24_INTEGRATION_POLICY.energyTelemetryConfigured}}
+async function bankrApi(path,method='GET',payload){
+  if(!process.env.BANKR_API_KEY)throw Object.assign(new Error('bankr_api_key_required'),{status:503});
+  const z=await fetch('https://api.bankr.bot'+path,{method,headers:{'X-API-Key':process.env.BANKR_API_KEY,'Content-Type':'application/json'},body:payload===undefined?undefined:JSON.stringify(payload),signal:AbortSignal.timeout(12000)});
+  const j=await z.json().catch(()=>({}));
+  if(!z.ok)throw Object.assign(new Error(j.error||j.message||('bankr_http_'+z.status)),{status:z.status,provider:j});
+  return j;
+}
+function q24BaseTxGuard(tx){
+  const to=String(tx?.to||'').toLowerCase(),chain=Number(tx?.chainId||0);
+  if(chain!==Q24_BASE_CHAIN_ID)return{ok:false,error:'base_chain_required',chainId:Q24_BASE_CHAIN_ID};
+  if(!/^0x[a-f0-9]{40}$/.test(to))return{ok:false,error:'invalid_contract_recipient'};
+  const allowed=String(process.env.BANKR_ALLOWED_STAKING_CONTRACT||'').toLowerCase();
+  if(!allowed)return{ok:false,error:'staking_contract_allowlist_required'};
+  if(to!==allowed)return{ok:false,error:'staking_contract_not_allowlisted'};
+  return{ok:true};
+}
+function q24AutomationGate(amountUsd){
+  const n=Number(amountUsd);
+  if(!Q24_INTEGRATION_POLICY.automationEnabled)return{ok:false,error:'automation_disabled'};
+  if(!Q24_INTEGRATION_POLICY.bankrConfigured)return{ok:false,error:'bankr_api_key_required'};
+  if(!(n>0))return{ok:false,error:'positive_amount_required'};
+  if(!(Q24_INTEGRATION_POLICY.maxAutomationUsd>0)||n>Q24_INTEGRATION_POLICY.maxAutomationUsd)return{ok:false,error:'automation_limit_exceeded',maxUsd:Q24_INTEGRATION_POLICY.maxAutomationUsd};
+  return{ok:true};
+}
+function q24PhysicalProviderState(){
+ return {ok:true,states:{
+  RF:{software:'LIVE SOFTWARE',external:Q24_INTEGRATION_POLICY.rfConfigured?'CONFIGURED_PROVIDER':'EVIDENCE_REQUIRED',physical:'AUTHORIZED HARDWARE + SPECTRUM REQUIRED'},
+  Satellite:{software:'LIVE SOFTWARE',external:Q24_INTEGRATION_POLICY.satelliteConfigured?'CONFIGURED_PROVIDER':'EVIDENCE_REQUIRED',physical:'AUTHORIZED TERMINAL + SERVICE REQUIRED'},
+  Carrier:{software:'LIVE SOFTWARE',external:Q24_INTEGRATION_POLICY.carrierConfigured?'CONFIGURED_PROVIDER':'EVIDENCE_REQUIRED',physical:'AUTHORIZED CARRIER/NUMBER REQUIRED'},
+  Energy:{software:'LIVE SOFTWARE',external:Q24_INTEGRATION_POLICY.energyTelemetryConfigured?'TELEMETRY_CONFIGURED':'EVIDENCE_REQUIRED',physical:'METER + INTERCONNECTION + SETTLEMENT REQUIRED'}
+ },policy:'No provider, hardware, spectrum, carrier, satellite or energy connection is represented as live without external evidence.'};
+}
+function q24PositiveEnergyGate(input={}){
+ const generation=Number(input.generationKwh),load=Number(input.loadKwh),importKwh=Number(input.importKwh||0);
+ const surplus=generation-Math.max(load,importKwh);
+ const verified=input.verified===true&&Number.isFinite(generation)&&Number.isFinite(load)&&Number.isFinite(importKwh);
+ return {ok:verified&&surplus>0,verified,positive:surplus>0,surplusKwh:Number.isFinite(surplus)?surplus:null,gate:verified&&surplus>0?'PASS':'BLOCKED',settlementAllowed:verified&&surplus>0,reason:!verified?'metered telemetry verification required':surplus<=0?'no measured positive surplus':'verified positive surplus'};
+}
+
 // Q24 PRODUCTION HARDENING v1
 const Q24_BUILD_ID=process.env.RENDER_GIT_COMMIT||'unknown-build';
 const Q24_DEPLOY_ID=process.env.RENDER_DEPLOY_ID||'unknown-deploy';
@@ -251,6 +307,14 @@ if(p==='/api/qhash-quantum-scan'&&req.method==='GET'){const domains=['identity',
 if(p==='/api/health'&&req.method==='GET')return json(res,200,{ok:true,...q24BuildInfo(),status:'healthy',network:'base',verifiedRails:['USDC','ETH'],bankrCompatible:true,failover:{rpcEndpoints:BASE_RPC_URLS.length,priceProviders:2,stalePriceWindowSeconds:300},metrics:{requests:q24Metrics.requests,errors:q24Metrics.errors}});
 
 if(req.method==='POST'&&q24Ops.has(req._q24OperationId)){const prior=q24Ops.get(req._q24OperationId);if(prior.expires>Date.now()){q24Metrics.replays++;return json(res,prior.status,{...prior.body,replayed:true});}q24Ops.delete(req._q24OperationId)}
+if(p==='/api/integrations/status'&&req.method==='GET')return json(res,200,{ok:true,network:'Base Mainnet',chainId:Q24_BASE_CHAIN_ID,secrets:q24SecretPresent(),providers:q24PhysicalProviderState(),bankr:{apiConfigured:Q24_INTEGRATION_POLICY.bankrConfigured,automationEnabled:Q24_INTEGRATION_POLICY.automationEnabled,maxAutomationUsd:Q24_INTEGRATION_POLICY.maxAutomationUsd,writePolicy:'Bankr hosted wallet only; no private keys stored by Quantum24'},truth:'Configuration is not proof of service authorization or physical connectivity.'});
+if(p==='/api/bankr/me'&&req.method==='GET'){try{const j=await bankrApi('/wallet/me');return json(res,200,{ok:true,provider:'Bankr',network:'Base-compatible',wallet:j});}catch(e){return json(res,e.status||502,{ok:false,error:e.message});}}
+if(p==='/api/bankr/portfolio'&&req.method==='GET'){try{const j=await bankrApi('/wallet/portfolio');return json(res,200,{ok:true,provider:'Bankr',portfolio:j,network:'Base-compatible'});}catch(e){return json(res,e.status||502,{ok:false,error:e.message});}}
+if(p==='/api/bankr/submit'&&req.method==='POST'){try{const b=await body(req),g=q24BaseTxGuard(b.transaction);if(!g.ok)return json(res,403,g);const gate=q24AutomationGate(Number(b.amountUsd||0));if(!gate.ok)return json(res,403,{ok:false,...gate});const j=await bankrApi('/wallet/submit','POST',{transaction:{...b.transaction,chainId:Q24_BASE_CHAIN_ID},description:String(b.description||'Quantum24 Base transaction').slice(0,240),waitForConfirmation:true});return json(res,200,{ok:true,provider:'Bankr',network:'Base Mainnet',chainId:Q24_BASE_CHAIN_ID,result:j,receiptQHash:qhash(JSON.stringify(j))});}catch(e){return json(res,e.status||502,{ok:false,error:e.message,provider:e.provider||undefined});}}
+if(p==='/api/staking/policy'&&req.method==='GET')return json(res,200,{ok:true,network:'Base Mainnet',chainId:Q24_BASE_CHAIN_ID,mode:'pre-authorized policy execution',automationEnabled:Q24_INTEGRATION_POLICY.automationEnabled,bankrConfigured:Q24_INTEGRATION_POLICY.bankrConfigured,maxAutomationUsd:Q24_INTEGRATION_POLICY.maxAutomationUsd,allowedContractConfigured:Boolean(process.env.BANKR_ALLOWED_STAKING_CONTRACT),rules:['Base-only','allowlisted staking contract only','positive amount required','automation spend cap','Bankr Wallet API','confirmation required','receipt recorded'],privateKeysStored:false,truth:'No staking transaction is executed until all policy gates pass.'});
+if(p==='/api/staking/execute'&&req.method==='POST'){try{const b=await body(req),gate=q24AutomationGate(Number(b.amountUsd||0));if(!gate.ok)return json(res,403,{ok:false,...gate});const tx=b.transaction||{};const tg=q24BaseTxGuard(tx);if(!tg.ok)return json(res,403,tg);const j=await bankrApi('/wallet/submit','POST',{transaction:{...tx,chainId:Q24_BASE_CHAIN_ID},description:'Quantum24 automated staking — pre-authorized policy',waitForConfirmation:true});return json(res,200,{ok:true,executed:true,provider:'Bankr',network:'Base Mainnet',chainId:Q24_BASE_CHAIN_ID,transaction:j,receiptQHash:qhash(JSON.stringify({j,operationId:req._q24OperationId}))});}catch(e){return json(res,e.status||502,{ok:false,executed:false,error:e.message});}}
+if(p==='/api/energy/positive-gate'&&req.method==='POST'){try{const b=await body(req),g=q24PositiveEnergyGate(b);return json(res,g.ok?200:422,{...g,network:'Base Mainnet',financialExecution:g.settlementAllowed?'eligible for downstream settlement policy':'blocked',qhash:qhash(JSON.stringify(g))});}catch(e){return json(res,400,{ok:false,error:'malformed_energy_input'});}}
+if(p==='/api/physical/providers'&&req.method==='GET')return json(res,200,q24PhysicalProviderState());
 if(p==='/api/observability'&&req.method==='GET')return json(res,200,{ok:true,build:q24BuildInfo(),metrics:q24Metrics,operationCacheSize:q24Ops.size,providerGates:{satcom:Boolean(process.env.SATCOM_PROVIDER_URL&&process.env.SATCOM_API_KEY),twilio:Boolean(process.env.TWILIO_ACCOUNT_SID&&process.env.TWILIO_API_KEY&&process.env.TWILIO_API_SECRET),supabase:Boolean(process.env.SUPABASE_URL&&process.env.SUPABASE_PUBLISHABLE_KEY)},truth:'Observability reports software/runtime evidence only.'});
 if(p==='/api/production-verification'&&req.method==='GET'){const matrix=q24FailureMatrix();return json(res,200,{ok:matrix.ok,productionGate:'verification',build:q24BuildInfo(),coreRoutes:Q24_CORE_SMOKE_ROUTES.map(x=>({...x,status:'declared-and-handler-present'})),failureMatrix:matrix,truth:'A route can be software-verified here; physical/provider capabilities require independent external evidence.',requiredFinalGate:['build passes','deployment LIVE','runtime starts cleanly','core API checks pass','failure cases structured']});}
 if(p==='/api/failure-matrix'&&req.method==='GET')return json(res,200,{ok:true,...q24FailureMatrix(),build:q24BuildInfo()});
