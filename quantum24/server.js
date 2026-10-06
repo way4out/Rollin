@@ -592,21 +592,33 @@ if(p==='/api/comms/video/room'&&req.method==='POST'){
 // It performs live read-only checks where real credentials/providers are configured.
 function q24ProviderConfig(name){
   const map={
-    rf:{url:process.env.RF_PROVIDER_URL,token:process.env.RF_PROVIDER_TOKEN},
-    satellite:{url:process.env.SATCOM_PROVIDER_URL,token:process.env.SATCOM_API_KEY},
-    carrier:{url:process.env.CARRIER_PROVIDER_URL,token:process.env.CARRIER_PROVIDER_TOKEN},
-    energy:{url:process.env.ENERGY_GATE_URL,token:process.env.ENERGY_GATE_HMAC_SECRET}
+    rf:{url:process.env.RF_PROVIDER_HEALTH_URL||process.env.RF_PROVIDER_URL,token:process.env.RF_PROVIDER_TOKEN,scheme:process.env.RF_PROVIDER_AUTH_SCHEME||'Bearer'},
+    satellite:{url:process.env.SATCOM_PROVIDER_HEALTH_URL||process.env.SATCOM_PROVIDER_URL,token:process.env.SATCOM_API_KEY,scheme:process.env.SATCOM_AUTH_SCHEME||'Bearer'},
+    carrier:{url:process.env.CARRIER_PROVIDER_HEALTH_URL||process.env.CARRIER_PROVIDER_URL,token:process.env.CARRIER_PROVIDER_TOKEN,scheme:process.env.CARRIER_AUTH_SCHEME||'Bearer'},
+    energy:{url:process.env.ENERGY_GATE_HEALTH_URL||process.env.ENERGY_GATE_URL,token:process.env.ENERGY_GATE_HMAC_SECRET,scheme:'Bearer'}
   };
   const x=map[name]||{};
-  return {configured:Boolean(x.url&&x.token),url:x.url||null,tokenPresent:Boolean(x.token)};
+  return {configured:Boolean(x.url&&x.token),url:x.url||null,tokenPresent:Boolean(x.token),scheme:x.scheme};
+}
+function q24SafeProviderUrl(raw){
+  try{
+    const u=new URL(String(raw||''));
+    if(u.protocol!=='https:')return {ok:false,error:'https_required'};
+    const host=u.hostname.toLowerCase();
+    if(host==='localhost'||host==='127.0.0.1'||host==='0.0.0.0'||host==='::1'||host.endsWith('.local'))return {ok:false,error:'private_host_blocked'};
+    return {ok:true,url:u.toString()};
+  }catch{return {ok:false,error:'invalid_provider_url'};}
 }
 async function q24ProviderProbe(name){
   const cfg=q24ProviderConfig(name);
-  if(!cfg.configured)return {name,state:'AUTH_REQUIRED',configured:false,evidence:false};
+  if(!cfg.configured)return {name,state:'AUTH_REQUIRED',configured:false,evidence:false,reason:'provider health URL and credential required'};
+  const safe=q24SafeProviderUrl(cfg.url);
+  if(!safe.ok)return {name,state:'PROVIDER_CONFIG_ERROR',configured:true,evidence:false,errorCode:safe.error};
   try{
-    const z=await fetch(cfg.url,{method:'GET',headers:{Authorization:'Bearer '+cfg.token,'Accept':'application/json','User-Agent':'Quantum24-QCore/1.0'},signal:AbortSignal.timeout(7000)});
+    const z=await fetch(safe.url,{method:'GET',headers:{Authorization:cfg.scheme+' '+cfg.token,'Accept':'application/json','User-Agent':'Quantum24-QCore/1.1'},signal:AbortSignal.timeout(7000),redirect:'error'});
     const text=await z.text();
-    return {name,state:z.ok?'CONNECTED':'PROVIDER_ERROR',configured:true,evidence:z.ok,httpStatus:z.status,responseHash:qhash(text.slice(0,20000)),checkedAt:new Date().toISOString()};
+    const body=text.slice(0,20000);
+    return {name,state:z.ok?'CONNECTED':'PROVIDER_ERROR',configured:true,evidence:z.ok,httpStatus:z.status,responseHash:qhash(body),checkedAt:new Date().toISOString()};
   }catch(e){
     return {name,state:'OFFLINE',configured:true,evidence:false,errorCode:e.name||'provider_error',checkedAt:new Date().toISOString()};
   }
