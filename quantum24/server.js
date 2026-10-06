@@ -21,6 +21,22 @@ async function live(){const t=Date.now();const block=await rpc('eth_blockNumber'
 async function quote(product,custom,token='USDC'){let usd=products[product];if(!usd&&Number.isFinite(Number(custom)))usd=Number(custom);if(!usd||usd<MIN||usd>MAX)return null;let price=null,ethWei=null;if(String(token).toUpperCase()==='ETH'){price=await ethPrice();ethWei=BigInt(Math.ceil(usd/price*1e18));}const id='Q24-'+crypto.randomBytes(12).toString('hex');quotes.set(id,{product:product||'Quantum24 Custom',usd,ethWei,token:String(token).toUpperCase(),created:Date.now()});const out={id,product:product||'Quantum24 Custom',amountUsd:usd,ethWei:ethWei?'0x'+ethWei.toString(16):null,ethPriceUsd:price,merchant:MERCHANT,network:'base',token:String(token).toUpperCase()};out.qhash=qhashFor(out);return out}
 function qhashFor(q){return crypto.createHash('sha256').update(JSON.stringify({id:q.id,product:q.product,usd:q.usd,token:q.token||'USDC',merchant:MERCHANT,network:'base',version:VERSION})).digest('hex')}
 function qhash(value){return crypto.createHash('sha256').update(String(value)).digest('hex')}
+function quantumize(value,parent=''){
+  if(value===null||typeof value!=='object'){
+    const canonical=typeof value==='string'?value:JSON.stringify(value);
+    const hash=qhash(parent+'|'+canonical);
+    return {type:typeof value,value, qhash:hash};
+  }
+  if(Array.isArray(value)){
+    const items=value.map((v,i)=>quantumize(v,parent+'/['+i+']'));
+    const canonical=JSON.stringify(items.map(x=>x.qhash));
+    return {type:'array',length:value.length,items,qhash:qhash(parent+'|'+canonical)};
+  }
+  const keys=Object.keys(value).sort();
+  const fields={};
+  for(const k of keys)fields[k]=quantumize(value[k],parent+'/'+k);
+  return {type:'object',fields,qhash:qhash(parent+'|'+JSON.stringify(keys.map(k=>[k,fields[k].qhash])))};
+}
 function qhashBytes(buf){return crypto.createHash('sha256').update(buf).digest('hex')}
 function energyVector({generationKw=0,loadKw=0,importKw=0,exportKw=0,pricePerKwh=0}={}){
   const g=Math.max(0,Number(generationKw)||0), l=Math.max(0,Number(loadKw)||0), imp=Math.max(0,Number(importKw)||0), exp=Math.max(0,Number(exportKw)||0), p=Math.max(0,Number(pricePerKwh)||0);
@@ -266,7 +282,7 @@ if(p==='/api/public-status'&&req.method==='GET')return json(res,200,{ok:true,ser
 if(p==='/api/action'&&req.method==='POST'){try{const b=await body(req);b.ip=String(req.headers['x-forwarded-for']||req.socket.remoteAddress||'unknown').split(',')[0].trim();b.eventType=String(b.eventType||'action');return json(res,200,await recordQHashEvent(b))}catch(e){return json(res,400,{ok:false,error:'action_rejected'})}}
 if(p==='/api/energy/state'&&req.method==='GET')return json(res,200,energyState());
 if(p==='/api/energy/calculate'&&req.method==='POST'){try{const b=await body(req);const v=energyVector(b);const q=qhash(JSON.stringify(canonicalValue(v)));await recordQHashEvent({internal:true,eventType:'energy_vector_calculated',surface:'energy-gate',actorKind:'server',data:{...v,qhash:q}});return json(res,200,{ok:true,...v,qhash:q,physicalGeneration:false})}catch(e){return json(res,400,{ok:false,error:'invalid_energy_vector'})}}
-if(p==='/api/qhash-data'&&req.method==='POST'){try{const b=await body(req);const q=quantifyPayload(b);await recordQHashEvent({internal:true,eventType:'data_quantified',surface:'qhash-data',actorKind:'server',data:{kind:q.kind,byteLength:q.byteLength,bitLength:q.bitLength,byteQHash:q.byteQHash,bitQHash:q.bitQHash,canonicalQHash:q.canonicalQHash,vectorQHash:q.vectorQHash}});return json(res,200,q)}catch(e){return json(res,400,{ok:false,error:e.message||'quantification_failed'})}}
+if(p==='/api/qhash-data'&&req.method==='POST'){try{const b=await body(req);const q=quantifyPayload(b);const source=b?.data??null;const tree=quantumize(source);await recordQHashEvent({internal:true,eventType:'data_quantified',surface:'qhash-data',actorKind:'server',data:{kind:q.kind,byteLength:q.byteLength,bitLength:q.bitLength,byteQHash:q.byteQHash,bitQHash:q.bitQHash,canonicalQHash:q.canonicalQHash,vectorQHash:q.vectorQHash,quantumRootQHash:tree.qhash}});return json(res,200,{...q,quantum:{algorithm:'SHA-256',rootQHash:tree.qhash,tree,scope:'all supplied fields not previously excluded',nextHashRule:'new node hash commits to parent path and canonical child hashes'}})}catch(e){return json(res,400,{ok:false,error:e.message||'quantification_failed'})}}
 if(p==='/api/qhash-capabilities'&&req.method==='GET')return json(res,200,{ok:true,algorithm:'SHA-256',representations:['UTF-8 bytes','binary bits','canonical JSON','sampled byte vector'],eventCoverage:['click','input','select','summary','wallet','payment','search','download','media','share','vault','data_quantified','onchain_payment_verified'],onchain:'Base payment events are linked to verified transaction hashes; arbitrary QHash anchoring requires a funded signer and is not claimed here.',sensors:{visibleLight:'software/browser-observable only',IR:false,NIR:false,reason:'requires physical sensor hardware'}});if(p==='/api/qhash'&&req.method==='POST'){const b=await body(req);return json(res,200,{ok:true,qhash:qhash(JSON.stringify(b)),algorithm:'SHA-256',scope:'application fingerprint; not a blockchain transaction hash'});}
 if(p==='/api/selftest'&&req.method==='GET'){const checks={health:true,ready:true,catalog:Array.isArray(bankrTokenMatrix)&&bankrTokenMatrix.length===25,qhash:typeof qhash==='function',paymentRails:['USDC','ETH'],physicsReference:7.83,serverClock:new Date().toISOString()};return json(res,200,{ok:Object.values(checks).every(Boolean),version:VERSION,checks})}
 if(p==='/api/device'&&req.method==='GET')return json(res,200,{ok:true,serverSupported:true,clientProfile:{responsive:true,touchTargets:true,locale:'navigator.language',reducedMotion:'prefers-reduced-motion',safeArea:true}});
