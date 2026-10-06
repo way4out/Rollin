@@ -10,8 +10,7 @@
 <key>NSCameraUsageDescription</key><string>Quantum24 uses the camera when a connected workflow requires it.</string>
 <key>NSAccessorySetupKitSupports</key><array><string>Bluetooth</string><string>WiFi</string></array>
 <key>NSAccessorySetupBluetoothNames</key><array><string>Quantum24 Reference</string></array>
-<key>NSAccessorySetupBluetoothServices</key><array><string>FD6F</string></array>
-<key>NSAccessorySetupBluetoothServices</key><array></array>
+<key>NSAccessorySetupBluetoothServices</key><array><string>7B5A0001-7F24-4C24-9B24-000000000024</string></array>
 <key>UIRequiresFullScreen</key><false/>
 <key>UIApplicationSupportsIndirectInputEvents</key><true/>
 </dict></plist>
