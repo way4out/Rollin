@@ -1,6 +1,6 @@
 /* Quantum24 QHash vNext — sequential, individualized rendering/validation layer. */
 (()=>{"use strict";
-const VERSION="QHash-5x7x-vNext";
+const VERSION="QHash-5x5x5^+5x7x-vNext";
 const KEY="q24:qhash:matrix:vnext";
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const sha256=async s=>{try{const b=new TextEncoder().encode(s),h=await crypto.subtle.digest("SHA-256",b);return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,"0")).join("")}catch{return btoa(unescape(encodeURIComponent(s))).slice(0,64)}};
@@ -11,7 +11,8 @@ const domains=[
  "identity","render","data","interaction","ai-readable","pricing","payment","history",
  "sharing","accessibility","validation","recovery","performance","security","expansion"
 ];
-const qhashes=Array.from({length:35},(_,i)=>({id:String(i+1).padStart(3,"0"),index:i+1,status:state[i+1]?.status||"ready",domains}));
+const TOTAL=125;
+const qhashes=Array.from({length:TOTAL},(_,i)=>({id:String(i+1).padStart(3,"0"),index:i+1,status:state[i+1]?.status||"ready",domains,grid:"5x5x5^",expansion:"5x7x"}));
 async function validate(q){
  const payload=JSON.stringify({id:q.id,version:VERSION,domains:q.domains,ts:new Date().toISOString()});
  q.fingerprint=await sha256(payload);
@@ -27,7 +28,7 @@ function mount(){
  }
  const list=host.querySelector("#q24-qhash-list");
  list.innerHTML=qhashes.map(q=>'<article class="q24-qhash-row" data-qhash="'+q.id+'"><strong>QHash '+q.id+'</strong><span>'+q.status+'</span><small>'+domains.length+' domains · '+VERSION+'</small></article>').join("");
- host.querySelector("#q24-qhash-summary").textContent="35 individualized QHashes · "+domains.length+" upgrade domains · sequential verification";
+ host.querySelector("#q24-qhash-summary").textContent=TOTAL+" individualized QHashes · "+domains.length+" upgrade domains · 5×5×5^ core · 5×7× expansion · sequential verification";
 }
 async function runSequential(){
  for(const q of qhashes){ if(q.status!=="verified") await validate(q); }
