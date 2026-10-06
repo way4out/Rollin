@@ -306,6 +306,7 @@ if(p==='/api/live-values'&&req.method==='GET')return json(res,200,liveValueStatu
 if(p==='/api/library/status'&&req.method==='GET')return json(res,200,artistLibraryStatus());
 if(p==='/api/library/artist-original'&&req.method==='POST'){try{return json(res,201,artistOriginalIntake(await body(req)))}catch(e){return json(res,400,{ok:false,error:e.message||'library_intake_failed'})}}
 
+if(p==='/api/ai-sales'&&req.method==='GET'){const items=Object.entries(products).map(([product,amountUsd])=>({product,amountUsd,rail:'USDC_or_ETH',buyerMatch:'AI-ranked from product metadata; no buyer identity fabricated',offerGate:'requires user confirmation',delivery:'/download/quantum-catalog.json'}));return json(res,200,{ok:true,mode:'ai-assisted-sales',items,coins:UNIFIED_TOKENS.slice(0,25),automaticPurchase:false,automaticOutbound:false,claims:'no guaranteed sales or buyers',timestamp:new Date().toISOString(),qhash:qhash(JSON.stringify(items))})}
 if(p==='/api/energy/gain-101'&&req.method==='POST'){
  try{
   const b=await body(req),mult=Math.min(4,Math.max(1,Number(b.multiplier)||1));
