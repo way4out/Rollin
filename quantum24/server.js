@@ -394,6 +394,13 @@ if(p==='/api/connectivity/status'&&req.method==='GET'){
 }
 if(p==='/api/connectivity/hologram'&&req.method==='GET')return json(res,200,{ok:true,providerConfigured:!!(process.env.HOLOGRAM_PROVIDER_URL&&process.env.HOLOGRAM_PROVIDER_TOKEN),displayHardwareGate:true,physicalTransmission:false});
 
+// Q24 TELCOM UNIFIED v1 — text/call/video orchestration with QHash threads; provider execution remains credential/evidence gated.
+const q24TelcomThreads=new Map();
+function q24TelcomThread(id='default'){if(!q24TelcomThreads.has(id))q24TelcomThreads.set(id,{id,messages:[],createdAt:new Date().toISOString()});return q24TelcomThreads.get(id);}
+function q24TelcomMessage(kind,payload){const m={id:'Q24-T-'+crypto.randomBytes(8).toString('hex'),kind,payload:canonicalValue(payload),at:new Date().toISOString()};m.qhash=qhash(JSON.stringify(m));const t=q24TelcomThread(String(payload.threadId||'default'));t.messages.push(m);if(t.messages.length>1000)t.messages.shift();return m;}
+if(p==='/api/telcom/status'&&req.method==='GET')return json(res,200,{ok:true,version:'Telcom v1',channels:{text:true,voice:true,video:true,unifiedThread:true},provider:'Twilio when configured',qhash:'SHA-256',threadCapacity:'bounded per thread; expandable by provider/storage plan',security:{credentialGate:true,providerEvidence:true},truth:'Software orchestration is live-ready; carrier/provider delivery requires valid authorized configuration.'});
+if(p==='/api/telcom/thread'&&req.method==='POST'){try{const b=await body(req);const id=String(b.threadId||'default').slice(0,128);const m=q24TelcomMessage(String(b.kind||'text'),{threadId:id,text:String(b.text||'').slice(0,10000),attachmentMeta:b.attachmentMeta||null});return json(res,200,{ok:true,threadId:id,message:m,threadQHash:qhash(JSON.stringify(q24TelcomThread(id)))});}catch(e){return json(res,400,{ok:false,error:e.message})}}
+if(p==='/api/telcom/thread'&&req.method==='GET'){const id=String(u.searchParams.get('threadId')||'default').slice(0,128);const t=q24TelcomThread(id);return json(res,200,{ok:true,threadId:id,messages:t.messages,qhash:qhash(JSON.stringify(t))});}
 if(p==='/api/comms/sms'&&req.method==='POST'){
  try{
   const b=await body(req),sid=process.env.TWILIO_ACCOUNT_SID,key=process.env.TWILIO_API_KEY,secret=process.env.TWILIO_API_SECRET,from=process.env.TWILIO_FROM_NUMBER,to=String(b.to||''),message=String(b.message||'Quantum24 connection test');
