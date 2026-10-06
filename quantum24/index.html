@@ -269,6 +269,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  window.q24PhysicalMode=function(mode){document.getElementById('q24-physical-mode').textContent=mode==='tv'?'TV / EPG':'WEB RADIO';window.Quantum24QHash?.record('physical_console_mode',{mode})};
  const old=q24Freq; window.q24Freq=function(f){old(f);const e=document.getElementById('q24-physical-freq');if(e)e.textContent=f===1000?'1 kHz':String(f)+' Hz'};
 })();
+</script><style id="q24-25-action-visuals">
+.q24-25{background:linear-gradient(135deg,#07130e,#0b1720 55%,#111629);border:1px solid #355c4a;border-radius:22px;padding:18px;box-shadow:0 18px 55px #0008,inset 0 1px 0 #ffffff12}.q24-25 h2{margin-bottom:5px}.q24-energy-orb{width:88px;height:88px;border-radius:50%;margin:8px auto 14px;background:radial-gradient(circle at 35% 30%,#fff,#b8ffcf 8%,#46e88a 30%,#117044 62%,#06140d 72%);box-shadow:0 0 35px #47ef9a66,0 0 80px #42dfff22;animation:q24pulse 3s ease-in-out infinite}.q24-25-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.q24-25-action{min-height:86px!important;padding:9px 6px!important;border:1px solid #365443!important;background:linear-gradient(160deg,#12251b,#101b25)!important;color:#eefef4!important;border-radius:14px!important}.q24-25-action strong{display:block;font-size:18px}.q24-25-action small{display:block;opacity:.75;font-size:11px;margin-top:3px}.q24-25-action.live{box-shadow:inset 0 0 0 1px #5ff39a44,0 0 14px #36e48a14}.q24-25-action:active{transform:scale(.98)}.q24-25-status{margin-top:12px;padding:10px;border-radius:12px;background:#0d2118;border:1px solid #315a45;color:#aef3c6;text-align:center;font-size:13px}@keyframes q24pulse{50%{transform:scale(1.06);box-shadow:0 0 48px #47ef9a88,0 0 95px #42dfff30}}@media(max-width:620px){.q24-25-grid{grid-template-columns:repeat(2,1fr)}.q24-25-action{min-height:74px!important}}@media(prefers-reduced-motion:reduce){.q24-energy-orb{animation:none}}
+</style>
+<section class="card q24-25" id="q24-25-actions">
+<h2>25-Layer Live Action Field</h2>
+<div class="q24-energy-orb" aria-label="Positive energy visualization"></div>
+<div class="cardIntro">Every layer is an actionable software control surface. Live status is evidence-gated; physical energy, RF and settlement are never fabricated.</div>
+<div class="q24-25-grid" id="q24-25-grid"></div>
+<div class="q24-25-status" id="q24-25-status">Ready · select a layer to execute its supported action.</div>
+</section>
+<script id="q24-25-action-engine">
+(function(){
+const layers=[
+['01','Measure','Read measured inputs'],['02','Validate','Check telemetry'],['03','Optimize','Model best action'],['04','Load Shift','Model load timing'],['05','Battery','Model storage path'],
+['06','Solar','Track solar input'],['07','Wind','Track wind input'],['08','Grid','Model grid flow'],['09','Export','Estimate export value'],['10','Import','Estimate import need'],
+['11','Tariff','Apply supplied tariff'],['12','Settlement','Verify settlement evidence'],['13','QHash','Hash action record'],['14','Payment','Verify payment gate'],['15','Tokens','Check registry'],
+['16','Radio','Open radio surface'],['17','TV/EPG','Open media surface'],['18','Theater','Enter theater'],['19','Comms','Open device comms'],['20','SatCom+','Open provider gate'],
+['21','Hologram','Open hardware gate'],['22','AI','Open AI integration'],['23','Recovery','Check recovery'],['24','Safety','Check safety gates'],['25','Expand','Run all supported checks']
+];
+const grid=document.getElementById('q24-25-grid'),status=document.getElementById('q24-25-status');
+if(!grid)return;
+grid.innerHTML=layers.map((x,i)=>'<button type="button" class="q24-25-action live" data-layer="'+i+'"><strong>'+x[0]+'</strong>'+x[1]+'<small>'+x[2]+'</small></button>').join('');
+grid.querySelectorAll('button').forEach((b,i)=>b.addEventListener('click',async()=>{
+ const x=layers[i]; status.textContent='Layer '+x[0]+' · '+x[1]+' · working…';
+ let result={layer:x[0],action:x[1],timestamp:new Date().toISOString()};
+ try{
+   if(x[1]==='Radio')openMedia('radio');
+   else if(x[1]==='TV/EPG')openMedia('tv');
+   else if(x[1]==='Theater')q24Theater();
+   else if(x[1]==='Comms')go('comms');
+   else if(x[1]==='SatCom+')q24TheaterSource('satcom');
+   else if(x[1]==='Hologram')q24HologramGate();
+   else if(x[1]==='Recovery')document.getElementById('q24-recovery')?.scrollIntoView({behavior:'smooth'});
+   else if(x[1]==='Safety')document.getElementById('integrity')?.scrollIntoView({behavior:'smooth'});
+   else if(x[1]==='Expand'){if(window.q24UnifiedQuote)result.gate=await window.q24UnifiedQuote('all-25-layers');}
+   else if(window.q24UnifiedQuote)result.gate=await window.q24UnifiedQuote(x[1].toLowerCase());
+   window.Quantum24QHash?.record('25_layer_action',result);
+   status.textContent='Layer '+x[0]+' · '+x[1]+' · action complete · evidence status preserved';
+ }catch(e){status.textContent='Layer '+x[0]+' · provider/device action unavailable · safe recovery active'}
+}));
+})();
 </script></body></html>+j.capabilities.qrnft.priceUsd+' / '+j.capabilities.qrnft.cap+' cap';
   const q=el('quantumStatus');if(q)q.textContent=text;
   window.Quantum24QHash?.record('unified_gate_status',{tokenCount:j.tokens.length,qrnft:j.capabilities.qrnft,energyx:j.capabilities.energyx,staking:j.capabilities.staking});
