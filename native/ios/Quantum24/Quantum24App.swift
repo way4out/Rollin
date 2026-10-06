@@ -35,6 +35,7 @@ final class IntegrationReporter: NSObject, ObservableObject, CBCentralManagerDel
 
     func onboardBluetooth() {
         var descriptor = ASDiscoveryDescriptor()
+        descriptor.bluetoothServiceUUID = CBUUID(string: "0000FD6F-0000-1000-8000-00805F9B34FB")
         descriptor.bluetoothNameSubstring = "Quantum24"
         let item = ASPickerDisplayItem(
             name: "Quantum24 accessory",
