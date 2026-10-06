@@ -1,0 +1,70 @@
+{
+  "version": 3,
+  "name": "Quantum24 Reference BLE Accessory Protocol",
+  "transport": "Bluetooth Low Energy",
+  "advertisedName": "Quantum24 Reference",
+  "serviceUUID": "7B1A0001-8E8A-4B2B-9D24-243300000024",
+  "characteristics": {
+    "telemetry": {
+      "uuid": "7B1A0002-8E8A-4B2B-9D24-243300000024",
+      "properties": [
+        "read",
+        "notify"
+      ],
+      "format": "UTF-8 JSON"
+    },
+    "command": {
+      "uuid": "7B1A0003-8E8A-4B2B-9D24-243300000024",
+      "properties": [
+        "write",
+        "writeWithoutResponse"
+      ],
+      "format": "UTF-8 JSON"
+    },
+    "ack": {
+      "uuid": "7B1A0004-8E8A-4B2B-9D24-243300000024",
+      "properties": [
+        "read",
+        "notify"
+      ],
+      "format": "UTF-8 JSON"
+    }
+  },
+  "telemetry": {
+    "required": [
+      "battery",
+      "temperatureC",
+      "deviceStatus",
+      "firmware",
+      "counter"
+    ],
+    "encoding": "JSON UTF-8",
+    "counter": "monotonic uint32"
+  },
+  "commands": {
+    "ping": {
+      "request": {
+        "op": "ping",
+        "id": "string"
+      },
+      "ack": {
+        "ok": true,
+        "op": "ping",
+        "id": "string",
+        "counter": "uint32"
+      }
+    }
+  },
+  "authentication": "Physical pairing/OS authorization is required; no secret is embedded in the reference firmware.",
+  "certification": "CERTIFIED requires authorization, connection, protocol/GATT verification, valid telemetry, and verified ping acknowledgment.",
+  "rf": {
+    "receive": "BLE",
+    "transmit": "BLE only; no RF broadcast/control beyond the BLE accessory protocol"
+  },
+  "truthPolicy": {
+    "secretsExcluded": true,
+    "physicalActuationFailClosed": true,
+    "noFabricatedTransactions": true,
+    "noCertificationWithoutEvidence": true
+  }
+}
