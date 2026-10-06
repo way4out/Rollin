@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
       - uses: gradle/actions/setup-gradle@v4
-        with: {gradle-version: '8.9'}
+        with: {gradle-version: '8.10.2'}
       - run: gradle -p native/android :app:assembleDebug
   ios:
     runs-on: macos-latest
