@@ -25,7 +25,7 @@ class MainActivity : Activity() {
  private val endpoint="https://quantum24-gains.onrender.com/api/device-integration/report"
  private var scanner: android.bluetooth.le.BluetoothLeScanner? = null
  private var gatt: BluetoothGatt? = null
- private var deviceId: String? = null\n private val serviceUuid=UUID.fromString("7B1A0001-8E8A-4B2B-9D24-243300000024")\n private val telemetryUuid=UUID.fromString("7B1A0002-8E8A-4B2B-9D24-243300000024")\n private val commandUuid=UUID.fromString("7B1A0003-8E8A-4B2B-9D24-243300000024")\n private val ackUuid=UUID.fromString("7B1A0004-8E8A-4B2B-9D24-243300000024")
+ private var deviceId: String?\n private val serviceUuid=java.util.UUID.fromString("7b5a0001-7f24-4c24-9b24-000000000024")\n private val telemetryUuid=java.util.UUID.fromString("7b5a0002-7f24-4c24-9b24-000000000024")\n private val commandUuid=java.util.UUID.fromString("7b5a0003-7f24-4c24-9b24-000000000024")\n private val ackUuid=java.util.UUID.fromString("7b5a0004-7f24-4c24-9b24-000000000024")\n private var commandId:String?=null = null\n private val serviceUuid=UUID.fromString("7B1A0001-8E8A-4B2B-9D24-243300000024")\n private val telemetryUuid=UUID.fromString("7B1A0002-8E8A-4B2B-9D24-243300000024")\n private val commandUuid=UUID.fromString("7B1A0003-8E8A-4B2B-9D24-243300000024")\n private val ackUuid=UUID.fromString("7B1A0004-8E8A-4B2B-9D24-243300000024")
 
  override fun onCreate(savedInstanceState: Bundle?) {
   super.onCreate(savedInstanceState)
