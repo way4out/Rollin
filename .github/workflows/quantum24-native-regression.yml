@@ -1,0 +1,33 @@
+name: Quantum24 Native + Integration Regression
+on:
+  push:
+    branches: [quantum24-production]
+  pull_request:
+    branches: [quantum24-production]
+  workflow_dispatch:
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: node --check quantum24/server.js
+      - run: node --check quantum24/device-integration.js
+      - run: node -e "const q=require('./quantum24/device-integration'); const d=q.registerDevice({platform:'ci',capabilities:['bluetooth','usb']}); if(q.transition(d.deviceId,{state:'CERTIFIED',evidence:{authorization:true,connection:true,telemetry:true,action:true}}).device.state!=='CERTIFIED') process.exit(1); if(q.transition(d.deviceId,{state:'CERTIFIED',evidence:{}}).certified) process.exit(1); console.log('device evidence gate passed')"
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.9'}
+      - run: gradle -p native/android :app:assembleDebug
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - run: xcodegen generate --spec native/ios/project.yml --project native/ios/Quantum24.xcodeproj
+      - run: xcodebuild -project native/ios/Quantum24.xcodeproj -scheme Quantum24 -sdk iphonesimulator -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 16' CODE_SIGNING_ALLOWED=NO build
