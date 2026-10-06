@@ -7,6 +7,7 @@
  <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
  <uses-feature android:name="android.hardware.usb.host" android:required="false"/>
  <uses-feature android:name="android.hardware.nfc" android:required="false"/>
+ <uses-feature android:name="android.hardware.usb.accessory" android:required="false"/>
  <application android:theme="@style/AppTheme" android:label="Quantum24" android:usesCleartextTraffic="false">
   <activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
  </application>
