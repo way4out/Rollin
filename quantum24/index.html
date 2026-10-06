@@ -903,4 +903,15 @@ async function q24RadioTvOp(op){document.getElementById('quantumRadioState').tex
  window.Quantum24ResonantDisplay={version:1,measurement:'runtime',adaptive:true,unsupportedClaimsBlocked:true};
 })();
 </script>
+
+<!-- Q24 HIGH-DEFINITION CAPABILITY ADAPTATION v2 -->
+<style id="q24-hd-capability-v2">
+.q24-hd-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}.q24-hd-cell{padding:11px;border:1px solid var(--q-line);border-radius:14px;background:rgba(19,29,44,.58)}.q24-hd-cell b{display:block;font-size:1.02rem}.q24-hd-cell small{color:var(--q-muted)}
+@media(max-width:640px){.q24-hd-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+<section class="card" id="q24-hd-capabilities"><h2>HIGH-DEFINITION • DEVICE-ADAPTIVE</h2><div class="q24-hd-grid" aria-live="polite">
+<div class="q24-hd-cell"><b id="q24HdPx">—</b><small>device pixels</small></div><div class="q24-hd-cell"><b id="q24HdDpr">—</b><small>pixel density</small></div><div class="q24-hd-cell"><b id="q24HdVp">—</b><small>viewport</small></div><div class="q24-hd-cell"><b id="q24HdMotion">—</b><small>motion profile</small></div></div><p id="q24HdTruth" class="help-line">Selecting a higher media profile never overrides actual device, browser, source, bandwidth, or user accessibility limits.</p></section>
+<script>
+(()=>{const $=id=>document.getElementById(id);if(!$('q24HdPx'))return;function sync(){const d=devicePixelRatio||1,w=innerWidth,h=innerHeight;$('q24HdPx').textContent=Math.round(w*d)+'×'+Math.round(h*d);$('q24HdDpr').textContent=d.toFixed(2)+'×';$('q24HdVp').textContent=w+'×'+h;$('q24HdMotion').textContent=matchMedia('(prefers-reduced-motion: reduce)').matches?'REDUCED':'FULL';window.Quantum24HD={devicePixels:[Math.round(w*d),Math.round(h*d)],dpr:d,viewport:[w,h],adaptive:true,sourceGated:true};}addEventListener('resize',sync,{passive:true});sync();})();
+</script>
 </body></html>
