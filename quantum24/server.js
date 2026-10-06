@@ -163,7 +163,7 @@ function q24DeviceIntegrationStatus(){return{ok:true,contract:Q24Device.capabili
 
 if(p==='/api/device-integration/schema'&&req.method==='GET')return json(res,200,Q24Device.capabilitySchema());
 if(p==='/api/device-integration/status'&&req.method==='GET')return json(res,200,q24DeviceIntegrationStatus());
-if(p==='/api/device-integration/report'&&req.method==='POST'){let b={};try{b=await body(req)}catch(e){return json(res,400,{ok:false,error:'invalid_json'})}const d=Q24Device.registerDevice(b);const t=Q24Device.transition(d.deviceId,b);return json(res,200,{...t,deviceId:d.deviceId})}
+if(p==='/api/device-integration/report'&&req.method==='POST'){let b={};try{b=await body(req)}catch(e){return json(res,400,{ok:false,error:'invalid_json'})}const d=b.deviceId?Q24Device.getDevice(String(b.deviceId)):null;const target=d||Q24Device.registerDevice(b);const t=Q24Device.transition(target.deviceId,b);return json(res,200,{...t,deviceId:target.deviceId})}
 if(p==='/api/devices'&&req.method==='GET')return json(res,200,{ok:true,devices:Q24Device.listDevices()});
 if(p.startsWith('/api/devices/')&&p.endsWith('/state')&&req.method==='POST'){const id=p.split('/')[3];let b={};try{b=await body(req)}catch(e){return json(res,400,{ok:false,error:'invalid_json'})}const out=Q24Device.transition(id,b);return json(res,out.status===404?404:200,out)}
 if(p.startsWith('/api/providers/')&&p.endsWith('/status')&&req.method==='GET'){const name=p.split('/')[3];return json(res,200,Q24Device.providerStatus(name))}
