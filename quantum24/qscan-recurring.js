@@ -1,0 +1,5 @@
+const https=require('https');
+const scan=require('./qscan-deep-matrix').scan;
+const urls=(process.env.Q24_MAIN_URL||'https://quantum24-gains.onrender.com').replace(/\/$/,'');
+async function get(p){return new Promise((resolve,reject)=>https.get(urls+p,r=>{let d='';r.on('data',x=>d+=x);r.on('end',()=>{try{resolve({status:r.statusCode,data:JSON.parse(d)})}catch{resolve({status:r.statusCode,data:null})}})}).on('error',reject))}
+(async()=>{const local=scan();const endpoints=['/api/qstats/live','/api/evidence/scan','/api/research/scan','/api/maximized-q/scan','/api/infrastructure/settlement/status'];const remote={};for(const p of endpoints){try{remote[p]=await get(p)}catch(e){remote[p]={status:'UNAVAILABLE'}}}const result={ok:local.ok,status:local.status,localQHash:local.finalQHash,referencePoints:local.logicalReferencePoints,passes:local.passes,remote,truth:'Automated software/evidence rescan only; no autonomous physical actuation, unrestricted RF/grid control, or financial transfer.'};console.log(JSON.stringify(result));if(!local.ok)process.exitCode=2})().catch(e=>{console.error(e.message||e);process.exitCode=1})
