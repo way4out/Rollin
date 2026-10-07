@@ -29,6 +29,7 @@ function q24IntegrationSelfTest(){const checks=[["web",true],["server",true],["c
 
 const {recoverMessageAddress}=require('viem');
 const Q24Device=require('./device-integration');
+const {q24ShareQrSvg}=require('./modules/share-qr');
 const PORT=process.env.PORT||10000,ROOT=__dirname;
 const BASE_RPC_URLS=(process.env.BASE_RPC_URLS||process.env.BASE_RPC_URL||'https://mainnet.base.org,https://base-mainnet.g.alchemy.com/public').split(',').map(x=>x.trim()).filter(Boolean);
 const MERCHANT=(process.env.QUANTUM_MERCHANT||'0x13653b6b8bd4b274da565faf6fa894e3418a6d10').toLowerCase();
