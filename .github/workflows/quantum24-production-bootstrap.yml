@@ -1,0 +1,32 @@
+name: Quantum24 production infrastructure bootstrap
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type ACTIVATE to authorize paid Render infrastructure changes"
+        required: true
+        type: string
+
+jobs:
+  activate:
+    if: ${{ inputs.confirm == 'ACTIVATE' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Activate paid Render infrastructure
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_OWNER_ID: tea-dau4r3093c1s73cnsr4g
+          RENDER_SERVICE_ID: srv-db1ot35g1s2s73b6l8kg
+          RENDER_KV_NAME: quantum24-shared
+          RENDER_KV_PLAN: 1g
+          RENDER_SERVICE_PLAN: 0.5c-512mb
+          RENDER_AUTOSCALE_MIN: 2
+          RENDER_AUTOSCALE_MAX: 10
+        run: node quantum24/tools/render-production-bootstrap.mjs
