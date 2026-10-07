@@ -9,6 +9,7 @@
     "healthcheck": "node -e \"fetch('http://127.0.0.1:'+(process.env.PORT||10000)+'/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))\""
   },
   "dependencies": {
-    "viem": "^2.21.54"
+    "viem": "^2.21.54",
+    "qrcode": "^1.5.4"
   }
 }
