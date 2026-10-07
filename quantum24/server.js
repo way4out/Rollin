@@ -790,6 +790,16 @@ function q24FoundationStatus(){
 
 if(p==='/api/foundation/status'&&req.method==='GET')return json(res,200,q24FoundationStatus());
 if(p==='/api/foundation/qscan'&&req.method==='GET'){const limit=Math.min(500,Math.max(1,Number(u.searchParams.get('limit')||100)));return json(res,200,q24FoundationScan(u.searchParams.get('cursor')||'0',limit));}
+
+// Q24 FOUNDATIONAL UNBOUNDED LOGICAL FABRIC v1
+const Q24_FOUNDATION_VERSION='v1';
+const Q24_DOMAINS=['web','pwa','ios','android','qhash','qscan','quantumize','radio','am','fm','digital-radio','tv','satcom','telcom','payments','energy','profit','hardware','data','ai','qr','audit','security','recovery','staking'];
+function q24FoundationNode(domain,i){const id='Q24:'+domain+':'+String(i);return{id,domain,index:i,qhash:qhash(id+'|'+Q24_FOUNDATION_VERSION),logical:true,physicalEvidenceRequired:['hardware','energy','rf','satcom','carrier','payment'].includes(domain)}}
+function q24FoundationScan(cursor='0',limit=100){const start=Math.max(0,Number.parseInt(cursor,10)||0),n=Math.min(500,Math.max(1,Number.parseInt(limit,10)||100)),nodes=[];for(let k=0;k<n;k++){const ordinal=start+k;nodes.push(q24FoundationNode(Q24_DOMAINS[ordinal%Q24_DOMAINS.length],ordinal))}return{ok:true,version:Q24_FOUNDATION_VERSION,scan:'QSCAN',mode:'unbounded-logical-paging',cursor:String(start),nextCursor:String(start+n),limit:n,nodes,more:true,totalLogicalCapacity:'unbounded',qhash:qhash(JSON.stringify(nodes.map(x=>x.qhash))),physicalClaims:'evidence-required',truth:'Logical namespace is unbounded through pagination; this does not assert infinite physical capacity.'}}
+function q24FoundationStatus(){return{ok:true,version:Q24_FOUNDATION_VERSION,domains:Q24_DOMAINS,logicalCapacity:'unbounded',qscan:'paginated deterministic graph',qhash:'SHA-256',quantumize:'live software route',externalConnections:'evidence-gated',physicalClaims:'prove-by-evidence',rfTransmit:'disabled-by-default',financialWrites:'authorization-gated',energySettlement:'meter/interconnection/settlement-gated',aiExecution:'advisory-only',evolving:true,truth:'Software can expand its logical namespace without claiming infinite physical resources.'}}
+
+if(p==='/api/foundation/status'&&req.method==='GET')return json(res,200,q24FoundationStatus());
+if(p==='/api/foundation/qscan'&&req.method==='GET'){const limit=Math.min(500,Math.max(1,Number(u.searchParams.get('limit')||100)));return json(res,200,q24FoundationScan(u.searchParams.get('cursor')||'0',limit));}
 if(p==='/api/value-format'&&req.method==='GET')return json(res,200,q24ValueFormat());
 if(p==='/api/satcom-plus/sync'&&req.method==='POST'){try{const b=await body(req);if(!b||b.authorized!==true)return json(res,403,{ok:false,error:'explicit_authorization_required'});const items=Array.isArray(b.messages)?b.messages:[];if(items.length>100)return json(res,413,{ok:false,error:'batch_limit_100'});const accepted=items.map(x=>q24SatcomMessage('sync',x,{source:String(b.source||'external'),freshnessMs:Number(b.freshnessMs)||0}));return json(res,200,{ok:true,accepted:accepted.length,messages:accepted,batchQHash:qhash(JSON.stringify(accepted)),quantumized:true});}catch(e){return json(res,400,{ok:false,error:e.message})}}
 if(p==='/api/satcom-plus/ack'&&req.method==='POST'){try{const b=await body(req);if(!b||b.authorized!==true)return json(res,403,{ok:false,error:'explicit_authorization_required'});const id=String(b.id||'');const m=satcomQueue.find(x=>x.id===id);if(!m)return json(res,404,{ok:false,error:'message_not_found'});const ack={id,ackQHash:qhash(id+'|'+m.qhash),ackedAt:new Date().toISOString()};satcomAcks.set(id,ack);return json(res,200,{ok:true,ack});}catch(e){return json(res,400,{ok:false,error:e.message})}}
@@ -842,5 +852,7 @@ function q24RadioTvExpansion(){return{ok:true,...Q24_RADIO_TV_EXPANSION,formats:
 // Q24 QUANTUMIZATION CONTROL PLANE v3
 const Q24_QUANTUM_MODE={version:'v3',domains:['Quantum Radio','AM','FM','Digital Radio','TV','SatCom+','Telcom++','QHash','QRNFT','energy','profit','25-token staking'],paths:['push','pull','resonate','hold','dual','hybrid'],aiAssistance:'advisory-only',providerGated:true,physicalTransmission:false,financialExecution:false,truth:'Software orchestration and verification are live-ready; physical broadcast, carrier, satellite, energy and staking execution require authorized providers, hardware, wallets and measured evidence.'};
 function q24Quantumize(){return{ok:true,mode:Q24_QUANTUM_MODE,operations:Object.fromEntries(['scan','search','load','play','pause','push','pull','resonate','hold','dual','hybrid','qhash','qhashVerify','recover','share','receipt','verify','energyCheck','profitCheck','stakeQuote'].map(x=>[x,true])),ai:{consensus:'multi-signal advisory ranking',autoExecution:false},energy:{optimization:true,measuredGenerationRequired:true},profit:{optimization:true,realizedOnly:true},staking:{layers:25,authorizationRequired:true,guaranteedReturns:false},generatedAt:new Date().toISOString()};}
+
+
 
 
