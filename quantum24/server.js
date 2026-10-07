@@ -57,6 +57,7 @@ function q24IntegrationCertification(){
 function q24IntegrationSelfTest(){const checks=[["web",true],["server",true],["certification_registry",typeof q24IntegrationCertification==="function"],["qhash",true],["physical_hardware",false],["rf_transmit",false]];return {ok:checks.every(x=>x[1]||["physical_hardware","rf_transmit"].includes(x[0])),generatedAt:new Date().toISOString(),checks:checks.map(([id,available])=>({id,status:available?"ready":"evidence_required"})),truth:"ready means software path exists; physical capabilities require real authenticated evidence"}}
 
 const {recoverMessageAddress}=require('viem');
+const {researchScan}=require('./research-catalog');
 const Q24Device=require('./device-integration');
 const QWorld=require('./modules/qworld-sync');
 const {q24ShareQrSvg}=require('./modules/share-qr');
@@ -806,6 +807,7 @@ function q24LogicalNode(i){const domain=Q24_QSCAN_DOMAINS[i%Q24_QSCAN_DOMAINS.le
 function q24UnboundedQScan(cursor=0,limit=256){const start=Math.max(0,Number.parseInt(cursor,10)||0),n=Math.min(1000,Math.max(1,Number.parseInt(limit,10)||256));const nodes=Array.from({length:n},(_,k)=>q24LogicalNode(start+k));return{ok:true,scan:'QSCAN',mode:'unbounded-logical-pagination',cursor:String(start),nextCursor:String(start+n),more:true,totalLogicalCapacity:'unbounded',count:n,nodes,qhash:qhash(JSON.stringify(nodes)),physicalClaims:'EVIDENCE_REQUIRED',truth:'Unbounded logical namespace; no claim of infinite physical capacity.'}}
 function q24QVerify(payload){const p=payload||{},nodes=Array.isArray(p.nodes)?p.nodes:[],canonical=nodes.map(x=>({id:String(x.id||''),index:Number(x.index),domain:String(x.domain||'')}));const valid=canonical.length>0&&canonical.every((x,i)=>x.id&&Number.isInteger(x.index)&&x.index>=0&&x.domain);return{ok:valid,status:valid?'VERIFIED':'BLOCKED',qhash:qhash(JSON.stringify(canonical)),verifiedNodes:valid?canonical.length:0,physicalClaims:'NOT_VERIFIED_WITHOUT_EXTERNAL_EVIDENCE',truth:'QVerify validates logical QHash integrity; it does not prove physical hardware, RF, satellite, carrier, energy or payment execution.'}}
 
+if(p==='/api/research/scan'&&req.method==='GET')return json(res,200,researchScan());
 if(p==='/api/qscan'&&req.method==='GET'){const r=q24UnboundedQScan(u.searchParams.get('cursor')||'0',u.searchParams.get('limit')||'256');return json(res,200,r)}
 if(p==='/api/qverify'&&req.method==='POST'){try{return json(res,200,q24QVerify(await body(req)))}catch(e){return json(res,400,{ok:false,error:'qverify_invalid'})}}
 if(p==='/api/quantum/max-scan'&&req.method==='GET')return json(res,200,quantumMaxScan());
