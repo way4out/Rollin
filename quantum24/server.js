@@ -371,7 +371,6 @@ function q24FailureMatrix(){
  return {ok:cases.every(x=>x.actual===x.expected||x.name==='unauthorized wallet'),cases,policy:'no fabricated success; failures remain structured and auditable'};
 }
 
-const server=
 // Q24 EXTERNAL EVIDENCE FABRIC v1 — automatic provider/hardware evidence polling.
 // Software connects only to explicitly configured endpoints. Physical actions remain fail-closed.
 const Q24_EXTERNAL_GATEWAY_URL=process.env.Q24_EXTERNAL_GATEWAY_URL||process.env.HARDWARE_GATEWAY_URL||'https://quantum24-hardware-gateway.onrender.com';
