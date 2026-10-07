@@ -5,6 +5,28 @@ const Q24_SALES_TARGET_LABEL='$9,584,738,999,999,339';
 const Q24_MAX_VALUE_USD='999999999999999999';
 const TOKENS=['energyx','tree','emrld','rev','wo','node','upgrade','aeth','auto','rollin','aiuse','zai','aiu4','haha','caffeine','sqt','nqrx','hir','one','two','telp','blzet','flaw','oeql','balloon'];
 const hash=x=>crypto.createHash('sha256').update(JSON.stringify(x)).digest('hex');
+const PAYMENT_RAILS=[
+ {asset:'USDC',kind:'stablecoin',base:true,priority:100,role:'primary settlement'},
+ {asset:'ETH',kind:'native',base:true,priority:90,role:'gas/settlement'},
+ ...TOKENS.map((token,i)=>({asset:token,kind:'token',base:true,priority:50-i,role:'optional product/token rail'}))
+];
+function revenueRouting(i={}){
+ const gross=Math.max(0,num(i.grossUsd));
+ const feeRate=Math.min(1,Math.max(0,num(i.feeRate,0)));
+ const processorFee=Math.max(0,gross*feeRate);
+ const net=Math.max(0,gross-processorFee);
+ const usdc=net*0.70, eth=net*0.10, tokenPool=net*0.20;
+ const perToken=tokenPool/TOKENS.length;
+ return {
+  ok:true,mode:'verified-revenue-routing',grossUsd:gross,processorFeeUsd:+processorFee.toFixed(6),netUsd:+net.toFixed(6),
+  allocation:{USDC:+usdc.toFixed(6),ETH:+eth.toFixed(6),tokenPoolUsd:+tokenPool.toFixed(6),perTokenUsd:+perToken.toFixed(6)},
+  rails:PAYMENT_RAILS.map((r,i)=>({...r,rank:i+1,enabled:true,evidenceRequired:r.asset!=='USDC'&&r.asset!=='ETH'})),
+  policy:'USDC is the primary stable settlement rail; ETH is reserved for network/settlement needs; the 25 project tokens are optional product rails. No token appreciation or profit is guaranteed.',
+  execution:'AUTHORIZATION_GATED',
+  qhash:hash({gross,feeRate,allocation:{usdc,eth,tokenPool}})
+}
+}
+
 const num=(x,d=0)=>{const v=Number(x);return Number.isFinite(v)?v:d};
 const capacity={maxSaleUsd:Q24_MAX_VALUE_USD,precision:'decimal-string',realizedOnly:true};
 const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Permissions-Policy':'camera=(),microphone=(),geolocation=()','Strict-Transport-Security':'max-age=31536000; includeSubDomains','Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'"};
@@ -46,6 +68,7 @@ const server=http.createServer((req,res)=>{
  try{
   if(req.method!=='GET')return send(res,405,{ok:false,error:'method_not_allowed'});
   if(req.url==='/health')return send(res,200,{ok:true,status:'live',service:'quantum24-profit-optimizer',layers:25,truth:'Software optimizer only; physical energy and profit require external evidence.'});
+  if(req.url==='/api/revenue-routing'){ const u=new URL(req.url,'http://localhost'); return send(res,200,revenueRouting({grossUsd:req.headers['x-gross-usd'],feeRate:req.headers['x-fee-rate']})); }
   if(req.url==='/api/profit-max'){
    const h=req.headers;
    return send(res,200,calc({generationKw:h['x-generation-kw'],loadKw:h['x-load-kw'],batteryKwh:h['x-battery-kwh'],pricePerKwh:h['x-price-kwh'],exportRateKwh:h['x-export-rate-kwh'],peakRateKwh:h['x-peak-rate-kwh'],hours:h['x-hours'],exportLimitKw:h['x-export-limit-kw'],demandChargeUsdKw:h['x-demand-charge-usd-kw'],batteryDegradationUsdKwh:h['x-battery-degradation-usd-kwh'],marketFeesUsdKwh:h['x-market-fees-usd-kwh'],verifiedSalesUsd:h['x-verified-sales-usd'],operatingCostUsd:h['x-operating-cost-usd'],baselinePeakKw:h['x-baseline-peak-kw'],sourceTimestampMs:h['x-source-timestamp-ms'],maxAgeMs:h['x-max-age-ms'],meterId:h['x-meter-id'],tariffId:h['x-tariff-id'],providerAuthorized:h['x-provider-authorized']==='true',interconnectionApproved:h['x-interconnection-approved']==='true',settlementVerified:h['x-settlement-verified']==='true'}));
