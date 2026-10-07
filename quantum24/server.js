@@ -60,12 +60,13 @@ const {recoverMessageAddress}=require('viem');
 const Q24Device=require('./device-integration');
 const QWorld=require('./modules/qworld-sync');
 const {q24ShareQrSvg}=require('./modules/share-qr');
+const Q24Payments=require('./modules/payment-orchestrator');
 const PORT=process.env.PORT||10000,ROOT=__dirname;
 const BASE_RPC_URLS=(process.env.BASE_RPC_URLS||process.env.BASE_RPC_URL||'https://mainnet.base.org,https://base-mainnet.g.alchemy.com/public').split(',').map(x=>x.trim()).filter(Boolean);
 const MERCHANT=(process.env.QUANTUM_MERCHANT||'0x13653b6b8bd4b274da565faf6fa894e3418a6d10').toLowerCase();
 const USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'.toLowerCase();
 const TRANSFER_TOPIC='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a7f5c5a4d1';
-const VERSION='v55-global-fabric';
+const VERSION='v56-payment-orchestration';
 const Q24_LIVE_READINESS_PATH='/api/live-readiness';
 
 // Q24 SALES TARGET v1 — planning/goal value; never treated as realized revenue.
@@ -779,6 +780,11 @@ if(p==='/api/satcom-plus/route'&&req.method==='POST'){try{const b=await body(req
 if(p==='/api/tv/v4q/status'&&req.method==='GET')return json(res,200,q24TvV4QStatus());
 if(p==='/api/quantumize'&&req.method==='GET')return json(res,200,q24Quantumize());
 if(p==='/api/quantum/max-scan'&&req.method==='GET')return json(res,200,quantumMaxScan());
+if(p==='/api/payments/status'&&req.method==='GET')return json(res,200,Q24Payments.status());
+if(p==='/api/payments/order'&&req.method==='POST'){try{const b=await body(req);return json(res,201,Q24Payments.createOrder(b));}catch(e){return json(res,400,{ok:false,error:e.message})}}
+if(p==='/api/payments/settle'&&req.method==='POST'){try{const b=await body(req);return json(res,200,Q24Payments.settlePayment(b));}catch(e){return json(res,400,{ok:false,error:e.message})}}
+if(p==='/api/payments/payout'&&req.method==='POST'){try{const b=await body(req);return json(res,202,Q24Payments.queuePayout(String(b.orderId||''),String(b.bucket||''),String(b.destination||''),Number(b.amountUsd||0)));}catch(e){return json(res,400,{ok:false,error:e.message})}}
+if(p==='/api/payments/reconcile'&&req.method==='POST'){try{const b=await body(req);const result=Q24Payments.settlePayment(b);return json(res,200,{ok:true,settled:true,result,orchestration:Q24Payments.status()});}catch(e){return json(res,400,{ok:false,error:e.message})}}
 if(p==='/api/sales/target'&&req.method==='GET')return json(res,200,q24SalesTargetStatus());
 
 if(p==='/api/owner/challenge'&&req.method==='POST')return json(res,200,{ok:true,...challenge()});
