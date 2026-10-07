@@ -1,6 +1,6 @@
 /* Quantum24 Nexus — high-tech browser game v1 */
 (()=>{const root=document.getElementById('q24-nexus');if(!root)return;
-const c=document.getElementById('q24-nexus-canvas'),x=c.getContext('2d');const hud={lvl:document.getElementById('qn-level'),xp:document.getElementById('qn-xp'),energy:document.getElementById('qn-energy'),score:document.getElementById('qn-score'),scan:document.getElementById('qn-scan'),mission:document.getElementById('qn-mission')};
+const c=document.getElementById('q24-nexus-canvas'),x=c.getContext('2d');const hud={lvl:document.getElementById('qn-level'),xp:document.getElementById('qn-xp'),energy:document.getElementById('qn-energy'),score:document.getElementById('qn-score'),scan:document.getElementById('qn-scan-state'),mission:document.getElementById('qn-mission')};
 let W=0,H=0,dpr=1,last=performance.now(),keys={},touch={x:0,y:0,active:false},state=JSON.parse(localStorage.getItem('q24-nexus-v1')||'null')||{x:0,y:0,z:0,energy:100,xp:0,level:1,score:0,crystals:0,mission:0,pulses:0};
 let stars=Array.from({length:180},()=>({x:Math.random()*2-1,y:Math.random()*2-1,z:Math.random(),s:Math.random()*2+0.4}));let nodes=[];
 function resize(){dpr=Math.min(devicePixelRatio||1,2);W=c.clientWidth;H=c.clientHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)}
