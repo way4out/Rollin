@@ -29,6 +29,7 @@ function q24IntegrationSelfTest(){const checks=[["web",true],["server",true],["c
 
 const {recoverMessageAddress}=require('viem');
 const Q24Device=require('./device-integration');
+const QWorld=require('./modules/qworld-sync');
 const {q24ShareQrSvg}=require('./modules/share-qr');
 const PORT=process.env.PORT||10000,ROOT=__dirname;
 const BASE_RPC_URLS=(process.env.BASE_RPC_URLS||process.env.BASE_RPC_URL||'https://mainnet.base.org,https://base-mainnet.g.alchemy.com/public').split(',').map(x=>x.trim()).filter(Boolean);
@@ -327,6 +328,8 @@ const UNIFIED_CAPABILITIES={qhash:{algorithm:'SHA-256',status:'active'},payments
 function unifiedStatus(){return{ok:true,version:VERSION,network:'Base Mainnet',merchant:MERCHANT,capabilities:UNIFIED_CAPABILITIES,tokens:UNIFIED_TOKENS,externalNetworks:{base:{status:'verified-live',chainId:8453},solana:{status:'configured-unverified',execution:false},robinhood:{status:'configured-unverified',execution:false}},truthRules:{unverifiedAssetsNeverExecute:true,physicalEnergyRequiresMeter:true,stakingRequiresVerifiedPool:true,qrnftRequiresVerifiedMint:true,radioHardwareRequiresProviderOrDevice:true,schumannLiveRequiresSensorOrVerifiedFeed:true,eternalStorageNotClaimed:true},qhash:{algorithm:'SHA-256',integrated:true},scanPlan:{passes:5,currentPass:1,scanMultiplier:'17x^points',directions:['corners-inward','center-outward','random','cross-system']},generatedAt:new Date().toISOString()}}
 function q24DeviceIntegrationStatus(){return{ok:true,contract:Q24Device.capabilitySchema(),devices:Q24Device.listDevices(),providers:['enphase','tesla','shelly','modbus','utility','iso','gateway','twilio','base','usdc','eth'].map(Q24Device.providerStatus)}}
 
+if(p==='/api/world/state'&&req.method==='GET'){const id=String(u.searchParams.get('player')||'guest-'+crypto.randomUUID()).slice(0,120);return json(res,200,QWorld.state(id))}
+if(p==='/api/world/action'&&req.method==='POST'){let b={};try{b=await body(req)}catch(e){return json(res,400,{ok:false,error:'invalid_json'})}const id=String(b.player||'guest-'+crypto.randomUUID()).slice(0,120);return json(res,200,QWorld.action(id,b))}
 if(p==='/api/device-integration/reference-protocol'&&req.method==='GET')return json(res,200,JSON.parse(fs.readFileSync(path.join(ROOT,'reference-accessory','quantum24-gatt-v1.json'),'utf8')));
 if(p==='/api/device-integration/schema'&&req.method==='GET')return json(res,200,Q24Device.capabilitySchema());
 if(p==='/api/device-integration/status'&&req.method==='GET')return json(res,200,q24DeviceIntegrationStatus());
