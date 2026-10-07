@@ -1,4 +1,33 @@
 const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto');
+// Q24 GLOBAL FABRIC — optional Render Key Value (Valkey) + WebSocket shared-state/pub-sub.
+let Redis=null,WebSocket=null;
+try{Redis=require('ioredis')}catch{}
+try{WebSocket=require('ws')}catch{}
+const Q24_SHARED_CHANNEL=process.env.Q24_SHARED_CHANNEL||'quantum24:global';
+const Q24_SHARED_PREFIX=process.env.Q24_SHARED_PREFIX||'quantum24:';
+const q24Shared={enabled:Boolean(process.env.REDIS_URL&&Redis),redis:null,sub:null,wsClients:new Set(),started:false,lastError:null};
+async function q24SharedStart(){
+  if(q24Shared.started||!q24Shared.enabled)return;
+  q24Shared.started=true;
+  try{
+    q24Shared.redis=new Redis(process.env.REDIS_URL,{maxRetriesPerRequest:2,enableReadyCheck:true});
+    q24Shared.sub=new Redis(process.env.REDIS_URL,{maxRetriesPerRequest:2,enableReadyCheck:true});
+    q24Shared.redis.on('error',e=>q24Shared.lastError=String(e.message||e).slice(0,180));
+    q24Shared.sub.on('error',e=>q24Shared.lastError=String(e.message||e).slice(0,180));
+    await q24Shared.sub.subscribe(Q24_SHARED_CHANNEL);
+    q24Shared.sub.on('message',(channel,msg)=>{if(channel!==Q24_SHARED_CHANNEL)return;for(const c of q24Shared.wsClients){if(c.readyState===1)try{c.send(msg)}catch{}}});
+  }catch(e){q24Shared.lastError=String(e.message||e).slice(0,180)}
+}
+async function q24SharedPublish(type,payload){
+  const msg=JSON.stringify({type,payload,at:new Date().toISOString(),qhash:qhash(JSON.stringify({type,payload}))});
+  if(q24Shared.redis)try{await q24Shared.redis.publish(Q24_SHARED_CHANNEL,msg)}catch(e){q24Shared.lastError=String(e.message||e).slice(0,180)}
+  else for(const c of q24Shared.wsClients){if(c.readyState===1)try{c.send(msg)}catch{}}
+  return msg;
+}
+async function q24SharedSet(key,value,ttl=86400){if(!q24Shared.redis)return false;try{await q24Shared.redis.set(Q24_SHARED_PREFIX+key,JSON.stringify(value),'EX',ttl);return true}catch(e){q24Shared.lastError=String(e.message||e).slice(0,180);return false}}
+async function q24SharedGet(key){if(!q24Shared.redis)return null;try{const v=await q24Shared.redis.get(Q24_SHARED_PREFIX+key);return v?JSON.parse(v):null}catch(e){q24Shared.lastError=String(e.message||e).slice(0,180);return null}}
+function q24SharedStatus(){return{configured:Boolean(process.env.REDIS_URL),connected:Boolean(q24Shared.redis&&q24Shared.redis.status==='ready'),pubSub:Boolean(q24Shared.sub&&q24Shared.sub.status==='ready'),webSockets:Boolean(WebSocket),clients:q24Shared.wsClients.size,persistence:'Render Key Value Journal+Snapshot when configured',fallback:'Supabase QHash event vault + local runtime state',lastError:q24Shared.lastError,truth:'Shared durable state is certified only when a persistent Key Value endpoint is actually connected.'};}
+
 // Q24 UNIVERSAL INTEGRATION CERTIFICATION v1
 const Q24_INTEGRATION_CAPABILITIES = [
   {id:"web",label:"Web/PWA",class:"software",evidence:"runtime"},
@@ -36,7 +65,7 @@ const BASE_RPC_URLS=(process.env.BASE_RPC_URLS||process.env.BASE_RPC_URL||'https
 const MERCHANT=(process.env.QUANTUM_MERCHANT||'0x13653b6b8bd4b274da565faf6fa894e3418a6d10').toLowerCase();
 const USDC='0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'.toLowerCase();
 const TRANSFER_TOPIC='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a7f5c5a4d1';
-const VERSION='v54';
+const VERSION='v55-global-fabric';
 const Q24_LIVE_READINESS_PATH='/api/live-readiness';
 
 // Q24 SALES TARGET v1 — planning/goal value; never treated as realized revenue.
@@ -340,7 +369,9 @@ if(p.startsWith('/api/providers/')&&p.endsWith('/status')&&req.method==='GET'){c
 if(p.startsWith('/api/providers/')&&p.includes('/lifecycle/')&&req.method==='POST'){const bits=p.split('/');const name=bits[3],phase=bits[5];let b={};try{b=await body(req)}catch(e){return json(res,400,{ok:false,error:'invalid_json'})}return json(res,200,Q24Device.providerLifecycle(name,phase,b))}
 if(p==='/api/energy/profit-model'&&req.method==='POST'){let b={};try{b=JSON.parse(await body(req))}catch{}const g=Math.max(0,Number(b.generationKw)||0),l=Math.max(0,Number(b.loadKw)||0),price=Math.max(0,Number(b.pricePerKwh)||0),hours=Math.max(0,Number(b.hours)||1),net=g-l,exportKw=Math.max(0,net),importKw=Math.max(0,-net),grossExport=exportKw*price*hours,grossImport=importKw*price*hours,netEnergyRevenue=grossExport-grossImport;const out={ok:true,source:'metered-input-model',generationKw:g,loadKw:l,netKw:net,mode:net>0?'export':net<0?'import':'balanced',hours,pricePerKwh:price,grossExportRevenue:grossExport,grossImportCost:grossImport,netEnergyRevenue,physicalGeneration:false,gridConnected:false,profitStatus:'model-only-until-meter-tariff-and-interconnection-verified',qhash:qhash(JSON.stringify({g,l,price,hours}))};return json(res,200,out)}
 if(p==='/api/consensus/scan'&&req.method==='GET'){const u=unifiedStatus();const checks=[['payments','verified rails only; exact Base tx verification'],['qhash','SHA-256 interaction/data/payment coverage'],['radio','provider/device boundary enforced'],['energy','meter-required accounting; no fabricated generation'],['staking','verified pool required before execution'],['qrnft','verified mint required before issuance'],['schumann','reference 7.83 Hz unless live sensor/feed verified'],['networks','Solana/Robinhood configured-unverified; non-executable'],['mobile','responsive/PWA surface'],['ui','rainbow/low-strain controls; no guarantee of zero eye strain']];const results=checks.map(([area,rule])=>({area,rule,status:area==='payments'||area==='qhash'||area==='mobile'||area==='ui'?'active-gated':'boundary-gated'}));const digest=qhash(JSON.stringify({version:VERSION,pass:1,scan:'17x^points',results,timestamp:new Date().toISOString()}));return json(res,200,{ok:true,consensus:'implementation consensus from current GitHub + Render state',pass:'1/5',scan:'4x^corners-inward-outward-random-cross-system',amplification:'17x^points',results,qhash:digest,nextPass:['replace prompt-based energy inputs with accessible forms','add verified QRNFT provider/mint execution path','add verified staking pool execution path','harden QHash ingestion behind server/Edge Function auth','add explicit provider adapters for external networks after independent verification']})}
-if(p==='/api/global-status'&&req.method==='GET'){return json(res,200,{ok:true,status:'LIVE',version:VERSION,serverTime:new Date().toISOString(),userAccess:'universal-guest',capabilities:q24IntegrationCertification(),selfTest:q24IntegrationSelfTest(),unified:unifiedStatus(),value:q24ValueFormat(),world:QWorld.state(String(u.searchParams.get('player')||'guest')),truth:'Software/runtime status is live; external financial, telecom, RF, satellite, energy and hardware capabilities remain evidence-gated.'})}
+if(p==='/api/global-status'&&req.method==='GET'){return json(res,200,{ok:true,status:'LIVE',version:VERSION,serverTime:new Date().toISOString(),userAccess:'universal-guest',sharedFabric:q24SharedStatus(),websocketPath:'/ws',capabilities:q24IntegrationCertification(),selfTest:q24IntegrationSelfTest(),unified:unifiedStatus(),value:q24ValueFormat(),world:QWorld.state(String(u.searchParams.get('player')||'guest')),truth:'Software/runtime status is live; shared durable multi-instance state requires connected persistent Key Value; external financial, telecom, RF, satellite, energy and hardware capabilities remain evidence-gated.'})}
+if(p==='/api/global-heartbeat'&&req.method==='POST'){try{const b=await body(req),player=String(b.player||'guest').slice(0,160),state={player,deviceId:String(b.deviceId||'').slice(0,160),locale:String(b.locale||'').slice(0,40),timeZone:String(b.timeZone||'').slice(0,80),lastSeen:new Date().toISOString()};const durable=await q24SharedSet('presence:'+player,state,120);await q24SharedPublish('presence',state);return json(res,200,{ok:true,player,durable,sharedFabric:q24SharedStatus()})}catch(e){return json(res,400,{ok:false,error:'heartbeat_rejected'})}}
+if(p==='/api/global-presence'&&req.method==='GET'){const player=String(u.searchParams.get('player')||'guest').slice(0,160),state=await q24SharedGet('presence:'+player);return json(res,200,{ok:true,player,state,durable:Boolean(state),sharedFabric:q24SharedStatus()})}
 if(p==='/api/unified/status'&&req.method==='GET')return json(res,200,unifiedStatus());
 if(p==='/api/unified/quote'&&req.method==='POST'){try{const b=await body(req),kind=String(b.kind||'');const allowed=['qrnft','staking','energyx','token','radio'];if(!allowed.includes(kind))return json(res,400,{ok:false,error:'unsupported_capability'});const status=unifiedStatus().capabilities[kind==='token'?'tokens':kind];const q={ok:true,kind,status,executable:kind==='qrnft'?false:kind==='staking'?false:kind==='energyx'?false:true,reason:kind==='qrnft'?'verified mint provider required':kind==='staking'?'verified staking pool required':kind==='energyx'?'physical meter/grid integration required':'use verified payment rails'};q.qhash=qhash(JSON.stringify(canonicalValue(q)));return json(res,200,q)}catch(e){return json(res,400,{ok:false,error:'quote_rejected'})}}
 if(p==='/api/qhash-quantum-scan'&&req.method==='GET'){const domains=['identity','render','data','interaction','ai-readable','pricing','payment','history','sharing','accessibility','validation','recovery','performance','security','expansion','energy','grid','tokens','radio','media','communications','mobile','web','library','audit'];const tokens=['energyx','tree','emrld','rev','wo','node','upgrade','aeth','auto','rollin','aiuse','zai','aiu4','haha','caffeine','sqt','nqrx','hir','one','two','telp','blzet','flaw','oeql','balloon'];let current=qhash(JSON.stringify({version:VERSION,domains,tokens}));const rounds=[];for(let pass=1;pass<=101;pass++){current=qhash(pass+'|'+current+'|'+qhash(JSON.stringify({pass,domains,tokens})));rounds.push({pass,qhash:current});}const qhashCount=125,totalChecks=qhashCount*101;return json(res,200,{ok:true,status:'complete',scan:'QHash×Quantum 101x^',qhashCount,tokenCount:tokens.length,domainCount:domains.length,rounds:101,totalChecks,passedChecks:totalChecks,consensus:{method:'deterministic integrity consensus',score:1,decision:'safe observable upgrades only',aiProvider:process.env.OPENAI_API_KEY?'available':'not_configured'},finalQHash:current,liveTruth:{financialGain:'verified realized values only',energyGain:'physical meter/provider values only',tokenValue:'provider/chain data only',guaranteedProfit:false,softwareCreatesEnergy:false},generatedAt:new Date().toISOString()})}
@@ -768,6 +799,10 @@ process.once('SIGTERM',()=>shutdown('SIGTERM'));
 process.once('SIGINT',()=>shutdown('SIGINT'));
 process.on('uncaughtException',e=>{console.error('Quantum24 uncaughtException',e);shutdown('uncaughtException')});
 process.on('unhandledRejection',e=>{console.error('Quantum24 unhandledRejection',e);shutdown('unhandledRejection')});
+
+q24SharedStart().catch(()=>{});
+if(WebSocket){const q24WSS=new WebSocket.Server({server,path:'/ws'});q24WSS.on('connection',async(ws,req)=>{q24Shared.wsClients.add(ws);ws.isAlive=true;ws.on('pong',()=>ws.isAlive=true);ws.on('message',async raw=>{try{const m=JSON.parse(String(raw||'{}'));const player=String(m.player||'guest').slice(0,160);const event={player,eventType:String(m.type||'sync').slice(0,80),data:m.data&&typeof m.data==='object'?m.data:{},at:new Date().toISOString()};await q24SharedSet('session:'+player,event,86400);await q24SharedPublish('event',event)}catch{}});ws.on('close',()=>q24Shared.wsClients.delete(ws));ws.send(JSON.stringify({type:'connected',at:new Date().toISOString(),sharedFabric:q24SharedStatus()}));});setInterval(()=>{for(const ws of q24Shared.wsClients){if(ws.isAlive===false){try{ws.terminate()}catch{};q24Shared.wsClients.delete(ws);continue}ws.isAlive=false;try{ws.ping()}catch{}}},30000);}
+
 server.listen(PORT,'0.0.0.0',()=>console.log('Quantum24 '+VERSION+' listening on '+PORT));
 // Q24 RADIO/TV UNIVERSAL EXPANSION v2
 const Q24_RADIO_TV_EXPANSION={version:'v2',domains:['AM','FM','Digital Radio','TV','SatCom+','Telcom++'],paths:['push','pull','resonate','hold','dual','hybrid'],qhash:true,providerGated:true,physicalTransmission:false,truth:'Catalog/control-plane expansion only; broadcast, satellite and carrier transmission require authorized providers, spectrum and hardware.'};
