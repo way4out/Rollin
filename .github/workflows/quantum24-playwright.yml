@@ -1,0 +1,35 @@
+name: Quantum24 live browser sweep
+on:
+  push:
+    branches: [quantum24-production]
+    paths:
+      - 'quantum24/**'
+      - '.github/workflows/quantum24-playwright.yml'
+  workflow_dispatch:
+jobs:
+  browser-sweep:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: quantum24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Playwright
+        run: npm install --no-save @playwright/test@1.55.0
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Sweep live Quantum24
+        run: npx playwright test
+        env:
+          Q24_BASE_URL: https://quantum24-gains.onrender.com
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantum24-playwright-report
+          path: |
+            quantum24/playwright-report
+            quantum24/test-results
