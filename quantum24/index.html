@@ -928,4 +928,59 @@ async function q24RadioTvOp(op){document.getElementById('quantumRadioState').tex
 
 <section class="card" id="q24-next-ceiling"><h2>Q-NEXT • Command Deck</h2><div class="q24-hud"><div class="q24-stat"><span>World</span><b>LIVE</b></div><div class="q24-stat"><span>QHash</span><b>SHA-256</b></div><div class="q24-stat"><span>Base</span><b>8453</b></div><div class="q24-stat"><span>Safety</span><b>GATED</b></div></div><div class="q24-spectrum"></div><div class="q24-actions"><button type="button" class="primary" id="q24-scan">Quantum Scan</button><button type="button" id="q24-share">Share Run</button><button type="button" id="q24-proof">Show Proof</button></div><pre class="receipt" id="q24-proofout" hidden></pre></section>
 <script>(function(){const scan=document.getElementById('q24-scan'),share=document.getElementById('q24-share'),proof=document.getElementById('q24-proof'),out=document.getElementById('q24-proofout');if(!scan)return;scan.onclick=()=>{out.hidden=false;out.textContent='Q-SWEEP COMPLETE\nUI: READY\nWORLD: PLAYABLE\nQHASH: SHA-256\nBASE: MAINNET 8453\nPAYMENT: USER APPROVAL REQUIRED\nPHYSICAL/RF: EVIDENCE GATED';};share.onclick=async()=>{const data={title:'Quantum24',url:location.href,text:'Play Quantum24 — Q-MAX Live World'};try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(location.href);share.textContent='Link Copied';}}catch{}};proof.onclick=()=>{out.hidden=false;out.textContent='LIVE SOFTWARE PROOF\n'+location.href+'\nChecked: '+new Date().toISOString()+'\nFinancial writes and physical actions remain authorization/evidence gated.'};})();</script>
-</body></html>
+<!-- Q24 MAX VERIFIABLE GAME INFRASTRUCTURE v1 -->
+<style>
+#q24-verifiable{display:grid;gap:10px}
+.q24-vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.q24-vcell{padding:10px;border:1px solid var(--q-line,#334153);border-radius:12px;background:rgba(19,29,44,.58)}
+.q24-vcell b{display:block;font-size:1rem}.q24-vcell small{color:var(--q-muted,#9eabc0)}
+.q24-vactions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:620px){.q24-vgrid,.q24-vactions{grid-template-columns:repeat(2,1fr)}}
+</style>
+<section class="card" id="q24-verifiable" aria-labelledby="q24-verifiable-title">
+<h2 id="q24-verifiable-title">Q-MAX • Maximum Verifiable Game Infrastructure</h2>
+<div class="q24-vgrid" aria-live="polite">
+<div class="q24-vcell"><b id="q24GameState">READY</b><small>game state</small></div>
+<div class="q24-vcell"><b id="q24ReplayState">0</b><small>replay events</small></div>
+<div class="q24-vcell"><b id="q24HashState">—</b><small>run QHash</small></div>
+<div class="q24-vcell"><b id="q24FpsState">—</b><small>runtime FPS</small></div>
+</div>
+<div class="q24-vactions">
+<button type="button" class="primary" id="q24VerifyRun">Verify Run</button>
+<button type="button" id="q24ReplayRun">Replay Summary</button>
+<button type="button" id="q24ExportRun">Export Proof</button>
+<button type="button" id="q24ResetProof">Clear Proof</button>
+</div>
+<pre class="receipt" id="q24GameProof" aria-live="polite">Ready. Verification is local-runtime evidence; it does not claim physical, financial, RF, carrier or satellite execution.</pre>
+</section>
+<script>
+(()=>{if(window.__q24VerifiableGame)return;window.__q24VerifiableGame=1;
+const $=id=>document.getElementById(id),proof=$('q24GameProof'),hashEl=$('q24HashState'),replayEl=$('q24ReplayState'),fpsEl=$('q24FpsState'),stateEl=$('q24GameState');
+if(!proof)return;
+let events=[],frames=0,last=performance.now(),fps=0,proofHash='';
+const enc=new TextEncoder();
+async function sha(s){if(crypto?.subtle){const b=await crypto.subtle.digest('SHA-256',enc.encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}return 'unavailable'}
+function canonical(v){if(v===null||typeof v!=='object')return v;if(Array.isArray(v))return v.map(canonical);return Object.keys(v).sort().reduce((o,k)=>(o[k]=canonical(v[k]),o),{})}
+function capture(type,data={}){events.push({i:events.length+1,type,data:canonical(data),t:Date.now()});if(events.length>1000)events=events.slice(-1000);replayEl.textContent=events.length}
+function bind(){
+ const root=$('q24-max-game');if(!root)return;
+ const observer=new MutationObserver(()=>{capture('game_dom_state',{level:$('q24-lvl')?.textContent,xp:$('q24-xp')?.textContent,energy:$('q24-energy')?.textContent,discoveries:$('q24-discoveries')?.textContent})});
+ observer.observe(root,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['style']});
+ root.addEventListener('click',e=>{const b=e.target.closest('button');if(b)capture('control',{id:b.id||b.dataset.qmove||b.textContent.trim().slice(0,40)})},{passive:true});
+ addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(e.key))capture('input',{key:e.key})},{passive:true});
+ capture('boot',{version:'Q-MAX-V1',url:location.href});
+}
+async function verify(){
+ stateEl.textContent='VERIFYING';capture('verify_start');
+ const payload={schema:'Q24-GAME-PROOF-V1',version:'Q-MAX-V1',url:location.href,events,runtime:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio||1,online:navigator.onLine,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches},createdAt:new Date().toISOString()};
+ proofHash=await sha(JSON.stringify(canonical(payload)));hashEl.textContent=proofHash.slice(0,12)+'…';stateEl.textContent=proofHash==='unavailable'?'REVIEW':'VERIFIED';
+ proof.textContent=JSON.stringify({...payload,qhash:proofHash,truth:'Verified browser/game-runtime evidence only; external providers, payments, physical hardware and RF remain separately gated.'},null,2);
+ capture('verify_complete',{qhash:proofHash});
+}
+$('q24VerifyRun').onclick=verify;
+$('q24ReplayRun').onclick=()=>{proof.textContent=JSON.stringify({schema:'Q24-REPLAY-SUMMARY-V1',events:events.length,first:events.slice(0,5),last:events.slice(-10),truth:'Replay summary is derived from this browser session.'},null,2)};
+$('q24ExportRun').onclick=()=>{const blob=new Blob([proof.textContent],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='quantum24-qmax-proof.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$('q24ResetProof').onclick=()=>{events=[];proofHash='';replayEl.textContent='0';hashEl.textContent='—';stateEl.textContent='READY';proof.textContent='Proof cleared. Start a new verifiable run.'};
+function tick(t){frames++;if(t-last>=1000){fps=Math.round(frames*1000/(t-last));fpsEl.textContent=fps;frames=0;last=t}}function loop(t){tick(t);requestAnimationFrame(loop)}requestAnimationFrame(loop);bind();
+})();
+</script></body></html>
