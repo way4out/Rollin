@@ -10,6 +10,6 @@ function scan(){
  const mismatches=all.filter(x=>!server.has(x)&&!external.includes(x));
  const points=[];for(const axis of AXES)for(const domain of DOMAINS)for(let ref=0;ref<5;ref++)points.push({axis,domain,ref,qhash:sha(axis+'|'+domain+'|'+ref)});
  let q=sha(JSON.stringify(files)+JSON.stringify(mismatches));const rounds=[];for(let pass=1;pass<=4;pass++){for(const p of points)q=sha(pass+'|'+q+'|'+p.qhash);rounds.push({pass,qhash:q})}
- return{ok:mismatches.length===0,status:mismatches.length?'MISMATCHES_FOUND':'CLEAN',scanModel:'5x reference-point matrix',axes:AXES,domains,referencePointsPerAxisDomain:5,logicalReferencePoints:points.length,passes:4,fileCount:files.length,routeMismatches:mismatches,externalRoutes:all.filter(x=>external.includes(x)),rounds,finalQHash:q,truth:'Software/source integrity only. Physical devices, RF, satellite, energy and financial settlement remain evidence-gated.'}
+ return{ok:mismatches.length===0,status:mismatches.length?'MISMATCHES_FOUND':'CLEAN',scanModel:'5x reference-point matrix',axes:AXES,domains:DOMAINS,referencePointsPerAxisDomain:5,logicalReferencePoints:points.length,passes:4,fileCount:files.length,routeMismatches:mismatches,externalRoutes:all.filter(x=>external.includes(x)),rounds,finalQHash:q,truth:'Software/source integrity only. Physical devices, RF, satellite, energy and financial settlement remain evidence-gated.'}
 }
 if(require.main===module){console.log(JSON.stringify(scan()))}else module.exports={scan};
